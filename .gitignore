@@ -1,0 +1,7 @@
+# 临时核对/自检文件（不进版本库）
+_verify/
+urls.txt
+codes.txt
+check-report.txt
+check.js
+genverify.js
