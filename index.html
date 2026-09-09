@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>英国九校本科录取要求速查 · 2027 Entry</title>
+<meta name="description" content="牛津、剑桥、帝国理工、LSE、UCL、KCL、曼彻斯特、爱丁堡、华威九所大学热门专业本科公开录取要求（A-level / IB / 入学笔试）检索与导出，供申请学生与指导老师参考。面向 2027 年 9 月入学。">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#app">跳至正文</a>
+
+<header class="masthead">
+  <div class="wrap masthead-grid">
+    <div class="brand">
+      <p class="eyebrow">UNDERGRADUATE ADMISSIONS REFERENCE · 2027 ENTRY</p>
+      <h1>英国九校 · 本科录取要求速查</h1>
+      <p class="lede">依据九所大学官网课程页公布的本科录取条件整理：牛津、剑桥、帝国理工、伦敦政治经济学院（LSE）、伦敦大学学院（UCL）、伦敦国王学院（KCL）、曼彻斯特、爱丁堡、华威。成绩以各校公开口径为准，口径差异见「术语与口径说明」。</p>
+    </div>
+    <dl class="stats">
+      <div><dt>收录大学</dt><dd><span id="stat-schools">9</span></dd></div>
+      <div><dt>专业条目</dt><dd><span id="stat-programs">0</span></dd></div>
+      <div><dt>学科方向</dt><dd>6</dd></div>
+      <div><dt>信息核对</dt><dd>2026-09</dd></div>
+    </dl>
+  </div>
+  <div class="wrap">
+    <details class="manual">
+      <summary><span class="man-title">术语与口径说明</span><span class="man-sub">typical offer / 最低要求 / 录取区间 / 剑桥学院制 / 入学笔试 / 课程归属</span></summary>
+      <div class="manual-body" id="manual-body"></div>
+    </details>
+  </div>
+</header>
+
+<main class="wrap" id="app">
+  <section class="controls" aria-label="检索与筛选">
+    <div class="ctl-row">
+      <label class="search">
+        <span class="visually-hidden">检索专业</span>
+        <input id="q" type="search" placeholder="检索专业名称、大学或关键词（如：统计学、MORSE、ESAT）" autocomplete="off">
+      </label>
+      <div class="seg" id="view-toggle" role="group" aria-label="视图">
+        <button type="button" class="seg-btn" data-v="table" aria-pressed="true">表格</button>
+        <button type="button" class="seg-btn" data-v="card" aria-pressed="false">卡片</button>
+      </div>
+      <label class="groupby">分组方式
+        <select id="groupby">
+          <option value="school" selected>按大学</option>
+          <option value="dir">按学科方向</option>
+        </select>
+      </label>
+      <button class="btn btn-ghost" id="reset" type="button">重置条件</button>
+      <button class="btn btn-primary" id="export" type="button" title="将当前筛选结果导出为 CSV，可用 Excel 打开">导出当前结果（CSV）</button>
+    </div>
+
+    <p class="quickstart" id="quickstart">使用步骤：① 在下方选择学科方向与大学；② 切换表格 / 卡片视图与分组方式；③ 查看后点「导出当前结果」存档，或点行内「官网」链接核对原文。</p>
+
+    <div class="ctl-filters">
+      <div class="ctl-block">
+        <div class="ctl-label">学科方向</div>
+        <div class="chips" id="filters-dir" role="group" aria-label="按学科方向筛选"></div>
+      </div>
+      <div class="ctl-block">
+        <div class="ctl-label">大学
+          <span class="mini-acts"><button class="mini" id="school-all" type="button">全选</button><button class="mini" id="school-none" type="button">清空</button></span>
+        </div>
+        <div class="chips" id="filters-school" role="group" aria-label="按大学筛选"></div>
+      </div>
+      <div class="ctl-block">
+        <div class="ctl-label">入学笔试</div>
+        <div class="chips" id="filters-test" role="group" aria-label="按入学笔试筛选"></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="resultline"><span id="result-count-label" role="status" aria-live="polite"><strong id="result-count">0</strong> 项<span id="result-context"></span></span></p>
+
+  <p class="scope-row"><button id="scope-clear" class="linklike" type="button" hidden>清除当前条件</button></p>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div id="groups" class="groups"></div>
+
+  <div id="empty" class="empty" hidden>
+    <h2>未检索到符合条件的专业</h2>
+    <p>可放宽学科方向或入学笔试条件。若需了解某大学在此方向未单独开设的课程，请参阅下列说明：</p>
+    <p id="empty-gaps" class="gaps"></p>
+  </div>
+
+  <footer class="foot">
+    <p><strong>数据依据</strong>：各大学官网课程页面公开信息，逐条核对。核对时间 2026 年 9 月，面向 2027 年 9 月入学（2026–27 申请季）；各校条件随申请季更新，正式申请前请以官网最新页面为准。</p>
+    <p>本页所列成绩为公开口径（typical / 最低 / 区间 / 学院制标准），不构成录取承诺；牛津、剑桥的录取还取决于入学笔试、面试与预估成绩。</p>
+    <p class="meta-line">UK Admissions Reference · 版本 uk-apply 1.3 · 纯静态页面，可离线使用</p>
+  </footer>
+</main>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
