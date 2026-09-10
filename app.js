@@ -97,7 +97,7 @@
       { t: '英语要求（IELTS / TOEFL / IGCSE-ESL）', items: [
         '**逐专业 or 校级**：帝国、UCL、KCL、曼大、爱丁堡、华威 6 校按专业（或档位）发布，表中标「逐专业」；点该行的「英语要求详情」（手机可直接点开）即可看 IELTS / TOEFL 旧新制 / GCSE / IGCSE-ESL / IB / GCE 全部值；牛津、剑桥、LSE 为**全校统一**，标「校级」。',
         '**常见量级**：牛津 7.5（各项 7.0）｜剑桥 7.5｜LSE 7.0（各项 7.0）｜帝国 Standard 6.5 / Higher 7.0｜UCL Level 1–5（6.5 → 8.0）｜KCL Band B 7.0 / Band D 6.5｜曼大 6.0–7.0｜爱丁堡 6.5（商科 7.0）｜华威 Band A 6.0 / C 7.0。',
-        '**IGCSE ESL**：不接受＝牛津、帝国、LSE、华威、KCL（EFL）；有条件＝曼大（仅 CAIE/Oxford AQA/Edexcel 三家，6.5 档需 Grade 8）、UCL（最高只认到 Level 2）；接受＝爱丁堡。First Language / EFL 各校基本都接受。',
+        '**IGCSE 英语分两类**：EFL（First Language）与 ESL（Second Language）——**各校口径不同，故表内分两行列出**。EFL：各校基本都接受（多为 C/4 或 B/6）。ESL：不接受＝牛津、帝国、LSE、华威；有条件＝曼大（仅 CAIE/Oxford AQA/Edexcel 三家，6.5 档需 Grade 8）、UCL（最高只认到 Level 2）；接受＝KCL（需 A/7）、爱丁堡、港大、港科大、城大、浸会。',
         '**TOEFL 分制变更**：2026-01-21 起改 1–6 分制，表内同时给旧制与新制两个值；多数学校不接受拼分（MyBest / One Skill Retake），且要求同一次考试出分。',
         '**豁免**：在英语国家完成学位或达到指定年限的英语授课，可申请豁免（各校规定不同，以官网为准）。'
       ]},
@@ -213,7 +213,8 @@
       return {
         scope: 'prog', tag: rec.tag || '逐专业', band: rec.band || '',
         ielts: rec.ielts || rule.ielts, toeflOld: rec.toeflOld || rule.toeflOld, toeflNew: rec.toeflNew || rule.toeflNew,
-        gcse: rec.gcse || rule.gcse, igcseESL: rec.igcseESL || rule.igcseESL,
+        gcse: rec.gcse || rule.gcse, igcseEFL: rec.igcseEFL || rule.igcseEFL,
+        igcseESL: rec.igcseESL || rule.igcseESL,
         eslFlag: rec.eslFlag || rule.eslFlag || 'unknown',
         ibEnglish: rec.ibEnglish || rule.ibEnglish, gceEnglish: rule.gceEnglish,
         note: rec.extra || '', rule: rule
@@ -222,7 +223,7 @@
     return {
       scope: 'school', tag: '校级', band: '',
       ielts: rule.ielts, toeflOld: rule.toeflOld, toeflNew: rule.toeflNew,
-      gcse: rule.gcse, igcseESL: rule.igcseESL, ibEnglish: rule.ibEnglish, gceEnglish: rule.gceEnglish,
+      gcse: rule.gcse, igcseEFL: rule.igcseEFL, igcseESL: rule.igcseESL, ibEnglish: rule.ibEnglish, gceEnglish: rule.gceEnglish,
       eslFlag: rule.eslFlag || 'unknown',
       note: rule.note || '', rule: rule
     };
@@ -262,7 +263,8 @@
       li('TOEFL 旧制', e.toeflOld || '—') +
       li('TOEFL 新制', e.toeflNew || '—') +
       li('GCSE', e.gcse || '—') +
-      li('IGCSE-ESL', e.igcseESL || '—') +
+      li('IGCSE-EFL（第一语言）', e.igcseEFL || '—') +
+      li('IGCSE-ESL（第二语言）', e.igcseESL || '—') +
       li('IB English', e.ibEnglish || '—') +
       li('GCE English', e.gceEnglish || '—') +
       (e.note ? li('备注', e.note) : '') +
