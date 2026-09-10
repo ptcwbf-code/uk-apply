@@ -365,3 +365,12 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .eng-more li>span{flex:1}
 .eng-more a{color:var(--navy-2,#1e4a80);text-decoration:underline;text-underline-offset:2px}
 .card .eng-more{margin-top:2px}
+
+/* 闭合状态下必须隐藏明细（作者样式对 <details> 子元素的 display 声明会盖过浏览器默认隐藏） */
+.eng-more:not([open]) > ul{display:none}
+.eng-more:not([open]) > *:not(summary){display:none}
+.qs-more:not([open]) > *:not(summary){display:none}
+.eng-cell .eng-1,.eng-cell .eng-2{display:block;height:auto}
+/* QS 列表更紧凑（取消折叠后条目变多，控制高度） */
+.tbl .t-qs{line-height:1.35}
+.tbl .t-qs .qz{font-size:11px}
