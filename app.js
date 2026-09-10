@@ -95,7 +95,7 @@
         '苏格兰（爱丁堡）本科一般四年，经管授 MA (Hons)（本科荣誉学位）；MEng/MSci/MMath/MBiochem 为本科直申本硕贯通。'
       ]},
       { t: '英语要求（IELTS / TOEFL / IGCSE-ESL）', items: [
-        '**逐专业 or 校级**：帝国、UCL、KCL、曼大、爱丁堡、华威 6 校按专业（或档位）发布，表中标「逐专业」，悬停可见 IELTS / TOEFL 旧新制 / GCSE / IGCSE-ESL / IB / GCE 全部值；牛津、剑桥、LSE 为**全校统一**，标「校级」。',
+        '**逐专业 or 校级**：帝国、UCL、KCL、曼大、爱丁堡、华威 6 校按专业（或档位）发布，表中标「逐专业」；点该行的「看英语要求详情」（手机可直接点开）即可看 IELTS / TOEFL 旧新制 / GCSE / IGCSE-ESL / IB / GCE 全部值；牛津、剑桥、LSE 为**全校统一**，标「校级」。',
         '**常见量级**：牛津 7.5（各项 7.0）｜剑桥 7.5｜LSE 7.0（各项 7.0）｜帝国 Standard 6.5 / Higher 7.0｜UCL Level 1–5（6.5 → 8.0）｜KCL Band B 7.0 / Band D 6.5｜曼大 6.0–7.0｜爱丁堡 6.5（商科 7.0）｜华威 Band A 6.0 / C 7.0。',
         '**IGCSE ESL**：不接受＝牛津、帝国、LSE、华威、KCL（EFL）；有条件＝曼大（仅 CAIE/Oxford AQA/Edexcel 三家，6.5 档需 Grade 8）、UCL（最高只认到 Level 2）；接受＝爱丁堡。First Language / EFL 各校基本都接受。',
         '**TOEFL 分制变更**：2026-01-21 起改 1–6 分制，表内同时给旧制与新制两个值；多数学校不接受拼分（MyBest / One Skill Retake），且要求同一次考试出分。',
@@ -152,7 +152,7 @@
       ]},
       { t: '英语要求（多为校级统一）', items: [
         '**港校一般不按专业设英语线**（表中标「校级」）：港大 IELTS 6.5 / TOEFL 93；港中文 6.0 / 80（**例外：环球商业 GBS 要 7.0 / 100**）；港科大 6.0 / 80；城大 6.5 / 79；理大 6.0 / 80；浸会 6.0 / 79；教大 6.0 / 80；岭南 6.0 / 79。',
-        '**可用中学英语成绩替代**：GCE / GCSE English、IGCSE English、IB English 均可（等级要求见悬停）；**城大**明确要求 GCSE English Language / Literature C/4，或 IELTS 6.5 / TOEFL 79。',
+        '**可用中学英语成绩替代**：GCE / GCSE English、IGCSE English、IB English 均可（等级要求点「看英语要求详情」查看）；**城大**明确要求 GCSE English Language / Literature C/4，或 IELTS 6.5 / TOEFL 79。',
         '**IGCSE ESL**：港大、港科大、城大、浸会**接受但要求更高**（多为 B / 5 级）；港中文、理大、教大、岭南官网未区分 ESL/EFL。',
         '**同一次考试**：港大等明确要求 IELTS / TOEFL 在同一次考试达到、成绩两年内有效；不接受 IELTS Indicator / One Skill Retake 等。'
       ]},
@@ -214,6 +214,7 @@
         scope: 'prog', tag: rec.tag || '逐专业', band: rec.band || '',
         ielts: rec.ielts || rule.ielts, toeflOld: rec.toeflOld || rule.toeflOld, toeflNew: rec.toeflNew || rule.toeflNew,
         gcse: rec.gcse || rule.gcse, igcseESL: rec.igcseESL || rule.igcseESL,
+        eslFlag: rec.eslFlag || rule.eslFlag || 'unknown',
         ibEnglish: rec.ibEnglish || rule.ibEnglish, gceEnglish: rule.gceEnglish,
         note: rec.extra || '', rule: rule
       };
@@ -222,6 +223,7 @@
       scope: 'school', tag: '校级', band: '',
       ielts: rule.ielts, toeflOld: rule.toeflOld, toeflNew: rule.toeflNew,
       gcse: rule.gcse, igcseESL: rule.igcseESL, ibEnglish: rule.ibEnglish, gceEnglish: rule.gceEnglish,
+      eslFlag: rule.eslFlag || 'unknown',
       note: rule.note || '', rule: rule
     };
   }
@@ -239,12 +241,36 @@
     var b = (e.toeflNew && e.toeflNew !== '—') ? String(e.toeflNew).split('（')[0] : '—';
     return a + ' / ' + b;
   }
+  // IGCSE-ESL 是否接受——各校差异最大、最影响可申性，摘要行直接显示，不藏在悬停里
+  var ESL_LABEL = { no: 'ESL 不接受', cond: 'ESL 有条件', yes: 'ESL 接受', unknown: 'ESL 未列' };
+  function engESLTag(e) { return (e && ESL_LABEL[e.eslFlag]) || ''; }
+  // 可展开的完整明细（手机可点、键盘可开；不依赖鼠标悬停）
+  function engDetailHTML(e, rule) {
+    if (!e) return '';
+    function li(k, v) { return v ? '<li><b>' + k + '</b><span>' + esc(v) + '</span></li>' : ''; }
+    var url = (rule && rule.url) || (e.rule && e.rule.url) || '';
+    return '<details class="eng-more"><summary>看英语要求详情</summary><ul>' +
+      li('口径', e.tag + (e.band ? '（' + e.band + '）' : '')) +
+      li('IELTS', e.ielts || '—') +
+      li('TOEFL 旧制', e.toeflOld || '—') +
+      li('TOEFL 新制', e.toeflNew || '—') +
+      li('GCSE', e.gcse || '—') +
+      li('IGCSE-ESL', e.igcseESL || '—') +
+      li('IB English', e.ibEnglish || '—') +
+      li('GCE English', e.gceEnglish || '—') +
+      (e.note ? li('备注', e.note) : '') +
+      (url ? '<li><b>来源</b><span><a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">学校英语要求官方页 ↗</a></span></li>' : '') +
+      '</ul></details>';
+  }
   function engCellHTML(e) {
     if (!e) return '<td>—</td>';
-    return '<td class="eng-cell" title="' + esc(engTitle(e)) + '">' +
+    var esl = engESLTag(e);
+    return '<td class="eng-cell">' +
       '<span class="eng-1">IELTS ' + esc(e.ielts || '—') + '</span>' +
       '<span class="eng-2">TOEFL ' + esc(engPair(e)) + (e.band ? ' · ' + esc(e.band) : '') + '</span>' +
-      '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span></td>';
+      (esl ? '<span class="eng-esl' + (esl === 'ESL 不接受' ? ' no' : '') + '">' + esc(esl) + '</span>' : '') +
+      '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' +
+      engDetailHTML(e) + '</td>';
   }
 
   var manualRendered = false;
@@ -388,11 +414,13 @@
         '<div><div class="k">IB（45 分制）</div>' + scoreHTML(p.ib, 'v') +
         (p.ibNote ? '<div class="score-note">' + esc(p.ibNote) + '</div>' : '') + '</div>' +
       '</div>' +
-      (e ? '<div class="eng-line" title="' + esc(engTitle(e)) + '">' +
-        '<span class="eng-k">英语</span>' +
+      (e ? '<div class="eng-block">' +
+        '<div class="eng-line"><span class="eng-k">英语</span>' +
         '<span class="eng-v">IELTS ' + esc(e.ielts || '—') + ' ｜ TOEFL ' + esc(engPair(e)) + '</span>' +
         (e.band ? '<span class="eng-band">' + esc(e.band) + '</span>' : '') +
-        '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span></div>' : '') +
+        (engESLTag(e) ? '<span class="eng-esl' + (engESLTag(e) === 'ESL 不接受' ? ' no' : '') + '">' + esc(engESLTag(e)) + '</span>' : '') +
+        '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span></div>' +
+        engDetailHTML(e) + '</div>' : '') +
       '<div class="badges">' + offerBadge(p) + testBadge(p) + qsBadge(p) + cmpButton(key + idx) + '</div>' +
       (p.note ? '<p class="card-note">' + fmtBold(p.note) + '</p>' : '') +
       '<a class="go" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' +
