@@ -95,7 +95,7 @@
         '苏格兰（爱丁堡）本科一般四年，经管授 MA (Hons)（本科荣誉学位）；MEng/MSci/MMath/MBiochem 为本科直申本硕贯通。'
       ]},
       { t: '英语要求（IELTS / TOEFL / IGCSE-ESL）', items: [
-        '**逐专业 or 校级**：帝国、UCL、KCL、曼大、爱丁堡、华威 6 校按专业（或档位）发布，表中标「逐专业」；点该行的「看英语要求详情」（手机可直接点开）即可看 IELTS / TOEFL 旧新制 / GCSE / IGCSE-ESL / IB / GCE 全部值；牛津、剑桥、LSE 为**全校统一**，标「校级」。',
+        '**逐专业 or 校级**：帝国、UCL、KCL、曼大、爱丁堡、华威 6 校按专业（或档位）发布，表中标「逐专业」；点该行的「英语要求详情」（手机可直接点开）即可看 IELTS / TOEFL 旧新制 / GCSE / IGCSE-ESL / IB / GCE 全部值；牛津、剑桥、LSE 为**全校统一**，标「校级」。',
         '**常见量级**：牛津 7.5（各项 7.0）｜剑桥 7.5｜LSE 7.0（各项 7.0）｜帝国 Standard 6.5 / Higher 7.0｜UCL Level 1–5（6.5 → 8.0）｜KCL Band B 7.0 / Band D 6.5｜曼大 6.0–7.0｜爱丁堡 6.5（商科 7.0）｜华威 Band A 6.0 / C 7.0。',
         '**IGCSE ESL**：不接受＝牛津、帝国、LSE、华威、KCL（EFL）；有条件＝曼大（仅 CAIE/Oxford AQA/Edexcel 三家，6.5 档需 Grade 8）、UCL（最高只认到 Level 2）；接受＝爱丁堡。First Language / EFL 各校基本都接受。',
         '**TOEFL 分制变更**：2026-01-21 起改 1–6 分制，表内同时给旧制与新制两个值；多数学校不接受拼分（MyBest / One Skill Retake），且要求同一次考试出分。',
@@ -103,7 +103,7 @@
       ]},
       { t: 'QS 学科排名（参考）', items: [
         '表内「QS2026 学科」列与卡片上的「QS2026 #N」标签，来自 **QS World University Rankings by Subject 2026**（各校在该学科的名次；含并列 "=4" 与区间 "51–100"）。',
-        '一个专业对应的学科榜由其**学科方向**决定（如「工程」对应机械 / 电子电气 / 土木 / 化工四个榜）；表内最多列 3 个（按名次优先后排列），其余点「另 N 项」展开查看（点开即可，触屏同样可用）。',
+        '一个专业对应的学科榜由其**学科方向**决定（如「工程」对应机械 / 电子电气 / 土木 / 化工四个榜）；表内**全部列出**（按名次优先后排列，最多 9 个）。',
         '「—」表示本站收录的学科里**没有**与该专业对应的榜，或该校在该学科**未进入前 200 名**（本站只收录前 200 名）。',
         '排名只反映研究声誉与产出，与本科录取难度**不是同一回事**，仅作选校参考。'
       ]}
@@ -152,14 +152,14 @@
       ]},
       { t: '英语要求（多为校级统一）', items: [
         '**港校一般不按专业设英语线**（表中标「校级」）：港大 IELTS 6.5 / TOEFL 93；港中文 6.0 / 80（**例外：环球商业 GBS 要 7.0 / 100**）；港科大 6.0 / 80；城大 6.5 / 79；理大 6.0 / 80；浸会 6.0 / 79；教大 6.0 / 80；岭南 6.0 / 79。',
-        '**可用中学英语成绩替代**：GCE / GCSE English、IGCSE English、IB English 均可（等级要求点「看英语要求详情」查看）；**城大**明确要求 GCSE English Language / Literature C/4，或 IELTS 6.5 / TOEFL 79。',
+        '**可用中学英语成绩替代**：GCE / GCSE English、IGCSE English、IB English 均可（等级要求点「英语要求详情」查看）；**城大**明确要求 GCSE English Language / Literature C/4，或 IELTS 6.5 / TOEFL 79。',
         '**IGCSE ESL**：港大、港科大、城大、浸会**接受但要求更高**（多为 B / 5 级）；港中文、理大、教大、岭南官网未区分 ESL/EFL。',
         '**同一次考试**：港大等明确要求 IELTS / TOEFL 在同一次考试达到、成绩两年内有效；不接受 IELTS Indicator / One Skill Retake 等。'
       ]},
       { t: 'QS 学科排名（参考）', items: [
         '表内「QS2026 学科」列与卡片上的「QS2026 #N」标签，来自 **QS World University Rankings by Subject 2026**。',
         '港校强项举例：**港大牙医 #2、KCL 牙医 #5；港中文护理 =6、KCL 护理 #2、曼大护理 =10；港大数据科学与AI #18、港科大 #25、港中文 #28**。',
-        '一个专业对应的学科榜由其**学科方向**决定（如「人文·语言」对应历史 / 英语 / 现代语言 / 语言学 / 哲学）；表内最多列 3 个（按名次优先后排列），其余点「另 N 项」展开查看（点开即可，触屏同样可用）。',
+        '一个专业对应的学科榜由其**学科方向**决定（如「人文·语言」对应历史 / 英语 / 现代语言 / 语言学 / 哲学）；表内**全部列出**（按名次优先后排列，最多 9 个）。',
         '「—」表示本站收录的学科里**没有**与该专业对应的榜，或该校在该学科**未进入前 200 名**（本站只收录前 200 名；200 名之后为区间段，未收录，不代表该校完全未上榜）。',
         '排名反映的是研究声誉与产出，与本科录取难度**不是同一回事**，仅作选校参考。'
       ]}
@@ -235,11 +235,18 @@
       '；IB English ' + (e.ibEnglish || '—') + '；GCE English ' + (e.gceEnglish || '—') +
       (e.note ? '；备注 ' + e.note : '');
   }
-  function engPair(e) { // TOEFL 旧/新 简写
+  function engIeltsShort(e) { // 摘要行只放分数本身，括注（单项要求等）留给详情
+    if (!e || !e.ielts) return '—';
+    return String(e.ielts).split('（')[0].trim();
+  }
+  function engPair(e) { // TOEFL 旧/新 简写（非数字的说明性文案一律折成“未列”，全文见详情）
     if (!e) return '—';
-    var a = (e.toeflOld && e.toeflOld !== '—') ? String(e.toeflOld).split('（')[0] : '—';
-    var b = (e.toeflNew && e.toeflNew !== '—') ? String(e.toeflNew).split('（')[0] : '—';
-    return a + ' / ' + b;
+    function brief(v) {
+      if (!v || v === '—') return '—';
+      var t = String(v).split('（')[0].trim();
+      return /^[0-9]/.test(t) ? t : '未列';
+    }
+    return brief(e.toeflOld) + ' / ' + brief(e.toeflNew);
   }
   // IGCSE-ESL 是否接受——各校差异最大、最影响可申性，摘要行直接显示，不藏在悬停里
   var ESL_LABEL = { no: 'ESL 不接受', cond: 'ESL 有条件', yes: 'ESL 接受', unknown: 'ESL 未列' };
@@ -249,7 +256,7 @@
     if (!e) return '';
     function li(k, v) { return v ? '<li><b>' + k + '</b><span>' + esc(v) + '</span></li>' : ''; }
     var url = (rule && rule.url) || (e.rule && e.rule.url) || '';
-    return '<details class="eng-more"><summary>看英语要求详情</summary><ul>' +
+    return '<details class="eng-more"><summary>英语要求详情</summary><ul>' +
       li('口径', e.tag + (e.band ? '（' + e.band + '）' : '')) +
       li('IELTS', e.ielts || '—') +
       li('TOEFL 旧制', e.toeflOld || '—') +
@@ -266,7 +273,7 @@
     if (!e) return '<td>—</td>';
     var esl = engESLTag(e);
     return '<td class="eng-cell">' +
-      '<span class="eng-1">IELTS ' + esc(e.ielts || '—') + '</span>' +
+      '<span class="eng-1">IELTS ' + esc(engIeltsShort(e)) + '</span>' +
       '<span class="eng-2">TOEFL ' + esc(engPair(e)) + (e.band ? ' · ' + esc(e.band) : '') + '</span>' +
       (esl ? '<span class="eng-esl' + (esl === 'ESL 不接受' ? ' no' : '') + '">' + esc(esl) + '</span>' : '') +
       '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' +
@@ -389,14 +396,7 @@
       return '<div class="t-qs"><span class="qn">#' + esc(x.rank) + '</span>' +
         '<span class="qz">' + esc(QS_SUBJECT_ZH[x.sub] || x.sub) + '</span></div>';
     }
-    var show = list.slice(0, 3);
-    var html = show.map(row).join('');
-    if (list.length > show.length) {
-      // 剩余学科用可点开的 details 展开（触屏可用、不依赖悬停）
-      html += '<details class="qs-more"><summary>另 ' + (list.length - show.length) + ' 项</summary>' +
-        list.slice(show.length).map(row).join('') + '</details>';
-    }
-    return html;
+    return list.map(row).join('');
   }
 
   // ── 卡片视图 ──
@@ -416,7 +416,7 @@
       '</div>' +
       (e ? '<div class="eng-block">' +
         '<div class="eng-line"><span class="eng-k">英语</span>' +
-        '<span class="eng-v">IELTS ' + esc(e.ielts || '—') + ' ｜ TOEFL ' + esc(engPair(e)) + '</span>' +
+        '<span class="eng-v">IELTS ' + esc(engIeltsShort(e)) + ' ｜ TOEFL ' + esc(engPair(e)) + '</span>' +
         (e.band ? '<span class="eng-band">' + esc(e.band) + '</span>' : '') +
         (engESLTag(e) ? '<span class="eng-esl' + (engESLTag(e) === 'ESL 不接受' ? ' no' : '') + '">' + esc(engESLTag(e)) + '</span>' : '') +
         '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span></div>' +
