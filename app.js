@@ -94,6 +94,13 @@
       { t: '学制与学位', items: [
         '苏格兰（爱丁堡）本科一般四年，经管授 MA (Hons)（本科荣誉学位）；MEng/MSci/MMath/MBiochem 为本科直申本硕贯通。'
       ]},
+      { t: '英语要求（IELTS / TOEFL / IGCSE-ESL）', items: [
+        '**逐专业 or 校级**：帝国、UCL、KCL、曼大、爱丁堡、华威 6 校按专业（或档位）发布，表中标「逐专业」，悬停可见 IELTS / TOEFL 旧新制 / GCSE / IGCSE-ESL / IB / GCE 全部值；牛津、剑桥、LSE 为**全校统一**，标「校级」。',
+        '**常见量级**：牛津 7.5（各项 7.0）｜剑桥 7.5｜LSE 7.0（各项 7.0）｜帝国 Standard 6.5 / Higher 7.0｜UCL Level 1–5（6.5 → 8.0）｜KCL Band B 7.0 / Band D 6.5｜曼大 6.0–7.0｜爱丁堡 6.5（商科 7.0）｜华威 Band A 6.0 / C 7.0。',
+        '**IGCSE ESL**：不接受＝牛津、帝国、LSE、华威、KCL（EFL）；有条件＝曼大（仅 CAIE/Oxford AQA/Edexcel 三家，6.5 档需 Grade 8）、UCL（最高只认到 Level 2）；接受＝爱丁堡。First Language / EFL 各校基本都接受。',
+        '**TOEFL 分制变更**：2026-01-21 起改 1–6 分制，表内同时给旧制与新制两个值；多数学校不接受拼分（MyBest / One Skill Retake），且要求同一次考试出分。',
+        '**豁免**：在英语国家完成学位或达到指定年限的英语授课，可申请豁免（各校规定不同，以官网为准）。'
+      ]},
       { t: 'QS 学科排名（参考）', items: [
         '表内「QS2026 学科」列与卡片上的「QS2026 #N」标签，来自 **QS World University Rankings by Subject 2026**（各校在该学科的名次；含并列 "=4" 与区间 "51–100"）。',
         '一个专业对应的学科榜由其**学科方向**决定（如「工程」对应机械 / 电子电气 / 土木 / 化工四个榜）；表内最多列 3 个（按名次优先后排列），其余点「另 N 项」展开查看（点开即可，触屏同样可用）。',
@@ -143,6 +150,12 @@
         '本板块数据为 **2026 入学轮次**各校官网公布的最新要求（2027 轮更新前可参考）；分数来源均为各校官网：港大公布参考下限，港中文公布参考收分区间，其余各校只给大学通用门槛与科目要求。',
         '港中文参考分数由 2023–2025 年录取统计得出，官网明确“仅供参考、不用于预测录取机会”。'
       ]},
+      { t: '英语要求（多为校级统一）', items: [
+        '**港校一般不按专业设英语线**（表中标「校级」）：港大 IELTS 6.5 / TOEFL 93；港中文 6.0 / 80（**例外：环球商业 GBS 要 7.0 / 100**）；港科大 6.0 / 80；城大 6.5 / 79；理大 6.0 / 80；浸会 6.0 / 79；教大 6.0 / 80；岭南 6.0 / 79。',
+        '**可用中学英语成绩替代**：GCE / GCSE English、IGCSE English、IB English 均可（等级要求见悬停）；**城大**明确要求 GCSE English Language / Literature C/4，或 IELTS 6.5 / TOEFL 79。',
+        '**IGCSE ESL**：港大、港科大、城大、浸会**接受但要求更高**（多为 B / 5 级）；港中文、理大、教大、岭南官网未区分 ESL/EFL。',
+        '**同一次考试**：港大等明确要求 IELTS / TOEFL 在同一次考试达到、成绩两年内有效；不接受 IELTS Indicator / One Skill Retake 等。'
+      ]},
       { t: 'QS 学科排名（参考）', items: [
         '表内「QS2026 学科」列与卡片上的「QS2026 #N」标签，来自 **QS World University Rankings by Subject 2026**。',
         '港校强项举例：**港大牙医 #2、KCL 牙医 #5；港中文护理 =6、KCL 护理 #2、曼大护理 =10；港大数据科学与AI #18、港科大 #25、港中文 #28**。',
@@ -155,6 +168,29 @@
 
   // ── 数据集索引 ──
   var schoolByKey = {}, schoolCount = {}, dirCount = {};
+  var engByRegion = { uk: [], hk: [] };
+  var engSchoolByKey = {};   // 两板块合并的学校索引（对比清单跨板块取英语用）
+  // 专业名归一化：去掉末尾括注，便于与英语数据集的英文名匹配
+  function engKey(en) { return String(en || '').replace(/\s*[（(].*?[)）]\s*$/, '').trim().toLowerCase(); }
+  function engBuildFor(reg) {
+    var used = {}, out = [];
+    reg.programs.forEach(function (p) {
+      engSchoolByKey[p.school] = p.school;
+      var rec = null;
+      var list = (typeof ENG_PROG !== 'undefined' && ENG_PROG[p.school]) ? ENG_PROG[p.school] : null;
+      if (list && list.length) {
+        var matches = list.filter(function (x) { return engKey(x.en) === engKey(p.en); });
+        if (matches.length) {
+          var k = p.school + '|' + engKey(p.en);
+          var n = used[k] || 0;
+          rec = matches[Math.min(n, matches.length - 1)];
+          used[k] = n + 1;
+        }
+      }
+      out.push(rec);
+    });
+    return out;
+  }
   function buildIndex() {
     schoolByKey = {}; schoolCount = {}; dirCount = {};
     cur.schools.forEach(function (s) { schoolByKey[s.key] = s; });
@@ -162,6 +198,53 @@
       schoolCount[p.school] = (schoolCount[p.school] || 0) + 1;
       p.dirs.forEach(function (d) { dirCount[d] = (dirCount[d] || 0) + 1; });
     });
+    engByRegion.uk = engBuildFor(REGIONS.uk);
+    engByRegion.hk = engBuildFor(REGIONS.hk);
+  }
+  // 取某专业的英语要求：优先逐专业记录，否则回落到该校校级口径
+  function engFor(idx, regCode) {
+    var code = regCode || (cur === REGIONS.hk ? 'hk' : 'uk');
+    var reg = REGIONS[code];
+    var p = reg.programs[idx];
+    var rule = (typeof ENG_RULES !== 'undefined' && p) ? ENG_RULES[p.school] : null;
+    if (!rule) return null;
+    var rec = engByRegion[code] ? engByRegion[code][idx] : null;
+    if (rec) {
+      return {
+        scope: 'prog', tag: rec.tag || '逐专业', band: rec.band || '',
+        ielts: rec.ielts || rule.ielts, toeflOld: rec.toeflOld || rule.toeflOld, toeflNew: rec.toeflNew || rule.toeflNew,
+        gcse: rec.gcse || rule.gcse, igcseESL: rec.igcseESL || rule.igcseESL,
+        ibEnglish: rec.ibEnglish || rule.ibEnglish, gceEnglish: rule.gceEnglish,
+        note: rec.extra || '', rule: rule
+      };
+    }
+    return {
+      scope: 'school', tag: '校级', band: '',
+      ielts: rule.ielts, toeflOld: rule.toeflOld, toeflNew: rule.toeflNew,
+      gcse: rule.gcse, igcseESL: rule.igcseESL, ibEnglish: rule.ibEnglish, gceEnglish: rule.gceEnglish,
+      note: rule.note || '', rule: rule
+    };
+  }
+  function engTitle(e) {
+    if (!e) return '';
+    return '英语要求（' + e.tag + '）：IELTS ' + (e.ielts || '—') +
+      '；TOEFL 旧制 ' + (e.toeflOld || '—') + '；TOEFL 新制 ' + (e.toeflNew || '—') +
+      '；GCSE ' + (e.gcse || '—') + '；IGCSE-ESL ' + (e.igcseESL || '—') +
+      '；IB English ' + (e.ibEnglish || '—') + '；GCE English ' + (e.gceEnglish || '—') +
+      (e.note ? '；备注 ' + e.note : '');
+  }
+  function engPair(e) { // TOEFL 旧/新 简写
+    if (!e) return '—';
+    var a = (e.toeflOld && e.toeflOld !== '—') ? String(e.toeflOld).split('（')[0] : '—';
+    var b = (e.toeflNew && e.toeflNew !== '—') ? String(e.toeflNew).split('（')[0] : '—';
+    return a + ' / ' + b;
+  }
+  function engCellHTML(e) {
+    if (!e) return '<td>—</td>';
+    return '<td class="eng-cell" title="' + esc(engTitle(e)) + '">' +
+      '<span class="eng-1">IELTS ' + esc(e.ielts || '—') + '</span>' +
+      '<span class="eng-2">TOEFL ' + esc(engPair(e)) + (e.band ? ' · ' + esc(e.band) : '') + '</span>' +
+      '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span></td>';
   }
 
   var manualRendered = false;
@@ -294,6 +377,7 @@
   function cardHTML(p, idx, showSchool) {
     var s = schoolByKey[p.school];
     var key = cur === REGIONS.hk ? 'hk:' : 'uk:';
+    var e = engFor(idx);
     return '<article class="card" style="--school:' + s.color + '">' +
       (showSchool ? '<div class="school-line">' + esc(s.zh) + ' · ' + esc(s.en) + '</div>' : '') +
       '<h3><span class="zh">' + esc(p.zh) + '</span><span class="en">' + esc(p.en) + '</span></h3>' +
@@ -304,6 +388,11 @@
         '<div><div class="k">IB（45 分制）</div>' + scoreHTML(p.ib, 'v') +
         (p.ibNote ? '<div class="score-note">' + esc(p.ibNote) + '</div>' : '') + '</div>' +
       '</div>' +
+      (e ? '<div class="eng-line" title="' + esc(engTitle(e)) + '">' +
+        '<span class="eng-k">英语</span>' +
+        '<span class="eng-v">IELTS ' + esc(e.ielts || '—') + ' ｜ TOEFL ' + esc(engPair(e)) + '</span>' +
+        (e.band ? '<span class="eng-band">' + esc(e.band) + '</span>' : '') +
+        '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span></div>' : '') +
       '<div class="badges">' + offerBadge(p) + testBadge(p) + qsBadge(p) + cmpButton(key + idx) + '</div>' +
       (p.note ? '<p class="card-note">' + fmtBold(p.note) + '</p>' : '') +
       '<a class="go" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' +
@@ -335,6 +424,8 @@
       var testCol = p.test
         ? '<span class="t-test" title="' + (TEST_TITLE[p.test] || '') + '">' + esc(p.test) + '</span>'
         : '<span class="t-test no">—</span>';
+      var e = engFor(idxMap[i]);
+      var engCol = engCellHTML(e);
       return '<tr>' + lead +
         (showSchool ? '<td><span class="lead-line">' + esc(p.zh) + '</span><span class="sub-line">' + esc(p.en) + '</span></td>' : '') +
         '<td>' + esc(p.degree) + '</td>' +
@@ -342,14 +433,15 @@
         '<td>' + scoreHTML(p.ib, 'g g-ib') + '</td>' +
         '<td>' + testCol + '</td>' +
         '<td><span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(OFFER_ZH[p.offer] || p.offer) + '</span></td>' +
+        engCol +
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
         '<td>' + cmpButton(key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a></td>' +
       '</tr>';
     }).join('');
     return '<section class="group" style="--school:' + (meta.color || '#9aa3b8') + '">' + headHTML(items, meta) +
-      '<div class="tblwrap"><table class="tbl"><colgroup><col style="width:230px"><col style="width:120px"><col style="width:150px"><col style="width:150px"><col style="width:90px"><col style="width:90px"><col style="width:150px"><col><col style="width:150px"></colgroup>' +
-      '<thead><tr>' + schoolTh + '<th scope="col">专业</th><th scope="col">代码/学制</th><th scope="col">' + 'A-Level' + '</th><th scope="col">IB（45 分制）</th><th scope="col">' + testHead + '</th><th scope="col">成绩口径</th><th scope="col">QS2026 学科</th><th scope="col">备注</th><th scope="col">操作</th></tr></thead>' +
+      '<div class="tblwrap"><table class="tbl"><colgroup><col style="width:230px"><col style="width:120px"><col style="width:150px"><col style="width:150px"><col style="width:90px"><col style="width:90px"><col style="width:160px"><col style="width:150px"><col><col style="width:150px"></colgroup>' +
+      '<thead><tr>' + schoolTh + '<th scope="col">专业</th><th scope="col">代码/学制</th><th scope="col">' + 'A-Level' + '</th><th scope="col">IB（45 分制）</th><th scope="col">' + testHead + '</th><th scope="col">成绩口径</th><th scope="col">英语要求</th><th scope="col">QS2026 学科</th><th scope="col">备注</th><th scope="col">操作</th></tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div></section>';
   }
 
@@ -527,12 +619,13 @@
         '<td>' + scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '') + '</td>' +
         '<td>' + scoreHTML(p.ib, 'g g-ib') + '</td>' +
         '<td>' + test + '</td><td><span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(offer) + '</span></td>' +
+        engCellHTML(engFor(parts.idx, isHK ? 'hk' : 'uk')) +
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
         '<td><a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a></td></tr>';
     }).join('');
     $('#compare-table').innerHTML =
-      '<thead><tr><th scope="col">大学</th><th scope="col">专业</th><th scope="col">代码/学制</th><th scope="col">' + 'A-Level' + '</th><th scope="col">IB（45 分制）</th><th scope="col">笔试 / 面试</th><th scope="col">成绩口径</th><th scope="col">QS2026 学科</th><th scope="col">备注</th><th scope="col">官网</th></tr></thead><tbody>' + rows + '</tbody>';
+      '<thead><tr><th scope="col">大学</th><th scope="col">专业</th><th scope="col">代码/学制</th><th scope="col">' + 'A-Level' + '</th><th scope="col">IB（45 分制）</th><th scope="col">笔试 / 面试</th><th scope="col">成绩口径</th><th scope="col">英语要求</th><th scope="col">QS2026 学科</th><th scope="col">备注</th><th scope="col">官网</th></tr></thead><tbody>' + rows + '</tbody>';
     clearTimeout(closeCompare._t);
     var ov = $('#compare-overlay');
     ov.hidden = false;
@@ -552,14 +645,18 @@
   $('#export').addEventListener('click', function () {
     var list = filtered();
     if (!list.length) { alert('当前没有可导出的条目，请先调整筛选条件。'); return; }
-    var head = ['体系', '大学', 'School', '学科方向', '专业（中文）', '专业（英文）', '代码/学制', cur === REGIONS.uk ? 'A-level' : 'A-Level', '科目/要求', 'IB', cur.testHead, '成绩口径', 'QS2026 学科排名', '备注', '官网链接'];
+    var head = ['体系', '大学', 'School', '学科方向', '专业（中文）', '专业（英文）', '代码/学制', cur === REGIONS.uk ? 'A-level' : 'A-Level', '科目/要求', 'IB', cur.testHead, '成绩口径',
+      '英语-IELTS', '英语-TOEFL旧', '英语-TOEFL新', '英语-GCSE', '英语-IGCSE-ESL', '英语-IB', '英语-GCE', '英语口径',
+      'QS2026 学科排名', '备注', '官网链接'];
     var rows = [head];
-    list.forEach(function (p) {
+    list.forEach(function (p, i) {
+      var e = engFor(cur.programs.indexOf(p)) || {};
       rows.push([
         cur.name, schoolByKey[p.school].zh, schoolByKey[p.school].en,
         p.dirs.map(function (d) { return cur.dirs[d].zh; }).join('、'),
         p.zh, p.en, p.degree, p.alevel, p.alevelNote || '', p.ib || '',
         p.test || '—', OFFER_ZH[p.offer] || p.offer,
+        (e.ielts || ''), (e.toeflOld || ''), (e.toeflNew || ''), (e.gcse || ''), (e.igcseESL || ''), (e.ibEnglish || ''), (e.gceEnglish || ''), (e.tag || ''),
         qsListFor(p).map(function (x) { return (QS_SUBJECT_ZH[x.sub] || x.sub) + ' #' + x.rank; }).join('；') || '—',
         p.note || '', p.url
       ]);
