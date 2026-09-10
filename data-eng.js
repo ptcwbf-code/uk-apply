@@ -12,7 +12,8 @@ const ENG_RULES = {
   "gcse": "GCSE English Language 6（Home 学生 5；医学 6）",
   "igcseESL": "只认 IGCSE First Language B/6；ESL 不接受",
   "ibEnglish": "IB English A 4；English B HL 5 / SL 6",
-  "gceEnglish": "GCE AS/A-Level English Language C（两档同分）"
+  "gceEnglish": "GCE AS/A-Level English Language C（两档同分）",
+  "eslFlag": "no"
  },
  "ucl": {
   "zh": "UCL",
@@ -22,7 +23,8 @@ const ENG_RULES = {
   "gcse": "随 Level 变化（见各行）",
   "igcseESL": "EFL 可覆盖全部 Level；ESL 最高到 Level 2（个别考局到 L3），L3–L5 明确 Not acceptable",
   "ibEnglish": "随 Level 变化（L1/L2 A 5；L3 A 6；L4 A HL6 或 SL7；L5 A HL7、B 不接受）",
-  "gceEnglish": "官网认可清单未列 A-Level English"
+  "gceEnglish": "官网认可清单未列 A-Level English",
+  "eslFlag": "cond"
  },
  "kcl": {
   "zh": "KCL",
@@ -32,7 +34,8 @@ const ENG_RULES = {
   "gcse": "GCSE English Language B/6（三档相同）",
   "igcseESL": "接受 ESL 但需 A/7；First Language 仅需 B/6；EFL 不接受",
   "ibEnglish": "IB English A HL4/SL5；English B HL5/SL7（三档相同）",
-  "gceEnglish": "GCE AS/A-Level English Language C（三档相同）"
+  "gceEnglish": "GCE AS/A-Level English Language C（三档相同）",
+  "eslFlag": "yes"
  },
  "manchester": {
   "zh": "曼大",
@@ -42,7 +45,8 @@ const ENG_RULES = {
   "gcse": "随专业（4/C 或 B/6，见各行）",
   "igcseESL": "有条件接受 ESL：仅限 CAIE / Oxford AQA / Pearson Edexcel 三家；6.5 档课程需 Grade 8、6.0 档需 Grade 7、7.0 档课程不接受",
   "ibEnglish": "MYP / IB English 按官网 GCSE 换算表对应",
-  "gceEnglish": "官网未列 A-Level English"
+  "gceEnglish": "官网未列 A-Level English",
+  "eslFlag": "cond"
  },
  "edinburgh": {
   "zh": "爱丁堡",
@@ -52,7 +56,8 @@ const ENG_RULES = {
   "gcse": "GCSE English at C/4",
   "igcseESL": "第一或第二语言均接受；不接受 IGCSE/CIE English (as an Additional Language) 与 IGCSE English Literature",
   "ibEnglish": "IB English A/B：SL 5 或 HL 4（ab initio 不接受）",
-  "gceEnglish": "AS/A-Level English（Language / Lang&Lit / Literature）C"
+  "gceEnglish": "AS/A-Level English（Language / Lang&Lit / Literature）C",
+  "eslFlag": "yes"
  },
  "warwick": {
   "zh": "华威",
@@ -62,7 +67,8 @@ const ENG_RULES = {
   "gcse": "GCSE English Language：Band A/B 需 4/C；Band C 需 6/B",
   "igcseESL": "ESL 不接受；First Language：A/B 档 C、C 档 B",
   "ibEnglish": "IB English A HL4/SL4（C 档 HL5/SL5）；English B HL4/SL5（C 档 HL5/SL6）",
-  "gceEnglish": "GCE A-Level English C（C 档 B）"
+  "gceEnglish": "GCE A-Level English C（C 档 B）",
+  "eslFlag": "no"
  },
  "oxford": {
   "zh": "牛津",
@@ -76,7 +82,8 @@ const ENG_RULES = {
   "ibEnglish": "English B HL 7",
   "gceEnglish": "官网未列 A-Level English",
   "note": "全校统一一档，不分专业；条件须在 offer 当年 7 月 31 日前达到，不接受拼分。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "no"
  },
  "cambridge": {
   "zh": "剑桥",
@@ -90,7 +97,8 @@ const ENG_RULES = {
   "ibEnglish": "官网未列",
   "gceEnglish": "官网未列",
   "note": "全校统一；最终语言条件由发出 offer 的学院个案决定。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "unknown"
  },
  "lse": {
   "zh": "LSE",
@@ -104,7 +112,8 @@ const ENG_RULES = {
   "ibEnglish": "English A：HL 任意 / SL ≥6；English B：HL 7",
   "gceEnglish": "官网未列 A-Level English",
   "note": "本科全校统一（Standard/Higher 分档仅适用于研究生）。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "no"
  },
  "hku": {
   "zh": "港大",
@@ -118,7 +127,8 @@ const ENG_RULES = {
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/AL English Language 或 Literature C",
   "note": "全校统一（官方 API 逐个专业比对，55 个专业取值完全一致）。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "yes"
  },
  "cuhk": {
   "zh": "港中文",
@@ -132,7 +142,8 @@ const ENG_RULES = {
   "ibEnglish": "IB English 4（官网未区分 A/B）",
   "gceEnglish": "GCE-AL/AS English E",
   "note": "全校统一；例外：环球商业 GBS 需 IELTS 7.0 / TOEFL 100。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "unknown"
  },
  "hkust": {
   "zh": "港科大",
@@ -146,7 +157,8 @@ const ENG_RULES = {
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一；专业维度不含英语要求（官方接口确认）。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "yes"
  },
  "cityu": {
   "zh": "城大",
@@ -160,7 +172,8 @@ const ENG_RULES = {
   "ibEnglish": "English B SL 5",
   "gceEnglish": "GCE AL/IAL 或 AS/IAS English E",
   "note": "全校统一；例外：BBA Business Economics 需 IELTS 7.0（法律 LLB、兽医学 BVM 等未收录专业亦有更高要求）。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "yes"
  },
  "polyu": {
   "zh": "理大",
@@ -174,7 +187,8 @@ const ENG_RULES = {
   "ibEnglish": "IB English 或 English Literature（HL/SL）4",
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一；抽查 10 个专业（含护理/物理治疗/放射/医疗化验）均无更高门槛。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "unknown"
  },
  "hkbu": {
   "zh": "浸会",
@@ -188,7 +202,8 @@ const ENG_RULES = {
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一；中医/中药/中文类专业另需中文资历（非英语要求）。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "yes"
  },
  "eduhk": {
   "zh": "教育",
@@ -202,7 +217,8 @@ const ENG_RULES = {
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一；英文教育双学位（JS8004）有“高英语水平”定性要求，但官网未设更高分数。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "unknown"
  },
  "lingnan": {
   "zh": "岭南",
@@ -216,7 +232,8 @@ const ENG_RULES = {
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一（国际资格版与本地 non-JUPAS 版同一张表）。",
-  "gcseNote": ""
+  "gcseNote": "",
+  "eslFlag": "unknown"
  }
 };
 
@@ -231,7 +248,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Biochemistry",
@@ -242,7 +260,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Biological Sciences",
@@ -253,7 +272,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Chemistry",
@@ -264,7 +284,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Physics",
@@ -275,7 +296,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Aeronautical Engineering",
@@ -286,7 +308,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Mechanical Engineering",
@@ -297,7 +320,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Electrical and Electronic Engineering",
@@ -308,7 +332,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Civil Engineering",
@@ -319,7 +344,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Chemical Engineering",
@@ -330,7 +356,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Design Engineering",
@@ -341,7 +368,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Biomedical Engineering",
@@ -352,7 +380,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Economics, Finance and Data Science",
@@ -363,7 +392,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Computing (MEng)",
@@ -374,7 +404,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Computing (BEng)",
@@ -385,7 +416,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Mathematics",
@@ -396,7 +428,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   }
  ],
  "ucl": [
@@ -409,7 +442,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 6 + Distinction",
    "igcseESL": "ESL 不接受",
    "ibEnglish": "IB English A：HL6 或 SL7；English B HL7",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Biochemistry",
@@ -420,7 +454,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 6 + Distinction",
    "igcseESL": "ESL 不接受",
    "ibEnglish": "IB English A：HL6 或 SL7；English B HL7",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Chemistry",
@@ -431,7 +466,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Physics",
@@ -442,7 +478,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Mechanical Engineering",
@@ -453,7 +490,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Civil Engineering",
@@ -464,7 +502,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Electronic and Electrical Engineering",
@@ -475,7 +514,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Economics",
@@ -486,7 +526,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Management Science",
@@ -497,7 +538,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 6 + Distinction",
    "igcseESL": "ESL 不接受",
    "ibEnglish": "IB English A：HL6 或 SL7；English B HL7",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Computer Science (BSc)",
@@ -508,7 +550,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Computer Science (MEng)",
@@ -519,7 +562,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Data Science",
@@ -530,7 +574,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Statistics",
@@ -541,7 +586,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Statistics with Economics and Finance",
@@ -552,7 +598,8 @@ const ENG_PROG = {
    "gcse": "GCSE English Language 4 + Merit（口语）",
    "igcseESL": "ESL 可（最高到 L2）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   }
  ],
  "kcl": [
@@ -565,7 +612,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Biochemistry",
@@ -576,7 +624,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Pharmacy",
@@ -587,7 +636,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Physics",
@@ -598,7 +648,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "General Engineering",
@@ -609,7 +660,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Electronic Engineering",
@@ -620,7 +672,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Biomedical Engineering",
@@ -631,7 +684,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Economics",
@@ -642,7 +696,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Economics and Management",
@@ -653,7 +708,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Business Management",
@@ -664,7 +720,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Computer Science",
@@ -675,7 +732,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Artificial Intelligence",
@@ -686,7 +744,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Mathematics with Statistics",
@@ -697,7 +756,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Mathematics",
@@ -708,7 +768,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   }
  ],
  "manchester": [
@@ -721,7 +782,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language 4/C",
    "igcseESL": "未列具体等级（通用提示）",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "cond"
   },
   {
    "en": "Physics",
@@ -732,7 +794,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language 4/C",
    "igcseESL": "未列；另需 IGCSE Oral Exam 1/2 级",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "cond"
   },
   {
    "en": "Mechanical Engineering",
@@ -743,7 +806,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language 4/C",
    "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Electrical and Electronic Engineering",
@@ -754,7 +818,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language B/6（English Literature 不可替代）",
    "igcseESL": "不接受",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Aerospace Engineering",
@@ -765,7 +830,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language 4/C",
    "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Chemical Engineering",
@@ -776,7 +842,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language 4/C",
    "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Economics",
@@ -787,7 +854,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language C",
    "igcseESL": "接受：Grade B",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Accounting and Finance (BAEcon)",
@@ -798,7 +866,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language C",
    "igcseESL": "接受：Grade B",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Accounting (BSc)",
@@ -809,7 +878,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language B/6",
    "igcseESL": "未列具体等级",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "cond"
   },
   {
    "en": "Management",
@@ -820,7 +890,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language B/6",
    "igcseESL": "未列具体等级",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "cond"
   },
   {
    "en": "Computer Science",
@@ -831,7 +902,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language C/4（English Literature 不可替代）",
    "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Data Science and Economics (BAEcon)",
@@ -842,7 +914,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language C",
    "igcseESL": "接受：Grade B",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Mathematics and Statistics",
@@ -853,7 +926,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language C/4",
    "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Mathematics",
@@ -864,7 +938,8 @@ const ENG_PROG = {
    "gcse": "GCSE/IGCSE English Language C/4",
    "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   }
  ],
  "edinburgh": [
@@ -877,7 +952,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Chemistry",
@@ -888,7 +964,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Physics",
@@ -899,7 +976,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Electronics and Electrical Engineering",
@@ -910,7 +988,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Mechanical Engineering",
@@ -921,7 +1000,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Chemical Engineering",
@@ -932,7 +1012,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Civil Engineering",
@@ -943,7 +1024,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Economics",
@@ -954,7 +1036,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Accounting and Finance",
@@ -965,7 +1048,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Business Management",
@@ -976,7 +1060,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Computer Science",
@@ -987,7 +1072,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   },
   {
    "en": "Mathematics and Statistics",
@@ -998,7 +1084,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "yes"
   }
  ],
  "warwick": [
@@ -1011,7 +1098,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Biochemistry",
@@ -1022,7 +1110,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Chemistry",
@@ -1033,7 +1122,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Physics",
@@ -1044,7 +1134,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Engineering",
@@ -1055,7 +1146,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Economics",
@@ -1066,7 +1158,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": "另需 GCSE English Language 6/B"
+   "extra": "另需 GCSE English Language 6/B",
+   "eslFlag": "no"
   },
   {
    "en": "Accounting and Finance",
@@ -1077,7 +1170,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": "另需 GCSE English Language 6/B（或 English Literature 6/B + Language 4/C）"
+   "extra": "另需 GCSE English Language 6/B（或 English Literature 6/B + Language 4/C）",
+   "eslFlag": "no"
   },
   {
    "en": "Business and Management",
@@ -1088,7 +1182,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": "另需 GCSE English Language 6/B + GCSE Maths 7/A"
+   "extra": "另需 GCSE English Language 6/B + GCSE Maths 7/A",
+   "eslFlag": "no"
   },
   {
    "en": "International Business and Management",
@@ -1099,7 +1194,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": "另需 GCSE English Language 6/B + GCSE Maths 7/A"
+   "extra": "另需 GCSE English Language 6/B + GCSE Maths 7/A",
+   "eslFlag": "no"
   },
   {
    "en": "Computer Science",
@@ -1110,7 +1206,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Data Science",
@@ -1121,7 +1218,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "MORSE",
@@ -1132,7 +1230,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   },
   {
    "en": "Mathematics",
@@ -1143,7 +1242,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": ""
+   "extra": "",
+   "eslFlag": "no"
   }
  ],
  "cuhk": [
@@ -1157,7 +1257,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": "环球商业 GBS 另订更高英语要求（官网 programme list 备注）"
+   "extra": "环球商业 GBS 另订更高英语要求（官网 programme list 备注）",
+   "eslFlag": "unknown"
   }
  ],
  "cityu": [
@@ -1171,7 +1272,8 @@ const ENG_PROG = {
    "gcse": "",
    "igcseESL": "",
    "ibEnglish": "",
-   "extra": "商业经济另订更高英语要求（官网）"
+   "extra": "商业经济另订更高英语要求（官网）",
+   "eslFlag": "yes"
   }
  ]
 };
