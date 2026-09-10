@@ -374,3 +374,9 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 /* QS 列表更紧凑（取消折叠后条目变多，控制高度） */
 .tbl .t-qs{line-height:1.35}
 .tbl .t-qs .qz{font-size:11px}
+
+/* 英语详情：标签列给足宽度并禁止逐字换行（此前 66px 装不下 "IGCSE-EFL（第一语言）"，被压成一字一行） */
+.eng-more li{align-items:flex-start}
+.eng-more li>b{min-width:96px;max-width:132px;word-break:keep-all;overflow-wrap:normal;line-height:1.5}
+@media (max-width:520px){.eng-more li>b{min-width:84px;max-width:40%}}
+.foot .disclaimer{border-left:3px solid var(--gold-line,#e2d3a8);background:var(--gold-bg,#fbf6e9);padding:7px 10px;border-radius:4px;color:var(--ink-2,#33405a)}
