@@ -18,11 +18,11 @@
     return '<span class="' + cls + '">' + esc(v.slice(0, i)) +
       '<span class="score-sub">' + esc(v.slice(i)) + '</span></span>';
   }
-  function showToast(msg) {
+  function showToast(msg, ms) {
     var t = $('#toast'); if (!t) return;
     t.textContent = msg; t.classList.add('show');
     clearTimeout(showToast._t);
-    showToast._t = setTimeout(function () { t.classList.remove('show'); }, 2800);
+    showToast._t = setTimeout(function () { t.classList.remove('show'); }, ms || 2800);
   }
 
   // ── 成绩口径标签（全中文、短词，避免中英混排） ──
@@ -68,7 +68,7 @@
 
   var cur = REGIONS.uk;
   var activeSchools = [], activeDirs = [], testSel = 'ALL', groupBy = 'school', view = 'table', q = '';
-  var compare = new Set(); var CMP_MAX = 8;
+  var compare = new Set(); var CMP_MAX = 30;
 
   // ── 术语说明（分板块） ──
   var MANUAL = {
@@ -94,7 +94,7 @@
       ]},
       { t: 'QS 学科排名（参考）', items: [
         '表内「QS2026 学科」列与卡片上的「QS2026 #N」标签，来自 **QS World University Rankings by Subject 2026**（各校在该学科的名次；含并列 "=4" 与区间 "51–100"）。',
-        '一个专业对应的学科榜由其**学科方向**决定（如「工程」对应机械 / 电子电气 / 土木 / 化工四个榜）；表内最多列 3 个（按名次优先后排列），其余见悬停提示。',
+        '一个专业对应的学科榜由其**学科方向**决定（如「工程」对应机械 / 电子电气 / 土木 / 化工四个榜）；表内最多列 3 个（按名次优先后排列），其余点「另 N 项」展开查看（点开即可，触屏同样可用）。',
         '「—」表示本站收录的学科里**没有**与该专业对应的榜，或该校在该学科**未进入前 200 名**（本站只收录前 200 名）。',
         '排名只反映研究声誉与产出，与本科录取难度**不是同一回事**，仅作选校参考。'
       ]}
@@ -144,7 +144,7 @@
       { t: 'QS 学科排名（参考）', items: [
         '表内「QS2026 学科」列与卡片上的「QS2026 #N」标签，来自 **QS World University Rankings by Subject 2026**。',
         '港校强项举例：**港大牙医 #2、KCL 牙医 #5；港中文护理 =6、KCL 护理 #2、曼大护理 =10；港大数据科学与AI #18、港科大 #25、港中文 #28**。',
-        '一个专业对应的学科榜由其**学科方向**决定（如「人文·语言」对应历史 / 英语 / 现代语言 / 语言学 / 哲学）；表内最多列 3 个（按名次优先后排列），其余见悬停提示。',
+        '一个专业对应的学科榜由其**学科方向**决定（如「人文·语言」对应历史 / 英语 / 现代语言 / 语言学 / 哲学）；表内最多列 3 个（按名次优先后排列），其余点「另 N 项」展开查看（点开即可，触屏同样可用）。',
         '「—」表示本站收录的学科里**没有**与该专业对应的榜，或该校在该学科**未进入前 200 名**（本站只收录前 200 名；200 名之后为区间段，未收录，不代表该校完全未上榜）。',
         '排名反映的是研究声誉与产出，与本科录取难度**不是同一回事**，仅作选校参考。'
       ]}
@@ -258,14 +258,16 @@
   function qsCell(p) {
     var list = qsListFor(p);
     if (!list.length) return '<span class="t-qs no">—</span>';
-    var show = list.slice(0, 3);
-    var html = show.map(function (x) {
-      return '<div class="t-qs" title="' + esc(QS_SUBJECT_ZH[x.sub] || x.sub) + '"><span class="qn">#' + esc(x.rank) + '</span>' +
+    function row(x) {
+      return '<div class="t-qs"><span class="qn">#' + esc(x.rank) + '</span>' +
         '<span class="qz">' + esc(QS_SUBJECT_ZH[x.sub] || x.sub) + '</span></div>';
-    }).join('');
+    }
+    var show = list.slice(0, 3);
+    var html = show.map(row).join('');
     if (list.length > show.length) {
-      var rest = list.slice(show.length).map(function (x) { return (QS_SUBJECT_ZH[x.sub] || x.sub) + ' #' + x.rank; }).join(' · ');
-      html += '<div class="t-qs more" title="' + esc(rest) + '">…另 ' + (list.length - show.length) + ' 项</div>';
+      // 剩余学科用可点开的 details 展开（触屏可用、不依赖悬停）
+      html += '<details class="qs-more"><summary>另 ' + (list.length - show.length) + ' 项</summary>' +
+        list.slice(show.length).map(row).join('') + '</details>';
     }
     return html;
   }
@@ -439,7 +441,7 @@
     var key = b.dataset.key;
     if (compare.has(key)) compare.delete(key);
     else {
-      if (compare.size >= CMP_MAX) { showToast('对比最多 ' + CMP_MAX + ' 项，请先移除一些'); return; }
+      if (compare.size >= CMP_MAX) { showToast('已达对比上限 ' + CMP_MAX + ' 项。请先移除一些，再加入新的。', 4200); return; }
       compare.add(key);
     }
     b.classList.toggle('on', compare.has(key));
@@ -527,5 +529,6 @@
   // ── 初始化 ──
   $('#stat-schools').textContent = cur.schools.length;
   $('#stat-programs').textContent = cur.programs.length;
+  $('#compare-max').textContent = CMP_MAX;   // 对比上限只在 CMP_MAX 一处定义，避免文案与实际不符
   buildIndex(); renderManual(); renderChips(); apply();
 })();
