@@ -347,3 +347,21 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .eng-v{font-size:12.5px;color:var(--ink);font-weight:600}
 .eng-band{font-size:11.5px;color:#1c4f8a;font-weight:650}
 .eng-line .eng-tag{margin-top:0;margin-left:auto}
+
+/* ══ 英语要求：摘要 + 可展开详情（手机/触屏可用，不依赖悬停） ══ */
+.eng-block{display:block}
+.eng-esl{font-size:10.5px;line-height:1.6;padding:0 5px;border-radius:4px;border:1px solid #e6d6ae;background:#fdf8ea;color:#8a5a12;white-space:nowrap}
+.eng-esl.no{border-color:#eccfc9;background:#fdf1ef;color:#8f3a2e}
+.eng-more{margin-top:4px;font-size:12px}
+.eng-more>summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:4px;color:var(--navy-2,#1e4a80);
+  border-bottom:1px dotted currentColor;padding:1px 0;min-height:22px}
+.eng-more>summary::-webkit-details-marker{display:none}
+.eng-more>summary::after{content:"▾";font-size:10px;opacity:.75}
+.eng-more[open]>summary::after{content:"▴"}
+.eng-more[open]>summary{color:var(--ink)}
+.eng-more>ul{margin:6px 0 2px;padding:0;list-style:none;border-left:2px solid var(--line-2,rgba(16,26,46,.12));padding-left:9px}
+.eng-more li{display:flex;gap:8px;font-size:11.5px;line-height:1.65;color:var(--mut,#5b6577)}
+.eng-more li>b{flex:none;min-width:66px;color:var(--ink);font-weight:600}
+.eng-more li>span{flex:1}
+.eng-more a{color:var(--navy-2,#1e4a80);text-decoration:underline;text-underline-offset:2px}
+.card .eng-more{margin-top:2px}
