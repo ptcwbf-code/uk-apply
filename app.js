@@ -97,7 +97,7 @@
       { t: '英语要求（IELTS / TOEFL / IGCSE-ESL）', items: [
         '**逐专业 or 校级**：帝国、UCL、KCL、曼大、爱丁堡、华威 6 校按专业（或档位）发布，表中标「逐专业」；点该行的「英语要求详情」（手机可直接点开）即可看 IELTS / TOEFL 旧新制 / GCSE / IGCSE-ESL / IB / GCE 全部值；牛津、剑桥、LSE 为**全校统一**，标「校级」。',
         '**常见量级**：牛津 7.5（各项 7.0）｜剑桥 7.5｜LSE 7.0（各项 7.0）｜帝国 Standard 6.5 / Higher 7.0｜UCL Level 1–5（6.5 → 8.0）｜KCL Band B 7.0 / Band D 6.5｜曼大 6.0–7.0｜爱丁堡 6.5（商科 7.0）｜华威 Band A 6.0 / C 7.0。',
-        '**IGCSE 英语分两类**：EFL（First Language）与 ESL（Second Language）——**各校口径不同，故表内分两行列出**。EFL：各校基本都接受（多为 C/4 或 B/6）。ESL：不接受＝牛津、帝国、LSE、华威；有条件＝曼大（仅 CAIE/Oxford AQA/Edexcel 三家，6.5 档需 Grade 8）、UCL（最高只认到 Level 2）；接受＝KCL（需 A/7）、爱丁堡、港大、港科大、城大、浸会。',
+        '**IGCSE 英语分两类，表内分两行列**：**EFL＝第一语言（First Language）**，**ESL＝第二语言（Second Language）**。优先级：**IELTS / TOEFL 为第一选择，EFL 次之、ESL 再次**（部分学校不接受 ESL）。表中 EFL / ESL 一栏给的是**该专业档位对应的具体成绩**（如 UCL Level 4 → EFL 6 + Distinction；曼大 EEE → ESL 不接受）。',
         '**TOEFL 分制变更**：2026-01-21 起改 1–6 分制，表内同时给旧制与新制两个值；多数学校不接受拼分（MyBest / One Skill Retake），且要求同一次考试出分。',
         '**豁免**：在英语国家完成学位或达到指定年限的英语授课，可申请豁免（各校规定不同，以官网为准）。'
       ]},
@@ -215,7 +215,7 @@
         ielts: rec.ielts || rule.ielts, toeflOld: rec.toeflOld || rule.toeflOld, toeflNew: rec.toeflNew || rule.toeflNew,
         gcse: rec.gcse || rule.gcse, igcseEFL: rec.igcseEFL || rule.igcseEFL,
         igcseESL: rec.igcseESL || rule.igcseESL,
-        eslFlag: rec.eslFlag || rule.eslFlag || 'unknown',
+        eslFlag: rec.eslFlag || rule.eslFlag || 'unknown', eslGrade: rec.eslGrade || '',
         ibEnglish: rec.ibEnglish || rule.ibEnglish, gceEnglish: rule.gceEnglish,
         note: rec.extra || '', rule: rule
       };
@@ -224,7 +224,7 @@
       scope: 'school', tag: '校级', band: '',
       ielts: rule.ielts, toeflOld: rule.toeflOld, toeflNew: rule.toeflNew,
       gcse: rule.gcse, igcseEFL: rule.igcseEFL, igcseESL: rule.igcseESL, ibEnglish: rule.ibEnglish, gceEnglish: rule.gceEnglish,
-      eslFlag: rule.eslFlag || 'unknown',
+      eslFlag: rule.eslFlag || 'unknown', eslGrade: '',
       note: rule.note || '', rule: rule
     };
   }
@@ -245,14 +245,60 @@
     function brief(v) {
       if (!v || v === '—') return '—';
       var t = String(v).split('（')[0].trim();
-      return /^[0-9]/.test(t) ? t : '未列';
+      if (/未列|未公开|—/.test(t)) return '—';
+      return /^[0-9]/.test(t) ? t : '—';
     }
     return brief(e.toeflOld) + ' / ' + brief(e.toeflNew);
   }
   // IGCSE-ESL 是否接受——各校差异最大、最影响可申性，摘要行直接显示，不藏在悬停里
   var ESL_LABEL = { no: 'ESL 不接受', cond: 'ESL 有条件', yes: 'ESL 接受', unknown: 'ESL 未列' };
   function engESLTag(e) { return (e && ESL_LABEL[e.eslFlag]) || ''; }
-  // 可展开的完整明细（手机可点、键盘可开；不依赖鼠标悬停）
+  // ── IGCSE 英语（EFL 第一语言 / ESL 第二语言）──
+  // 从该校的 GCSE/IGCSE 档位文字里解析出等级（各校写法不同，按优先级匹配）
+  function parseIgcseGrade(e) {
+    var t = String((e && e.gcse) || '').split('（')[0].split('；')[0].trim();
+    if (!t || /官网未列|官网未区分|随 Level|随专业/.test(t)) return '';
+    var m;
+    if ((m = t.match(/(\d)\s*\/\s*([A-D])(?![A-Za-z])/))) return m[1] + '/' + m[2];
+    if ((m = t.match(/([A-D])\s*\/\s*(\d)/))) return m[1] + '/' + m[2];
+    if ((m = t.match(/Band\s*[A-C]\s*\/\s*[A-C]\s*需\s*(\d\s*\/\s*[A-D])/i))) return m[1].replace(/\s+/g, '');
+    if ((m = t.match(/(?:English|Language)[^0-9A-D]*?([A-D])(?![A-Za-z])/))) return m[1];
+    if ((m = t.match(/(?:English|Grade)[^0-9]*?(\d)(?![0-9])/))) {
+      var q = (t.match(/(Merit|Distinction|Pass)/i) || [])[1];
+      return m[1] + (q ? ' + ' + q : '');
+    }
+    return '';
+  }
+  function igcseValue(e, kind) {
+    var note = ((e && e.rule && e.rule.igcseTypeNote) || {})[kind] || '';
+    var isStatus = /不接受|官网未列|官网未区分/.test(note);
+    var prefix = kind === 'efl' ? 'IGCSE First Language ' : 'IGCSE Second Language ';
+    if (isStatus) {
+      // 状态词：不接受 / 官网未列 / 官网未区分
+      if (kind === 'esl' && e && e.eslGrade && /Grade/.test(e.eslGrade)) {
+        return prefix + e.eslGrade.replace(/^接受：/, '');
+      }
+      return note;
+    }
+    if (kind === 'esl') {
+      // UCL：Level 1–2 接受、Level 3 起不接受（具体等级同 GCSE 档）
+      if (e && e.eslFlag === 'no') return '不接受';
+      var rg = (e && e.eslGrade) || '';
+      if (rg && /Grade/.test(rg)) return prefix + rg.replace(/^接受：/, '');   // 曼大等：按课程给出 Grade 8 / Grade B
+      if (rg && /^不接受/.test(rg)) return '不接受';
+      if (rg && /未列/.test(rg)) return '未列';
+      if (note) return prefix + note;                       // 港校：显式等级（如 B（5））
+      var gEsl = parseIgcseGrade(e);
+      if (gEsl) return prefix + gEsl + ((e.rule && e.rule.zh === 'UCL') ? '（ESL 最高只到 Level 2）' : '');
+      return (e && e.eslFlag === 'cond') ? '有条件接受' : '—';
+    }
+    // EFL：等级来自 gcse 档位解析，或显式 note
+    var g = parseIgcseGrade(e);
+    var oral = (String((e && e.gcse) || '').match(/口语\s*(Merit|Distinction)/) || [])[0];
+    if (g) return prefix + g + (oral ? '（' + oral + '）' : '');
+    if (note) return prefix + note;
+    return '官网未列';
+  }
   function engDetailHTML(e, rule) {
     if (!e) return '';
     function li(k, v) { return v ? '<li><b>' + k + '</b><span>' + esc(v) + '</span></li>' : ''; }
@@ -262,9 +308,9 @@
       li('IELTS', e.ielts || '—') +
       li('TOEFL 旧制', e.toeflOld || '—') +
       li('TOEFL 新制', e.toeflNew || '—') +
-      li('GCSE', e.gcse || '—') +
-      li('IGCSE-EFL（第一语言）', e.igcseEFL || '—') +
-      li('IGCSE-ESL（第二语言）', e.igcseESL || '—') +
+      li('EFL（第一语言）', igcseValue(e, 'efl')) +
+      li('ESL（第二语言）', igcseValue(e, 'esl')) +
+      li('其他等效考试', [e.ibEnglish ? 'IB ' + e.ibEnglish : '', e.gceEnglish ? 'GCE ' + e.gceEnglish : ''].filter(Boolean).join('；') || '—') +
       li('IB English', e.ibEnglish || '—') +
       li('GCE English', e.gceEnglish || '—') +
       (e.note ? li('备注', e.note) : '') +
