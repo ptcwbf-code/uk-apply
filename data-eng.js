@@ -10,10 +10,11 @@ const ENG_RULES = {
   "url": "https://www.imperial.ac.uk/study/apply/english-language/",
   "note": "全校只有 Standard / Higher 两档分数，由各课程页单独声明，不按院系；学校资格（GCSE/IGCSE/IB/A-level）两档同分，差异只在考试类。",
   "gcse": "GCSE English Language 6（Home 学生 5；医学 6）",
-  "igcseESL": "只认 IGCSE First Language B/6；ESL 不接受",
+  "igcseESL": "不接受",
   "ibEnglish": "IB English A 4；English B HL 5 / SL 6",
   "gceEnglish": "GCE AS/A-Level English Language C（两档同分）",
-  "eslFlag": "no"
+  "eslFlag": "no",
+  "igcseEFL": "First Language B/6"
  },
  "ucl": {
   "zh": "UCL",
@@ -21,10 +22,11 @@ const ENG_RULES = {
   "url": "https://www.ucl.ac.uk/prospective-students/undergraduate/how-apply/english-language-requirements/",
   "note": "共 Level 1–5 五档，每门专业页标 English language level for this programme is: Level X；同方向内会跳档，必须逐专业查。",
   "gcse": "随 Level 变化（见各行）",
-  "igcseESL": "EFL 可覆盖全部 Level；ESL 最高到 Level 2（个别考局到 L3），L3–L5 明确 Not acceptable",
+  "igcseESL": "见各档（Level 1–2 可、Level 3 起不接受）",
   "ibEnglish": "随 Level 变化（L1/L2 A 5；L3 A 6；L4 A HL6 或 SL7；L5 A HL7、B 不接受）",
   "gceEnglish": "官网认可清单未列 A-Level English",
-  "eslFlag": "cond"
+  "eslFlag": "cond",
+  "igcseEFL": "First Language 可覆盖全部 Level（等级见上表 GCSE/IGCSE 列）"
  },
  "kcl": {
   "zh": "KCL",
@@ -32,10 +34,11 @@ const ENG_RULES = {
   "url": "https://www.kcl.ac.uk/study/undergraduate/how-to-apply/english-language-requirements",
   "note": "本科用 Band A / B / D（C 仅研究生、E 无人用）；Band 由「学院归属 + 具名课单」决定，页面本身不写 Band。",
   "gcse": "GCSE English Language B/6（三档相同）",
-  "igcseESL": "接受 ESL 但需 A/7；First Language 仅需 B/6；EFL 不接受",
+  "igcseESL": "接受，但需 A/7（含口语 endorsement）",
   "ibEnglish": "IB English A HL4/SL5；English B HL5/SL7（三档相同）",
   "gceEnglish": "GCE AS/A-Level English Language C（三档相同）",
-  "eslFlag": "yes"
+  "eslFlag": "yes",
+  "igcseEFL": "First Language B/6（含口语 endorsement）"
  },
  "manchester": {
   "zh": "曼大",
@@ -43,10 +46,11 @@ const ENG_RULES = {
   "url": "https://www.manchester.ac.uk/study/international/admissions/language-requirements/",
   "note": "官网总页只给典型档，各专业分数在 2027 课程页各自写明（6.0–7.0 不等）。",
   "gcse": "随专业（4/C 或 B/6，见各行）",
-  "igcseESL": "有条件接受 ESL：仅限 CAIE / Oxford AQA / Pearson Edexcel 三家；6.5 档课程需 Grade 8、6.0 档需 Grade 7、7.0 档课程不接受",
+  "igcseESL": "视课程而定（见各专业行）",
   "ibEnglish": "MYP / IB English 按官网 GCSE 换算表对应",
   "gceEnglish": "官网未列 A-Level English",
-  "eslFlag": "cond"
+  "eslFlag": "cond",
+  "igcseEFL": "接受（等级见课程页，通常 C/4）"
  },
  "edinburgh": {
   "zh": "爱丁堡",
@@ -54,10 +58,11 @@ const ENG_RULES = {
   "url": "https://study.ed.ac.uk/undergraduate/entry-requirements/english-language",
   "note": "总页声明 requirements vary between degrees；逐课程 /entry-requirements 页各写；实测两档（6.5 与商科 7.0）。",
   "gcse": "GCSE English at C/4",
-  "igcseESL": "第一或第二语言均接受；不接受 IGCSE/CIE English (as an Additional Language) 与 IGCSE English Literature",
+  "igcseESL": "接受：C/4（不接受 IGCSE English as an Additional Language 与 English Literature）",
   "ibEnglish": "IB English A/B：SL 5 或 HL 4（ab initio 不接受）",
   "gceEnglish": "AS/A-Level English（Language / Lang&Lit / Literature）C",
-  "eslFlag": "yes"
+  "eslFlag": "yes",
+  "igcseEFL": "接受：C/4"
  },
  "warwick": {
   "zh": "华威",
@@ -65,10 +70,11 @@ const ENG_RULES = {
   "url": "https://warwick.ac.uk/study/undergraduate/applying/english-language-requirements/",
   "note": "Band A/B/C 三档；每门课程页写 This course requires: Band X；Band C 四门另有 GCSE 加码。",
   "gcse": "GCSE English Language：Band A/B 需 4/C；Band C 需 6/B",
-  "igcseESL": "ESL 不接受；First Language：A/B 档 C、C 档 B",
+  "igcseESL": "不接受",
   "ibEnglish": "IB English A HL4/SL4（C 档 HL5/SL5）；English B HL4/SL5（C 档 HL5/SL6）",
   "gceEnglish": "GCE A-Level English C（C 档 B）",
-  "eslFlag": "no"
+  "eslFlag": "no",
+  "igcseEFL": "First Language：Band A/B 需 C；Band C 需 B"
  },
  "oxford": {
   "zh": "牛津",
@@ -78,12 +84,13 @@ const ENG_RULES = {
   "toeflOld": "110（听22 读24 说25 写24）",
   "toeflNew": "2026-01-21 起的新版考试暂不受理",
   "gcse": "GCSE English Language B/6 + 口语 Merit",
-  "igcseESL": "不接受（只认 First Language：B/6 + 口语达标）",
+  "igcseESL": "不接受",
   "ibEnglish": "English B HL 7",
   "gceEnglish": "官网未列 A-Level English",
   "note": "全校统一一档，不分专业；条件须在 offer 当年 7 月 31 日前达到，不接受拼分。",
   "gcseNote": "",
-  "eslFlag": "no"
+  "eslFlag": "no",
+  "igcseEFL": "First Language 方可：B/6 + 口语 Merit"
  },
  "cambridge": {
   "zh": "剑桥",
@@ -98,7 +105,8 @@ const ENG_RULES = {
   "gceEnglish": "官网未列",
   "note": "全校统一；最终语言条件由发出 offer 的学院个案决定。",
   "gcseNote": "",
-  "eslFlag": "unknown"
+  "eslFlag": "unknown",
+  "igcseEFL": "官网未列"
  },
  "lse": {
   "zh": "LSE",
@@ -108,12 +116,13 @@ const ENG_RULES = {
   "toeflOld": "100（写27 读25 听24 说24）",
   "toeflNew": "5.5（各项 5）",
   "gcse": "GCSE English Language B/6",
-  "igcseESL": "不接受（只认 IGCSE First Language）",
+  "igcseESL": "不接受（亦不接受名为 English as a Foreign Language 的资格）",
   "ibEnglish": "English A：HL 任意 / SL ≥6；English B：HL 7",
   "gceEnglish": "官网未列 A-Level English",
   "note": "本科全校统一（Standard/Higher 分档仅适用于研究生）。",
   "gcseNote": "",
-  "eslFlag": "no"
+  "eslFlag": "no",
+  "igcseEFL": "First Language B/6（需 Speaking/Listening 达标，或五年英语授课）"
  },
  "hku": {
   "zh": "港大",
@@ -123,12 +132,13 @@ const ENG_RULES = {
   "toeflOld": "93",
   "toeflNew": "—",
   "gcse": "GCSE/GCEO English Language C（9-1 制 4）",
-  "igcseESL": "接受：Second Language 需 B（5）；First Language 只需 C（4）",
+  "igcseESL": "Second Language 需 B（5）",
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/AL English Language 或 Literature C",
   "note": "全校统一（官方 API 逐个专业比对，55 个专业取值完全一致）。",
   "gcseNote": "",
-  "eslFlag": "yes"
+  "eslFlag": "yes",
+  "igcseEFL": "First Language C（4）"
  },
  "cuhk": {
   "zh": "港中文",
@@ -138,12 +148,13 @@ const ENG_RULES = {
   "toeflOld": "80",
   "toeflNew": "4.5（2026-01-21 起）",
   "gcse": "GCSE/IGCSE/GCE-OL Grade C / 4",
-  "igcseESL": "官网未区分 ESL/EFL（只写 GCSE/IGCSE）",
+  "igcseESL": "官网未区分 ESL / EFL（统一按 GCSE/IGCSE C/4）",
   "ibEnglish": "IB English 4（官网未区分 A/B）",
   "gceEnglish": "GCE-AL/AS English E",
   "note": "全校统一；例外：环球商业 GBS 需 IELTS 7.0 / TOEFL 100。",
   "gcseNote": "",
-  "eslFlag": "unknown"
+  "eslFlag": "unknown",
+  "igcseEFL": "官网未区分 ESL / EFL（统一按 GCSE/IGCSE C/4）"
  },
  "hkust": {
   "zh": "港科大",
@@ -153,12 +164,13 @@ const ENG_RULES = {
   "toeflOld": "80（一次考试）",
   "toeflNew": "4.5（2026-01-21 起）",
   "gcse": "GCSE/GCE O-Level English Language 或 Literature 4/C；GCE AS/A English E",
-  "igcseESL": "接受：Second Language 需 5/B（First Language 4/C）",
+  "igcseESL": "Second Language 需 5/B",
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一；专业维度不含英语要求（官方接口确认）。",
   "gcseNote": "",
-  "eslFlag": "yes"
+  "eslFlag": "yes",
+  "igcseEFL": "First Language 4/C"
  },
  "cityu": {
   "zh": "城大",
@@ -168,12 +180,13 @@ const ENG_RULES = {
   "toeflOld": "79（不收 MyBest）",
   "toeflNew": "—",
   "gcse": "GCSE/GCE O-Level English Language 或 Literature C/4",
-  "igcseESL": "接受：Second Language 需 B/5（First Language C/4）",
+  "igcseESL": "Second Language 需 B/5",
   "ibEnglish": "English B SL 5",
   "gceEnglish": "GCE AL/IAL 或 AS/IAS English E",
   "note": "全校统一；例外：BBA Business Economics 需 IELTS 7.0（法律 LLB、兽医学 BVM 等未收录专业亦有更高要求）。",
   "gcseNote": "",
-  "eslFlag": "yes"
+  "eslFlag": "yes",
+  "igcseEFL": "First Language C/4"
  },
  "polyu": {
   "zh": "理大",
@@ -188,7 +201,8 @@ const ENG_RULES = {
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一；抽查 10 个专业（含护理/物理治疗/放射/医疗化验）均无更高门槛。",
   "gcseNote": "",
-  "eslFlag": "unknown"
+  "eslFlag": "unknown",
+  "igcseEFL": "官网未列 ESL/EFL（只写 English / English Language / English Literature）"
  },
  "hkbu": {
   "zh": "浸会",
@@ -198,12 +212,13 @@ const ENG_RULES = {
   "toeflOld": "79（不收 MyBest）",
   "toeflNew": "—",
   "gcse": "GCSE/GCE O-Level English / English Language / English Literature C/4",
-  "igcseESL": "接受：Second Language 需 B/5；First Language C/4",
+  "igcseESL": "Second Language 需 B/5",
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一；中医/中药/中文类专业另需中文资历（非英语要求）。",
   "gcseNote": "",
-  "eslFlag": "yes"
+  "eslFlag": "yes",
+  "igcseEFL": "First Language C/4"
  },
  "eduhk": {
   "zh": "教育",
@@ -213,12 +228,13 @@ const ENG_RULES = {
   "toeflOld": "80（新制 4）",
   "toeflNew": "4（2026-01-21 起）",
   "gcse": "GCSE/IGCSE/GCE O-Level English C/4",
-  "igcseESL": "官网未区分 ESL/EFL",
+  "igcseESL": "官网未区分 ESL / EFL",
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一；英文教育双学位（JS8004）有“高英语水平”定性要求，但官网未设更高分数。",
   "gcseNote": "",
-  "eslFlag": "unknown"
+  "eslFlag": "unknown",
+  "igcseEFL": "官网未区分 ESL / EFL"
  },
  "lingnan": {
   "zh": "岭南",
@@ -233,7 +249,8 @@ const ENG_RULES = {
   "gceEnglish": "GCE AS/A-Level English E",
   "note": "全校统一（国际资格版与本地 non-JUPAS 版同一张表）。",
   "gcseNote": "",
-  "eslFlag": "unknown"
+  "eslFlag": "unknown",
+  "igcseEFL": "官网未列 ESL/EFL"
  }
 };
 
@@ -440,10 +457,11 @@ const ENG_PROG = {
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
    "gcse": "GCSE English Language 6 + Distinction",
-   "igcseESL": "ESL 不接受",
+   "igcseESL": "不接受",
    "ibEnglish": "IB English A：HL6 或 SL7；English B HL7",
    "extra": "",
-   "eslFlag": "no"
+   "eslFlag": "no",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Biochemistry",
@@ -452,10 +470,11 @@ const ENG_PROG = {
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
    "gcse": "GCSE English Language 6 + Distinction",
-   "igcseESL": "ESL 不接受",
+   "igcseESL": "不接受",
    "ibEnglish": "IB English A：HL6 或 SL7；English B HL7",
    "extra": "",
-   "eslFlag": "no"
+   "eslFlag": "no",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Chemistry",
@@ -464,10 +483,11 @@ const ENG_PROG = {
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Physics",
@@ -476,10 +496,11 @@ const ENG_PROG = {
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Mechanical Engineering",
@@ -488,10 +509,11 @@ const ENG_PROG = {
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Civil Engineering",
@@ -500,10 +522,11 @@ const ENG_PROG = {
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Electronic and Electrical Engineering",
@@ -512,10 +535,11 @@ const ENG_PROG = {
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Economics",
@@ -524,10 +548,11 @@ const ENG_PROG = {
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Management Science",
@@ -536,10 +561,11 @@ const ENG_PROG = {
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
    "gcse": "GCSE English Language 6 + Distinction",
-   "igcseESL": "ESL 不接受",
+   "igcseESL": "不接受",
    "ibEnglish": "IB English A：HL6 或 SL7；English B HL7",
    "extra": "",
-   "eslFlag": "no"
+   "eslFlag": "no",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Computer Science (BSc)",
@@ -548,10 +574,11 @@ const ENG_PROG = {
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Computer Science (MEng)",
@@ -560,10 +587,11 @@ const ENG_PROG = {
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Data Science",
@@ -572,10 +600,11 @@ const ENG_PROG = {
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Statistics",
@@ -584,10 +613,11 @@ const ENG_PROG = {
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   },
   {
    "en": "Statistics with Economics and Finance",
@@ -596,10 +626,11 @@ const ENG_PROG = {
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
    "gcse": "GCSE English Language 4 + Merit（口语）",
-   "igcseESL": "ESL 可（最高到 L2）",
+   "igcseESL": "接受（最高只认到 Level 2；个别考局可到 Level 3）",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "First Language 可覆盖全部 Level（等级见 GCSE/IGCSE 列）"
   }
  ],
  "kcl": [
@@ -783,7 +814,8 @@ const ENG_PROG = {
    "igcseESL": "未列具体等级（通用提示）",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "cond"
+   "eslFlag": "cond",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Physics",
@@ -795,7 +827,8 @@ const ENG_PROG = {
    "igcseESL": "未列；另需 IGCSE Oral Exam 1/2 级",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "cond"
+   "eslFlag": "cond",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Mechanical Engineering",
@@ -804,10 +837,11 @@ const ENG_PROG = {
    "toeflOld": "90（各项≥22）",
    "toeflNew": "4.5（各项4.5）",
    "gcse": "GCSE/IGCSE English Language 4/C",
-   "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "igcseESL": "Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Electrical and Electronic Engineering",
@@ -819,7 +853,8 @@ const ENG_PROG = {
    "igcseESL": "不接受",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "no"
+   "eslFlag": "no",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Aerospace Engineering",
@@ -828,10 +863,11 @@ const ENG_PROG = {
    "toeflOld": "90（各项≥22）",
    "toeflNew": "4.5（各项4.5）",
    "gcse": "GCSE/IGCSE English Language 4/C",
-   "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "igcseESL": "Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Chemical Engineering",
@@ -840,10 +876,11 @@ const ENG_PROG = {
    "toeflOld": "90（各项≥22）",
    "toeflNew": "4.5（各项4.5）",
    "gcse": "GCSE/IGCSE English Language 4/C",
-   "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "igcseESL": "Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Economics",
@@ -852,10 +889,11 @@ const ENG_PROG = {
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
    "gcse": "GCSE/IGCSE English Language C",
-   "igcseESL": "接受：Grade B",
+   "igcseESL": "Grade B",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Accounting and Finance (BAEcon)",
@@ -864,10 +902,11 @@ const ENG_PROG = {
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
    "gcse": "GCSE/IGCSE English Language C",
-   "igcseESL": "接受：Grade B",
+   "igcseESL": "Grade B",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Accounting (BSc)",
@@ -879,7 +918,8 @@ const ENG_PROG = {
    "igcseESL": "未列具体等级",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "cond"
+   "eslFlag": "cond",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Management",
@@ -891,7 +931,8 @@ const ENG_PROG = {
    "igcseESL": "未列具体等级",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "cond"
+   "eslFlag": "cond",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Computer Science",
@@ -900,10 +941,11 @@ const ENG_PROG = {
    "toeflOld": "90（各项≥22）",
    "toeflNew": "4.5（各项≥4.5）",
    "gcse": "GCSE/IGCSE English Language C/4（English Literature 不可替代）",
-   "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "igcseESL": "Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Data Science and Economics (BAEcon)",
@@ -912,10 +954,11 @@ const ENG_PROG = {
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
    "gcse": "GCSE/IGCSE English Language C",
-   "igcseESL": "接受：Grade B",
+   "igcseESL": "Grade B",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Mathematics and Statistics",
@@ -924,10 +967,11 @@ const ENG_PROG = {
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
    "gcse": "GCSE/IGCSE English Language C/4",
-   "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "igcseESL": "Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   },
   {
    "en": "Mathematics",
@@ -936,10 +980,11 @@ const ENG_PROG = {
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
    "gcse": "GCSE/IGCSE English Language C/4",
-   "igcseESL": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "igcseESL": "Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
    "ibEnglish": "",
    "extra": "",
-   "eslFlag": "yes"
+   "eslFlag": "yes",
+   "igcseEFL": "接受（等级见课程页，通常 C/4）"
   }
  ],
  "edinburgh": [
