@@ -164,11 +164,17 @@
 
   function renderManual() {
     var host = $('#manual-body');
-    host.innerHTML = MANUAL[cur === REGIONS.uk ? 'uk' : 'hk'].map(function (sec) {
+    var isUK = cur === REGIONS.uk;
+    host.innerHTML = MANUAL[isUK ? 'uk' : 'hk'].map(function (sec) {
       return '<section><h3>' + esc(sec.t) + '</h3><ul>' +
         sec.items.map(function (it) { return '<li>' + fmtBold(it) + '</li>'; }).join('') +
         '</ul></section>';
     }).join('');
+    // 标出这套说明属于哪个板块——说明内容随板块整体替换
+    var badge = $('#manual-region');
+    if (badge) badge.textContent = cur.name;
+    var box = $('#manual');
+    if (box) box.setAttribute('aria-label', cur.name + '术语与口径说明');
   }
 
   // ── 筛选 chips ──
