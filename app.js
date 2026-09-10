@@ -69,6 +69,8 @@
   var cur = REGIONS.uk;
   var activeSchools = [], activeDirs = [], testSel = 'ALL', groupBy = 'school', view = 'table', q = '';
   var compare = new Set(); var CMP_MAX = 30;
+  // 结果区淡入的开关：默认播放，搜索框逐字输入时关掉，避免每敲一个字都闪一下
+  var animate = true;
 
   // ── 术语说明（分板块） ──
   var MANUAL = {
@@ -162,6 +164,7 @@
     });
   }
 
+  var manualRendered = false;
   function renderManual() {
     var host = $('#manual-body');
     var isUK = cur === REGIONS.uk;
@@ -172,9 +175,18 @@
     }).join('');
     // 标出这套说明属于哪个板块——说明内容随板块整体替换
     var badge = $('#manual-region');
-    if (badge) badge.textContent = cur.name;
+    if (badge) {
+      badge.textContent = cur.name;
+      // 切板块时脉冲一次，把视线引到这套板块专属口径；首次渲染不闪
+      if (manualRendered) {
+        badge.classList.remove('pulse'); void badge.offsetWidth; badge.classList.add('pulse');
+        clearTimeout(badge._pulseT);
+        badge._pulseT = setTimeout(function () { badge.classList.remove('pulse'); }, 1150);
+      }
+    }
     var box = $('#manual');
     if (box) box.setAttribute('aria-label', cur.name + '术语与口径说明');
+    manualRendered = true;
   }
 
   // ── 筛选 chips ──
@@ -343,6 +355,8 @@
 
   // ── 渲染 ──
   function apply() {
+    // 取用后立即复位：apply 可能因空结果提前 return，留在 false 会让后续渲染永远不淡入
+    var doAnim = animate; animate = true;
     var list = filtered();
     var scClear = $('#scope-clear');
     if (scClear) scClear.hidden = !(activeDirs.length || activeSchools.length || testSel !== 'ALL' || q);
@@ -376,6 +390,11 @@
 
     $('#groups').innerHTML = '';
     $('#groups').appendChild(out);
+    // 内容整体换过就淡入一次；先移除再加，确保连续两次渲染也能重放
+    if (doAnim) {
+      var g = $('#groups');
+      g.classList.remove('anim'); void g.offsetWidth; g.classList.add('anim');
+    }
     $('#result-count').textContent = list.length;
     var scope = [];
     if (activeDirs.length) scope.push(activeDirs.map(function (d) { return cur.dirs[d].zh; }).join('、'));
@@ -402,7 +421,7 @@
   $('#school-all').addEventListener('click', function () { activeSchools = cur.schools.map(function (s) { return s.key; }); renderChips(); apply(); });
   $('#school-none').addEventListener('click', function () { activeSchools = []; renderChips(); apply(); });
   $('#groupby').addEventListener('change', function (e) { groupBy = e.target.value; apply(); });
-  $('#q').addEventListener('input', function (e) { q = e.target.value.trim().toLowerCase(); apply(); });
+  $('#q').addEventListener('input', function (e) { q = e.target.value.trim().toLowerCase(); animate = false; apply(); });
   $('#view-toggle').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-v]'); if (!b || b.dataset.v === view) return;
     view = b.dataset.v;
@@ -453,13 +472,32 @@
     b.classList.toggle('on', compare.has(key));
     b.setAttribute('aria-pressed', String(compare.has(key)));
     b.textContent = compare.has(key) ? '已加入对比' : '加入对比';
+    // 闪一下所在行/卡片：长表格里确认自己点中的是哪一条
+    var host = b.closest('tr') || b.closest('.card');
+    if (host) {
+      host.classList.remove('flash'); void host.offsetWidth; host.classList.add('flash');
+      clearTimeout(host._flashT);
+      host._flashT = setTimeout(function () { host.classList.remove('flash'); }, 900);
+    }
     updateCompareBar();
   });
   function updateCompareBar() {
     var bar = $('#comparebar');
-    if (!compare.size) { bar.hidden = true; return; }
+    if (!compare.size) {
+      // 先播完收起动画再真正隐藏，避免「啪」地消失
+      if (!bar.hidden) {
+        bar.classList.remove('show');
+        clearTimeout(updateCompareBar._t);
+        updateCompareBar._t = setTimeout(function () { if (!compare.size) bar.hidden = true; }, 220);
+      }
+      return;
+    }
+    clearTimeout(updateCompareBar._t);
+    var wasHidden = bar.hidden;
     bar.hidden = false;
     $('#compare-count').textContent = compare.size;
+    // 只在首次出现时滑入；之后改数字不重播动画
+    if (wasHidden) { void bar.offsetWidth; bar.classList.add('show'); }
   }
   $('#compare-clear').addEventListener('click', function () { compare.clear(); updateCompareBar(); syncCmpButtons(); });
   $('#compare-open').addEventListener('click', openCompare);
@@ -495,10 +533,20 @@
     }).join('');
     $('#compare-table').innerHTML =
       '<thead><tr><th scope="col">大学</th><th scope="col">专业</th><th scope="col">代码/学制</th><th scope="col">' + 'A-Level' + '</th><th scope="col">IB（45 分制）</th><th scope="col">笔试 / 面试</th><th scope="col">成绩口径</th><th scope="col">QS2026 学科</th><th scope="col">备注</th><th scope="col">官网</th></tr></thead><tbody>' + rows + '</tbody>';
-    $('#compare-overlay').hidden = false;
+    clearTimeout(closeCompare._t);
+    var ov = $('#compare-overlay');
+    ov.hidden = false;
+    void ov.offsetWidth;   // 强制重排确立初始样式，再上 show 才能触发过渡（不用 rAF：后台标签页里 rAF 不触发）
+    ov.classList.add('show');
     $('#compare-close').focus();
   }
-  function closeCompare() { $('#compare-overlay').hidden = true; }
+  function closeCompare() {
+    var ov = $('#compare-overlay');
+    if (ov.hidden) return;
+    ov.classList.remove('show');
+    clearTimeout(closeCompare._t);
+    closeCompare._t = setTimeout(function () { ov.hidden = true; }, 200);
+  }
 
   // ── 导出 CSV ──
   $('#export').addEventListener('click', function () {

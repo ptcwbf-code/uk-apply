@@ -159,13 +159,16 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
 body.region-hk .testblock{display:none}
 
 /* ── 对比栏与弹层 ── */
-.comparebar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);width:max-content;background:var(--ink);color:#fff;border-radius:8px;padding:10px 14px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 12px;align-items:center;z-index:80;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);max-width:min(94vw,640px)}
+.comparebar{position:fixed;left:50%;bottom:18px;transform:translate(-50%,14px);opacity:0;width:max-content;background:var(--ink);color:#fff;border-radius:8px;padding:10px 14px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 12px;align-items:center;z-index:80;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);max-width:min(94vw,640px);transition:opacity .2s ease,transform .2s ease}
+.comparebar.show{transform:translate(-50%,0);opacity:1}
 .comparebar>span{white-space:nowrap}
 .comparebar strong{font-family:var(--serif);font-size:16px}
 .comparebar .btn-ghost{background:transparent;border-color:rgba(255,255,255,.5);color:#fff}
 .comparebar .btn-ghost:hover{border-color:#fff}
-.overlay{position:fixed;inset:0;background:rgba(15,20,35,.5);z-index:90;display:flex;align-items:center;justify-content:center;padding:24px}
-.overlay-box{background:#fff;border-radius:8px;max-width:min(1200px,94vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px -20px rgba(0,0,0,.4)}
+.overlay{position:fixed;inset:0;background:rgba(15,20,35,.5);z-index:90;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .18s ease}
+.overlay.show{opacity:1}
+.overlay-box{background:#fff;border-radius:8px;max-width:min(1200px,94vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px -20px rgba(0,0,0,.4);transform:scale(.985);transition:transform .18s ease}
+.overlay.show .overlay-box{transform:none}
 .overlay-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line)}
 .overlay-head h2{margin:0;font-size:18px}
 .overlay-close{border:1px solid var(--line-2);background:#fff;border-radius:6px;width:30px;height:30px;font-size:18px;line-height:1;cursor:pointer;color:var(--ink-2)}
@@ -229,4 +232,30 @@ button.cmp.on{background:var(--ink);color:#fff;border-color:var(--ink)}
   .tbl .t-qs{font-size:12.5px}
   .tbl .qs-more>summary{display:block;padding:9px 0;font-size:12.5px}
   .tbl .qs-more>summary::before{font-size:10px}
+}
+
+/* ══ 动效：每一条都对应一个具体的理解/反馈需求，不做纯装饰 ══ */
+@keyframes ua-fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes ua-row-flash{from{background:#fbf1d8}to{background:transparent}}
+@keyframes ua-card-flash{from{background:#fbf1d8}to{background:var(--card)}}
+@keyframes ua-badge-pulse{0%,55%{background:#f4e3b4;border-color:#c9a24a}100%{background:#fbf6e9;border-color:var(--gold-line)}}
+
+/* 1. 换板块 / 换筛选条件后结果区淡入：让人确认「内容整体换了」，而不是以为没反应 */
+.groups.anim{animation:ua-fade-in .22s ease-out}
+/* 2. 口径说明随板块整套替换时正文淡入（内容换了要有交代） */
+#manual-body section{animation:ua-fade-in .22s ease-out}
+/* 3. 加入/移出对比时闪一下所在行：长表格里确认自己点的是哪一行 */
+.tbl tbody tr.flash{animation:ua-row-flash .85s ease-out}
+.card.flash{animation:ua-card-flash .85s ease-out}
+/* 4. 切板块时口径说明的板块徽章脉冲一次：把视线引向该板块专属说明，避免漏看 */
+.man-region.pulse{animation:ua-badge-pulse 1.1s ease-out}
+/* 5. 展开「另 N 项」时新出现的学科淡入 */
+.tbl .qs-more[open] .t-qs{animation:ua-fade-in .18s ease-out}
+/* 6. 按钮按下的位移反馈（瞬时，不加过渡，保持干脆的触感） */
+.chip:active,.btn:active,.seg-btn:active,.region-tab:active,button.cmp:active{transform:translateY(1px)}
+
+@media (prefers-reduced-motion:reduce){
+  .toast,.overlay,.overlay-box,.comparebar{transition:none}
+  .groups.anim,#manual-body section,.tbl tbody tr.flash,.card.flash,.man-region.pulse,.tbl .qs-more[open] .t-qs{animation:none}
+  .chip:active,.btn:active,.seg-btn:active,.region-tab:active,button.cmp:active{transform:none}
 }
