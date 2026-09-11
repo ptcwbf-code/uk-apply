@@ -522,7 +522,7 @@ const HKPROGRAMS = [
   { school: 'cityu', dirs: ['econ'], zh: '会计学', en: 'BBA Accountancy',
     degree: 'JS1002 · 4 年制', alevel: '3 AL ≥ E', ib: 'Diploma', test: '',
     alevelNote: '', offer: 'ger', note: '专业会计 / ESG 与科技两流',
-    url: 'https://www.cb.cityu.edu.hk/programmes/programme-finder/details?code=JS1002' },
+    url: 'https://www.cityu.edu.hk/admo/programmes/bba-accountancy' },
 
   { school: 'cityu', dirs: ['econ'], zh: '金融学', en: 'BBA Finance',
     degree: 'JS1014 · 4 年制', alevel: '3 AL ≥ E', ib: 'Diploma', test: '',
@@ -537,22 +537,22 @@ const HKPROGRAMS = [
   { school: 'cityu', dirs: ['econ'], zh: '经济与金融系方案（商业经济/金融）', en: 'Economics and Finance',
     degree: 'JS1012 · 4 年制', alevel: '3 AL ≥ E', ib: 'Diploma', test: '',
     alevelNote: '', offer: 'ger', note: '入系一年后按成绩分流主修（前 40% 自由选）',
-    url: 'https://www.cb.cityu.edu.hk/programmes/programme-finder/details?code=JS1012' },
+    url: 'https://www.cityu.edu.hk/admo/programmes/economics-and-finance-majors-bba-business-economics-bba-finance' },
 
   { school: 'cityu', dirs: ['cs', 'econ'], zh: '计算金融与金融科技', en: 'BSc Computational Finance & FinTech',
     degree: 'JS1000 · 4 年制', alevel: '3 AL ≥ E', ib: 'Diploma', test: '',
     alevelNote: '', offer: 'ger', note: '计算金融/金融科技两流；含 CityU–Columbia 双学位',
-    url: 'https://www.cb.cityu.edu.hk/programmes/programme-finder/details?code=JS1000' },
+    url: 'https://www.cityu.edu.hk/admo/programmes/bsc-computational-finance-and-financial-technology' },
 
   { school: 'cityu', dirs: ['econ'], zh: '环球商业', en: 'BBA Global Business',
     degree: 'JS1001 · 4 年制', alevel: '3 AL ≥ E', ib: 'Diploma', test: '',
     alevelNote: '', offer: 'ger', note: '',
-    url: 'https://www.cb.cityu.edu.hk/programmes/programme-finder/details?code=JS1001' },
+    url: 'https://www.cityu.edu.hk/admo/programmes/bba-global-business' },
 
   { school: 'cityu', dirs: ['econ'], zh: '商业决策分析', en: 'BBA Business Decision Analytics',
     degree: 'JS1026 · 4 年制', alevel: '3 AL ≥ E', ib: 'Diploma', test: '',
     alevelNote: '', offer: 'ger', note: '决策分析/数据信息学两流',
-    url: 'https://www.cb.cityu.edu.hk/programmes/programme-finder/details?code=JS1026' },
+    url: 'https://www.cityu.edu.hk/admo/programmes/bba-business-decision-analytics' },
 
   { school: 'cityu', dirs: ['bio'], zh: '化学', en: 'BSc Chemistry',
     degree: 'JS1202 · 4 年制', alevel: '3 AL ≥ E', ib: 'Diploma', test: '',
@@ -592,7 +592,7 @@ const HKPROGRAMS = [
     degree: 'JS1103 · 4 年制', alevel: '3 AL ≥ E', ib: '文凭（未列分数）', test: '',
     alevelNote: '【中文资历受限】须提交认可中文能力证明；无中文资历者实际难以申请', offer: 'ger',
     note: '方向：中文 / 历史及文化遗产',
-    url: 'https://www.cityu.edu.hk/admo/programmes/ba-chinese-and-history-0' },
+    url: 'https://www.cityu.edu.hk/admo/programmes/ba-chinese-and-history' },
 
   { school: 'cityu', dirs: ['social'], qs: ['psychology'], zh: '社会科学学士（心理学）', en: 'BSocSc Psychology',
     degree: 'JS1112 · 4 年制', alevel: '3 AL ≥ E', ib: '文凭（未列分数）', test: '',
