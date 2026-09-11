@@ -22,9 +22,13 @@
   function scoreHTML(v, cls) {
     if (!v) return '<span class="' + cls + '">—</span>';
     var i = v.indexOf('（');
-    if (i < 0) return '<span class="' + cls + '">' + esc(v) + '</span>';
-    return '<span class="' + cls + '">' + esc(v.slice(0, i)) +
-      '<span class="score-sub">' + esc(v.slice(i)) + '</span></span>';
+    var main = i < 0 ? v : v.slice(0, i);
+    var sub = i < 0 ? '' : v.slice(i);
+    // 在 – — / + 之后留一个可断点：长分数（如 A*A*A*A–A*A*A*A*）会优先在这里折行，
+    // 而不是被断词规则从中间劈开
+    var brk = esc(main).replace(/([–—/+])/g, '$1<wbr>');
+    return '<span class="' + cls + '">' + brk +
+      (sub ? '<span class="score-sub">' + esc(sub) + '</span>' : '') + '</span>';
   }
   function showToast(msg, ms) {
     var t = $('#toast'); if (!t) return;
