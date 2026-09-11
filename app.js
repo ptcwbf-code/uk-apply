@@ -367,7 +367,7 @@
       { t: 'QS 学科排名（参考）', items: [
         '表内「QS2026 学科」列与卡片上的「QS2026 #N」标签，来自 **QS World University Rankings by Subject 2026**。',
         '港校强项举例：**港大牙医 #2、KCL 牙医 #5；港中文护理 =6、KCL 护理 #2、曼大护理 =10；港大数据科学与AI #18、港科大 #25、港中文 #28**。',
-        '一个专业对应的学科榜由其**学科方向**决定（如「人文·语言」对应历史 / 英语 / 现代语言 / 语言学 / 哲学）；表内**全部列出**（按名次优先后排列，最多 9 个）。',
+        '一个专业对应的学科榜，先按**专业名**收敛到本学科家族（如「人文·语言」里，历史给历史榜、音乐给表演艺术榜），认不出学科名才退回**学科方向**桶；**师资培训学位（教育学士 / BEd）优先按「教育与培训」归类**——教大的五年制双学位课程名带着所教科目的前半截（如「AI 理学士及数学教育学士」），不先判定就会被 AI 等学科规则截走。表内**全部列出**（按名次优先后排列，最多 9 个）。',
         '「—」表示本站收录的学科里**没有**与该专业对应的榜，或该校在该学科**未进入前 200 名**（本站只收录前 200 名；200 名之后为区间段，未收录，不代表该校完全未上榜）。',
         '排名反映的是研究声誉与产出，与本科录取难度**不是同一回事**，仅作选校参考。'
       ]}
@@ -707,6 +707,11 @@
   var SOC6 = ['sociology', 'social-policy-administration', 'psychology', 'geography', 'anthropology', 'politics'];
   var SCI4 = ['chemistry', 'biological-sciences', 'physics-astronomy', 'mathematics'];
   var QS_NAME_RULES = [
+    // 师资培训学位（教育学士 / BEd）先判定：它本身就是「教育与培训」类专业，
+    // 但课程名常带着所教科目的前半截（如「…理学士及数学教育学士（双学位）」「AI and Educational
+    // Technology & BEd」），若不先判定会被 AI / 会计金融 / 环境 / 传媒等学科规则截走，
+    // 结果挂到本校并不一定上榜的学科上、反而显示「—」。两个板块共 8 条命中，全部在香港教育大学。
+    [/教育学士|Bachelor of Education|BEd\b/, ['education-training']],
     // 宽口径大类（本身横跨多个学科）：必须最先判定。
     // 带括号的细分不算大类（如「社会科学学士（心理学）」按心理走），故用 (?![（(]) 排除
     [/理学大类|理学院[\s（]|science \(group|bachelor of science\s*$|应用生物\/计算机|自然科学|natural science/i, SCI4],
@@ -731,7 +736,7 @@
     [/牙医|dental|BDS/i, ['dentistry']],
     [/护理|nursing|BNurs/i, ['nursing']],
     [/药剂|药学|药理|中药|中医|pharmacy|pharmacolog/i, ['pharmacy-pharmacology']],
-    [/物理治疗|放射|医疗化验|言语病理|复康|physiotherap|radiograph|medical laboratory|speech pathology|rehabilit/i, ['nursing']],
+    [/物理治疗|放射|医疗化验|言语病理|言语治疗|复康|physiotherap|radiograph|medical laboratory|speech pathology|speech therapy|rehabilit/i, ['nursing']],
     // 理学生命
     [/生物化学|biochemistry/i, ['biological-sciences', 'chemistry']],
     [/生物科技|生物技术|biotechnology/i, ['biological-sciences', 'chemistry']],

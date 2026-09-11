@@ -2008,18 +2008,6 @@ const ENG_PROG = {
    "eslFlag": "no"
   },
   {
-   "en": "Primary Education with Gaelic (Fluent Speakers) MA (Hons)",
-   "band": "",
-   "ielts": "6.5（各项≥5.5）",
-   "toeflOld": "92（各项≥20）",
-   "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
-   "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
-  },
-  {
    "en": "Film and Television BA (Hons)",
    "band": "",
    "ielts": "6.5（各项≥5.5）",
