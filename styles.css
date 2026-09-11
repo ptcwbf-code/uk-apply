@@ -25,7 +25,7 @@
   /* 这几个是「高亮/闪烁/斑马纹」用色，深色模式要整体替换，所以抽成变量 */
   --row-alt:#fcfcfe;
   --hl:#fdf0c8;
-  --diff-bg:rgba(156,117,36,.055);
+  --diff-bg:rgba(156,117,36,.10);
   --flash:#fbf1d8;
   --toast-bg:#0f1a2e;
   --toast-fg:#ffffff;
@@ -262,7 +262,9 @@ button.cmp-sib:hover{border-color:var(--navy-2);color:var(--navy);background:var
 .tbl th.diff{color:var(--navy)}
 .tbl th.diff::after{content:"差异";display:inline-block;margin-left:5px;font-size:9.5px;letter-spacing:0;
   color:var(--gold);border:1px solid var(--gold-line);background:var(--gold-bg);border-radius:4px;padding:0 4px}
-.tbl td.diff{background:var(--diff-bg)}
+/* 必须压过斑马纹（.tbl tbody tr:nth-child(even) td）——
+   否则偶数列行的差异高亮会被斑马底色吃掉，看起来「只有一半的行被标了」 */
+.tbl tbody tr:is(:nth-child(odd),:nth-child(even)) td.diff{background:var(--diff-bg)}
 .cmp-diff-note{margin:0;padding:9px 20px;font-size:12px;line-height:1.6;color:#6b4e10;background:var(--gold-bg);
   border-bottom:1px solid var(--gold-line)}
 .btn-sm{padding:5px 11px;font-size:12.5px}
@@ -389,6 +391,8 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .cs-btn:hover{border-color:var(--navy-2);color:var(--navy)}
 .cs-btn.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:650}
 .overlay .tblwrap{border:0;border-radius:0;box-shadow:none;overflow:auto;max-height:calc(88vh - 61px)}
+/* 弹层里的表头吸在自己的滚动容器顶部；--stick-top 是主页学校头的高度，用在这里会把表头顶下来压住首行 */
+.overlay .tbl thead th{top:0}
 
 /* ══ 页脚 ══ */
 .foot{margin:30px 0 40px;color:var(--mut);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;line-height:1.8}
@@ -484,7 +488,7 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
     --focus:#d9b566;
     --row-alt:#121924;
     --hl:rgba(217,181,102,.30);
-    --diff-bg:rgba(217,181,102,.10);
+    --diff-bg:rgba(217,181,102,.17);
     --flash:rgba(217,181,102,.30);
     --toast-bg:#e7ecf4; --toast-fg:#0e131b;   /* 深色底上把提示条反过来，才跳得出来 */
     --mast-a:#1a2942; --mast-b:#0d1524;
