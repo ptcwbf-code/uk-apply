@@ -71,7 +71,7 @@
   alevel: 'A*A*A',         // A-level 分数（大字展示）
   ib: '40（HL 数学 7）',    // IB 要求
   alevelNote: '数学或高数 A*',  // A-level 科目/必修说明
-  test: 'TARA',            // 英国：入学笔试（''|ESAT|TMUA|TARA|STEP|UCAT）；香港：面试/附加甄选（''=无）
+  test: 'TARA',            // 英国：入学笔试（''|ESAT|TMUA|TARA|LNAT|STEP|UCAT）；香港：面试/附加甄选（''=无）
   offer: 'typical',        // 成绩口径：typical | min | range | college | standard | lower | ref | ger
   note: 'CS 系须考 TARA',   // 备注
   qs: ['psychology'],      // 可选：钉住该专业对应的 QS 学科榜（默认按 dirs 推导）；qs: [] 表示没有对应榜，不显示
@@ -80,7 +80,7 @@
 ```
 
 学科方向（`DIRS`）共 10 个：`bio` `physics` `eng` `econ` `cs` `stats` `edu` `arts` `social` `media`。
-其中 `edu`（教育）、`arts`（人文·语言）、`social`（社科·法律）、`media`（传媒）目前只有香港板块有专业；**某方向在本板块没有专业时，该筛选项不会显示**，所以英国板块只会看到前 6 个。
+其中 `edu`（教育）、`arts`（人文·语言）、`social`（社科·法律）两个板块都有专业；`media`（传媒）目前只有香港板块有。**某方向在本板块没有专业时，该筛选项不会显示**——英国板块因此不显示「传媒」（九校本科没有传媒类课程），帝国理工也因不设社科 / 教育类本科而不出现在这三个方向下。
 
 `qs` 字段只在按方向推导会**串到不相干的学科榜**时才需要写，分两种情形：
 

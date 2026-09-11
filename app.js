@@ -56,6 +56,7 @@
     TARA: 'Test of Academic Reasoning for Admissions（入学学术推理测试）',
     STEP: 'Sixth Term Examination Paper（剑桥数学录取后测试）',
     UCAT: 'University Clinical Aptitude Test（医学院临床能力测试）',
+    LNAT: 'National Admissions Test for Law（法学入学测试）',
     '面试': '需面试 / 附加甄选'
   };
 
@@ -92,7 +93,7 @@
   // 所有筛选/视图/排序改动都只经由 apply() 落盘，避免各处各自为政
   var STORE_KEY = 'ukapply.state.v1';
   // 笔试筛选取值：筛选按钮与 URL 解码共用一份，避免两处漂移
-  var TEST_OPTS = [['ALL', '不限'], ['NONE', '无笔试'], ['YES', '需笔试'], ['ESAT', 'ESAT'], ['TMUA', 'TMUA'], ['TARA', 'TARA'], ['STEP', 'STEP'], ['UCAT', 'UCAT']];
+  var TEST_OPTS = [['ALL', '不限'], ['NONE', '无笔试'], ['YES', '需笔试'], ['ESAT', 'ESAT'], ['TMUA', 'TMUA'], ['TARA', 'TARA'], ['LNAT', 'LNAT'], ['STEP', 'STEP'], ['UCAT', 'UCAT']];
   var TEST_KEYS = TEST_OPTS.map(function (t) { return t[0]; });
 
   function snapshot() {
@@ -746,11 +747,14 @@
     [/会计|金融|财务|accounting|finance/i, ['accounting-finance']],
     [/管理|商务|商业|市场|business|management|marketing|BBA/i, ['business-management-studies']],
     // 人文社科
+    [/犯罪|criminolog/i, ['law-legal-studies', 'social-policy-administration']],
     [/法|law|LLB/i, ['law-legal-studies']],
     [/心理|psycholog/i, ['psychology']],
+    [/国际关系|international relations|战争研究|war studies/i, ['politics', 'social-policy-administration']],
     [/政治|政府|government|politic|国际事务|international affairs/i, ['politics', 'social-policy-administration']],
     [/社会学|社会科学|social science|sociolog/i, ['sociology']],
     [/地理|geograph/i, ['geography']],
+    [/人类科学|human sciences/i, ['anthropology', 'sociology', 'biological-sciences']],
     [/人类学|anthropolog/i, ['anthropology']],
     [/传媒|传播|媒体|新闻|communication|media|journalism|广告|advertis|电影|film/i, ['communication-media-studies']],
     [/教育|education/i, ['education-training']],
