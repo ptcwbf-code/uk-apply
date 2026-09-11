@@ -448,28 +448,43 @@
     return brief(e.toeflOld) + ' / ' + brief(e.toeflNew);
   }
   // IGCSE-ESL 是否接受——各校差异最大、最影响可申性，摘要行直接显示，不藏在悬停里
-  // 把详情里的取值压成短标签：去掉「IGCSE First/Second Language 」前缀与括注
+  // 把详情里的取值压成短标签
+  // 原则：标签只给「一眼能比」的那点信息，附加条件（考局限制、口试要求等）留在详情里
   function engShortTag(prefix, v) {
     v = String(v || '').trim();
     if (!v || v === '—') return '';
-    if (/^官网未列$/.test(v) || /^未列$/.test(v)) return prefix + ' 未列';
-    if (/^官网未区分$/.test(v)) return prefix + ' 未区分';
-    if (/^不接受$/.test(v)) return prefix + ' 不接受';
+    if (/不接受/.test(v)) return prefix + ' 不接受';
+    if (/未区分/.test(v)) return prefix + ' 未区分';
+    if (/未列/.test(v)) return prefix + ' 未列';
     if (/^有条件接受$/.test(v)) return prefix + ' 有条件';
-    // 只丢掉「（口语 Merit）」这类说明性括注；「（5）」「（4）」是等效等级，要留着
-    v = v.replace(/^IGCSE (?:First|Second) Language\s*/, '').replace(/（(?![0-9A-D]）)[^）]*）/g, '')
-         .replace(/Distinction/g, 'Dist').replace(/\s*\+\s*/g, '+').replace(/\s+/g, '');
+    v = v.replace(/^IGCSE (?:First|Second) Language\s*/, '')
+         .replace(/^(?:ESL|EFL)\s*/i, '')
+         .replace(/^接受[：:]\s*/, '');
+    // 分号后一般是附加条件（如「仅限 CAIE / Oxford AQA / Pearson Edexcel」）——不塞进标签
+    v = v.split(/[；;，,]/)[0].trim();
+    // 说明性括注丢掉；「（5）」「（4）」这类等效等级保留
+    v = v.replace(/（(?![0-9A-D]）)[^）]*）/g, '')
+         .replace(/^(?:Grade|等级)\s*/i, '')
+         .replace(/Distinction/g, 'Dist')
+         .replace(/\s*\+\s*/g, '+')
+         .replace(/\s+/g, '');
+    if (v === '可') v = '接受';
+    if (!v) return '';
+    if (v.length > 9) return prefix + ' 见详情';   // 兜底：实在压不下来就不硬塞
     return prefix + ' ' + v;
   }
   // 四大体系在粗略展示里都露出：IELTS / TOEFL 各自成行，EFL 与 ESL 各给一枚标签
   function engChipTags(e) {
     if (!e) return '';
-    function chip(prefix, txt) {
+    function chip(prefix, txt, full) {
       if (!txt) return '';
-      return '<span class="eng-esl' + (prefix === 'EFL' ? ' efl' : '') + (/不接受/.test(txt) ? ' no' : '') + '">' + esc(txt) + '</span>';
+      return '<span class="eng-esl' + (prefix === 'EFL' ? ' efl' : '') + (/不接受/.test(txt) ? ' no' : '') +
+        '" title="' + esc(full) + '">' + esc(txt) + '</span>';
     }
-    return chip('EFL', engShortTag('EFL', igcseValue(e, 'efl'))) +
-           chip('ESL', engShortTag('ESL', igcseValue(e, 'esl')));
+    // 标签是简写，完整原文挂在 title 上（桌面端悬停即见；手机上点「详情」看全）
+    var eflFull = igcseValue(e, 'efl'), eslFull = igcseValue(e, 'esl');
+    return chip('EFL', engShortTag('EFL', eflFull), eflFull) +
+           chip('ESL', engShortTag('ESL', eslFull), eslFull);
   }
   // ── IGCSE 英语（EFL 第一语言 / ESL 第二语言）──
   // 从该校的 GCSE/IGCSE 档位文字里解析出等级（各校写法不同，按优先级匹配）
@@ -564,8 +579,8 @@
       engChipTags(e) +
       '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' +
       (rowId && engDetailItems(e).length ? '<button type="button" class="eng-open" data-eng="' + esc(rowId) +
-        '" data-eng-label="' + esc(label || '') + '" aria-expanded="false"' +
-        ' title="展开全部英语要求（IELTS / TOEFL / GCSE / ESL / IB / GCE）">详情 ▾</button>' : '') +
+        '" data-eng-label="' + esc(label || '') + '" aria-haspopup="dialog"' +
+        ' title="打开英语要求详情（IELTS / TOEFL / EFL / ESL / IB / GCE）">详情</button>' : '') +
       '</td>';
   }
 

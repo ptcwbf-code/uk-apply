@@ -290,7 +290,6 @@ button.cmp-sib:hover{border-color:var(--navy-2);color:var(--navy);background:var
   border:1px solid var(--line-2);border-radius:5px;background:var(--card);color:var(--navy-2);cursor:pointer;
   transition:background .15s ease,border-color .15s ease,color .15s ease}
 .eng-open:hover{border-color:var(--navy-2);background:var(--panel)}
-.eng-open[aria-expanded="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
 .eng-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 24px;padding:14px 18px}
 .ed-i{display:flex;flex-direction:column;gap:2px;min-width:0}
 .ed-k{font-size:11px;color:var(--mut);letter-spacing:.04em}
