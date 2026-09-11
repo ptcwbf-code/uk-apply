@@ -33,9 +33,6 @@ const DIRS = {
 const PROGRAMS = [
 
   // ═══════════ 牛津 Oxford（standard：课程页标准要求；均需线上面试） ═══════════
-  
-
-  
 
   { school: 'oxford', dirs: ['bio'], zh: '生物化学（分子与细胞生物学）', en: 'Biochemistry (Molecular and Cellular Biology)',
     degree: 'MBiochem · 4 年', alevel: 'A*AA', ib: '39（HL 化学 7 + 另两门相关 6）', test: '',
@@ -81,8 +78,6 @@ const PROGRAMS = [
     degree: 'BA / MMath · 3 或 4 年', alevel: 'A*A*A', ib: '39（HL 766，7 在 HL 数学）', test: 'TMUA',
     alevelNote: '数学 + 高数均 A*（同 CS 的不开高数替代路径）', offer: 'standard', note: '申请即联合 Math & Stats，第四学期末分纯数 / 数统路线',
     url: 'https://www.ox.ac.uk/admissions/undergraduate/courses/course-listing/mathematics' },
-
-
 
 // ── 牛津 · 社科 / 法律 / 人文（2027 起社科类笔试改考 TARA；法学 LNAT） ──
   { school: 'oxford', dirs: ['social'], zh: '法学（法理学）', en: 'Law (Jurisprudence)',
@@ -152,8 +147,6 @@ const PROGRAMS = [
     note: 'UCAS LV64；无入学笔试，需提交两篇近期在校批改论文；12 月线上面试',
     url: 'https://www.ox.ac.uk/admissions/undergraduate/courses/course-listing/archaeology-and-anthropology' },
 
-
-
   // ═══════════ 剑桥 Cambridge（Minimum offer level=多数学院标准条件，实际录取普遍更高；offer 由各学院发出） ═══════════
   { school: 'cambridge', dirs: ['bio', 'physics'], zh: '自然科学（生物/化学/物理均在此一门）', en: 'Natural Sciences',
     degree: 'BA (Hons) / MSci · 3 或 4 年', alevel: 'A*A*A', ib: '41–42（HL 776）', test: 'ESAT',
@@ -194,8 +187,6 @@ const PROGRAMS = [
     degree: 'BA (Hons) · 3 年', alevel: 'A*AA', ib: '41–42（HL 776）', test: '',
     alevelNote: '无必修科目（推荐经济与数学）', offer: 'college', note: '商科直申课程；官方课程名已更新为 Environment, Law and Economics；无考试，部分学院要书面作品',
     url: 'https://www.undergraduate.study.cam.ac.uk/courses/environment-law-economics-ba-hons' },
-
-
 
 // ── 剑桥 · 社科 / 教育 / 人文（仅法学要 LNAT，其余无笔试，改为面试 + 书面作品） ──
   { school: 'cambridge', dirs: ['social'], zh: '法学', en: 'Law',
@@ -265,7 +256,6 @@ const PROGRAMS = [
     note: '覆盖考古、生物人类学、埃及学与亚述学',
     qs: [],
     url: 'https://www.undergraduate.study.cam.ac.uk/courses/archaeology-ba-hons' },
-
 
   // ═══════════ 帝国理工 Imperial（/2027/ 版官方页；工程系普遍 ESAT，数学/计算机 TMUA） ═══════════
   { school: 'imperial', dirs: ['bio'], zh: '医学生物科学', en: 'Medical Biosciences',
@@ -348,8 +338,6 @@ const PROGRAMS = [
     alevelNote: '数学 A* + 高数 A*', offer: 'min', note: '典型A*A*A；数学系各方向要求一致',
     url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/mathematics-bsc/' },
 
-
-
   // ═══════════ LSE（社科院校，本页收录经管与数学类；多门须 TMUA） ═══════════
   { school: 'lse', dirs: ['econ'], zh: '经济学', en: 'Economics',
     degree: 'BSc · 3 年', alevel: 'A*AA', ib: '39（HL 766、数学 7）', test: 'TMUA',
@@ -405,8 +393,6 @@ const PROGRAMS = [
     degree: 'BSc · 3 年', alevel: 'A*AA', ib: '39（HL 766、数学 AA 7）', test: 'TMUA',
     alevelNote: '数学 A*；高数若开设须 A', offer: 'typical', note: 'TMUA 鼓励',
     url: 'https://www.lse.ac.uk/study-at-lse/undergraduate/bsc-mathematics-statistics-and-business' },
-
-
 
 // ── LSE · 社科核心（LSE 本就是社科专门院校；法学 LNAT，其余无笔试、无面试） ──
   { school: 'lse', dirs: ['social'], zh: '法学（法学士）', en: 'LLB Bachelor of Laws',
@@ -489,8 +475,6 @@ const PROGRAMS = [
     note: 'UCAS LV25；政府系；contextual A-level AAB / IB 37',
     url: 'https://www.lse.ac.uk/study-at-lse/undergraduate/bsc-politics-and-philosophy' },
 
-
-
   // ═══════════ UCL（新版 /courses/ 课程页；官网有反爬，链接与分数经官网+UCAS 核对） ═══════════
   { school: 'ucl', dirs: ['bio'], zh: '生物医学', en: 'Biomedical Sciences',
     degree: 'BSc · 3 年', alevel: 'AAA', ib: '38（HL 生物+化学各 6）', test: '',
@@ -562,7 +546,109 @@ const PROGRAMS = [
     alevelNote: 'A* 必须数学；高数偏好', offer: 'typical', note: '统计系不收重考；无笔试',
     url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/statistics-economics-and-finance-bsc' },
 
+  { school: 'ucl',
+    dirs: ['edu'],
+    zh: '教育学、社会与文化',
+    en: 'Education, Society and Culture BA',
+    degree: 'BA · 3 年',
+    alevel: 'ABB',
+    ib: '34（HL 16）',
+    alevelNote: '无特定必修科目；优先社会科学、古典学、英语文学/语言或商科；至少两门 A level 须取自 UCL 认可科目清单。GCSE：English Language B/6，Mathematics C/4',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS X300；UCL 教育学院（IOE，QS 教育学科连续多年全球第 1）本科旗舰专业，由 Education, Practice and Society 系开设；contextual BBB；官网保留面试权',
+    url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/education-society-and-culture-ba' },
 
+  { school: 'ucl',
+    dirs: ['edu'],
+    zh: '幼儿教育',
+    en: 'Early Childhood Education BA',
+    degree: 'BA · 3 年',
+    alevel: 'ABB',
+    ib: '34（HL 16）',
+    alevelNote: '无特定必修科目；至少两门 A level 须取自 UCL 认可科目清单。GCSE：English Language 与 Mathematics 均需 C/4',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS X302；IOE 教育学院 Learning and Leadership 系开设；contextual BBB；毕业时可获面试机会申请 EYITT 早期教育教师资格培训',
+    url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/early-childhood-education-ba' },
+
+  { school: 'ucl',
+    dirs: ['edu', 'social'],
+    zh: '心理学与教育学',
+    en: 'Psychology with Education BSc',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA',
+    ib: '38（HL 18）',
+    alevelNote: '无必修科目；Psychology/Sociology/Mathematics/Biology 中一门或以上优先；至少两门 A level 取自 UCL 认可清单。GCSE：English Language 与 Mathematics 均需 B/6',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS C801；IOE 开设，获英国心理学会（BPS）认证；contextual ABB',
+    url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/psychology-education-bsc' },
+
+  { school: 'ucl',
+    dirs: ['social'],
+    zh: '心理学',
+    en: 'Psychology BSc',
+    degree: 'BSc · 3 年',
+    alevel: 'A*AA',
+    ib: '39（HL 19）',
+    alevelNote: '须含两门取自 Biology/Chemistry/Mathematics/Physics/Psychology 的 A*A；IB 为 HL 总分 19，且两门相关科目达 7 与 6。GCSE：English Language、Mathematics 及两门科学（双奖可）grade B/6',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS C800；由心理学与语言科学部开设，获 BPS 认证；contextual A*AC',
+    url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/psychology-bsc' },
+
+  { school: 'ucl',
+    dirs: ['social'],
+    zh: '社会学',
+    en: 'Sociology BSc',
+    degree: 'BSc · 3 年',
+    alevel: 'AAB',
+    ib: '36（HL 17）',
+    alevelNote: '无特定科目；至少两门 A level 取自 UCL 认可科目清单。GCSE：English Language 与 Mathematics 均需 B/6',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS L301；由 Social Research Institute（IOE）开设；contextual BBB。2027 入学不再要求 TARA 笔试（该笔试仅适用于 2026 入学一轮）',
+    url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/sociology-bsc' },
+
+  { school: 'ucl',
+    dirs: ['social'],
+    zh: '法学',
+    en: 'Law LLB',
+    degree: 'LLB · 3 年',
+    alevel: 'A*AA',
+    ib: '39（HL 19）',
+    alevelNote: '无特定科目；至少两门 A level 取自 UCL 认可清单；不接受重考（resits）。GCSE：English Language 与 Mathematics 均需 B/6',
+    test: 'LNAT',
+    offer: 'typical',
+    note: 'UCAS M100；UCL Laws 开设，所有申请者须考 LNAT；contextual AAB；英语要求为全校最高档之一',
+    url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/law-llb' },
+
+  { school: 'ucl',
+    dirs: ['social'],
+    zh: '政治与国际关系',
+    en: 'Politics and International Relations BSc',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA',
+    ib: '38（HL 18）',
+    alevelNote: '无特定科目，偏好论文类科目（非必须）；至少两门 A level 取自 UCL 认可清单。GCSE：English Language B/6，Mathematics C/4',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS L251；由政治学系（Political Science）开设；contextual ABB',
+    url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/politics-and-international-relations-bsc' },
+
+  { school: 'ucl',
+    dirs: ['social'],
+    zh: '地理学',
+    en: 'Geography BSc',
+    degree: 'BSc · 3 年',
+    alevel: 'AAB',
+    ib: '36（HL 17）',
+    alevelNote: '无特定科目；至少两门 A level 取自 UCL 认可清单。GCSE：English Language 与 Mathematics 均需 C/4',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS F800；由地理系开设；contextual BBB',
+    url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/geography-bsc' },
 
   // ═══════════ KCL（成绩在 /requirements 子页） ═══════════
   { school: 'kcl', dirs: ['bio'], zh: '生物医学', en: 'Biomedical Science',
@@ -635,7 +721,109 @@ const PROGRAMS = [
     alevelNote: '数学+高数合计 A*A（未学高数可用 AS 高数 A）', offer: 'typical', note: '高数近乎必选',
     url: 'https://www.kcl.ac.uk/study/undergraduate/courses/mathematics-bsc/requirements' },
 
+  { school: 'kcl',
+    dirs: ['edu', 'social'],
+    zh: '社会科学',
+    en: 'Social Sciences BA',
+    degree: 'BA · 3 年',
+    alevel: 'AAB',
+    ib: '35（HL 17）',
+    alevelNote: '无必修科目，偏好至少一门社会科学科目（如社会学、政治、经济、心理等）。GCSE：English Language B/6',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS L300；隶属教育、传播与社会学院（School of Education, Communication & Society, ECS）——KCL 以 ECS 学院本科专业代表教育/社科方向；社会学与政策方向《卫报》2026 排名英国第 3；contextual BBB',
+    url: 'https://www.kcl.ac.uk/study/undergraduate/courses/social-sciences-ba' },
 
+  { school: 'kcl',
+    dirs: ['arts'],
+    zh: '英语语言与语言学',
+    en: 'English Language and Linguistics BA',
+    degree: 'BA · 3 年',
+    alevel: 'AAB',
+    ib: '35（HL 17）',
+    alevelNote: '须含一门取自 English Language/English Literature/Creative Writing/Modern Foreign Language/Psychology 的 A；IB 需对应科目 HL 6。GCSE：English Language B/6',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS Q100；隶属 ECS 学院；QS 2026 学科排名英语语言与文学英国第 5；contextual ABC',
+    url: 'https://www.kcl.ac.uk/study/undergraduate/courses/english-language-and-linguistics-ba' },
+
+  { school: 'kcl',
+    dirs: ['arts'],
+    zh: '文理学科',
+    en: 'Liberal Arts BA',
+    degree: 'BA · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18）',
+    alevelNote: '无必修科目（选择音乐主修者须有 Music A level 或 Grade 5 乐理）；GCSE：English Language B/6',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS LP99；跨学科文理学位，可自选主修组合（含现代语言，为四年制）；contextual ABB',
+    url: 'https://www.kcl.ac.uk/study/undergraduate/courses/liberal-arts-ba' },
+
+  { school: 'kcl',
+    dirs: ['social'],
+    zh: '战争研究',
+    en: 'War Studies BA',
+    degree: 'BA · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18）',
+    alevelNote: '无必修/偏好科目。GCSE：English Language B/6',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS L252；由战争研究系（Department of War Studies）开设，为 KCL 招牌方向；三年制，可选一年海外交换；contextual ABB',
+    url: 'https://www.kcl.ac.uk/study/undergraduate/courses/war-studies-ba' },
+
+  { school: 'kcl',
+    dirs: ['social'],
+    zh: '国际关系',
+    en: 'International Relations BA',
+    degree: 'BA · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18）',
+    alevelNote: '无必修/偏好科目。GCSE：English Language B/6',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS L250；由战争研究系（Department of War Studies）开设；contextual ABB',
+    url: 'https://www.kcl.ac.uk/study/undergraduate/courses/international-relations-ba' },
+
+  { school: 'kcl',
+    dirs: ['social'],
+    zh: '心理学',
+    en: 'Psychology BSc',
+    degree: 'BSc · 3 年',
+    alevel: 'A*AA',
+    ib: '38（HL 19）',
+    alevelNote: '须含一门取自 Biology/Chemistry/Mathematics/Physics/Psychology 的 A；IB 需对应科目 HL 6；另有 GCSE Mathematics 要求（可用 IB Mathematics SL/HL grade 2 满足）',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS C800（另设含海外年/实习年版本）；由心理学系（IoPPN）开设，获 BPS 认证；contextual AAB',
+    url: 'https://www.kcl.ac.uk/study/undergraduate/courses/psychology-bsc' },
+
+  { school: 'kcl',
+    dirs: ['social'],
+    zh: '法学',
+    en: 'Law LLB',
+    degree: 'LLB · 3 年',
+    alevel: 'A*AA',
+    ib: '38（HL 19）',
+    alevelNote: '无必修科目。GCSE：English Language B/6',
+    test: 'LNAT',
+    offer: 'typical',
+    note: 'UCAS M100；Dickson Poon 法学院开设，所有申请者须于 12 月 31 日前完成 LNAT；contextual AAB',
+    url: 'https://www.kcl.ac.uk/study/undergraduate/courses/law-llb' },
+
+  { school: 'kcl',
+    dirs: ['social'],
+    zh: '政治经济学',
+    en: 'Political Economy BA/BSc',
+    degree: 'BA/BSc · 3 年',
+    alevel: 'A*AA',
+    ib: '38（HL 19）',
+    alevelNote: '无必修科目。GCSE：English Language B/6',
+    test: '',
+    offer: 'typical',
+    note: 'UCAS L200；由政治经济系（Department of Political Economy）开设；QS 2026 政治学全球第 11、英国第 4；contextual AAB',
+    url: 'https://www.kcl.ac.uk/study/undergraduate/courses/political-economy-ba-bsc' },
 
   // ═══════════ 曼大 Manchester（2027 页；CS 已较 2026 下调） ═══════════
   { school: 'manchester', dirs: ['bio'], zh: '生物化学', en: 'Biochemistry',
@@ -811,8 +999,6 @@ const PROGRAMS = [
     offer: 'typical',
     note: 'UCAS M1M9；面向刑事司法方向',
     url: 'https://www.manchester.ac.uk/study/undergraduate/courses/2027/18870/llb-law-with-criminology/' },
-
-
 
   // ═══════════ 爱丁堡 Edinburgh（分数=近年获 offer 区间 from–to；苏格兰一般 4 年；经管为 MA(Hons) 本科） ═══════════
   { school: 'edinburgh', dirs: ['bio'], zh: '生物科学（生化方向）', en: 'Biological Sciences (Biochemistry)',
@@ -1043,8 +1229,6 @@ const PROGRAMS = [
     offer: 'range',
     note: 'UCAS Q100；哲学、心理学与语言科学学院（PPLS）',
     url: 'https://study.ed.ac.uk/programmes/undergraduate/194-linguistics' },
-
-
 
   // ═══════════ 华威 Warwick（2027 官方页） ═══════════
   { school: 'warwick', dirs: ['bio'], zh: '生物医学', en: 'Biomedical Sciences',
