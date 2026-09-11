@@ -260,7 +260,15 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
    字段从「一行自由文本」拆成具体项（A-Level / IB / 雅思四项 / 托福），
    主页面只剩按钮与摘要——十几个输入摆在首屏会把第一行数据压到两屏之外。 */
 .gradeline{gap:10px}
-.gradebtn{display:inline-flex;align-items:center;gap:9px;max-width:100%}
+/* 入口要比周围的 ghost 按钮显眼：学生成绩是这个站最该被用起来的功能，
+   默认样式一混在「导出 / 复制链接 / 打印」里就没人注意得到 */
+.gradebtn{display:inline-flex;align-items:center;gap:8px;max-width:100%;
+  border-color:var(--navy-2);color:var(--navy);background:var(--card);
+  box-shadow:0 1px 2px rgba(30,74,128,.10)}
+.gradebtn:hover{border-color:var(--navy);background:var(--panel);color:var(--navy)}
+.gradebtn .gb-dot{width:7px;height:7px;border-radius:50%;background:var(--navy-2);flex:none}
+.gradebtn.filled{border-color:var(--navy);background:linear-gradient(180deg,#f6f9fd,var(--card))}
+.gradebtn.filled .gb-dot{background:var(--v-over)}
 .gradebtn .gb-k{font-weight:650}
 .gradebtn .gb-v{font-size:12.5px;font-weight:400;color:var(--mut);
   max-width:min(44ch,56vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -290,6 +298,19 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 /* 页脚左半边放实时小结（在面板里改一个数字就能看到判定怎么变），按钮靠右 */
 .gb-foot .gb-sum{flex:1 1 auto;min-width:0;font-size:12px;line-height:1.6;color:var(--ink-2)}
 .gb-foot .btn:first-of-type{margin-left:auto}
+/* ── 报告错误面板 ── */
+.report-sheet .overlay-box{max-width:min(640px,94vw)}
+.report-body{padding:16px 20px}
+.report-note{margin:0 0 10px;font-size:12.5px;line-height:1.75;color:var(--mut)}
+.report-text{width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--line-2);
+  border-radius:var(--r);background:var(--panel);color:var(--ink);font-family:var(--mono);
+  font-size:12px;line-height:1.7;resize:vertical}
+.report-text:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px rgba(30,74,128,.12)}
+@media (max-width:760px){
+  .report-sheet{align-items:flex-end;padding:0}
+  .report-sheet .overlay-box{width:100%;max-width:100%;max-height:90vh;border-radius:var(--r-lg) var(--r-lg) 0 0}
+  .report-body{padding:14px 16px}
+}
 /* 雅思：两个窄输入，与「我的成绩」同处一行——分开两行会把首行数据再推下去约 50px */
 .myg-sm{gap:6px}
 .myg-sm input{width:min(104px,26vw)}
@@ -452,9 +473,10 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;mi
   transition:background .15s ease,border-color .15s ease,color .15s ease}
 .tbl a.go2:hover{border-color:var(--navy-2);background:var(--panel);color:var(--navy)}
 /* 「报告错误」：安静地待在官网按钮下面，不跟主操作抢 */
-.tbl a.report{display:block;margin-top:5px;font-size:11.5px;color:var(--mut);text-decoration:underline;
-  text-underline-offset:3px;text-decoration-color:var(--line-2)}
-.tbl a.report:hover{color:var(--navy)}
+.tbl button.report{display:block;margin-top:5px;padding:0;border:0;background:none;font:inherit;
+  font-size:11.5px;color:var(--mut);cursor:pointer;text-align:left;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2)}
+.tbl button.report:hover{color:var(--navy)}
 
 /* ══ 可排序表头 ══ */
 .tbl .th-sortable{padding:0}

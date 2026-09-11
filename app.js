@@ -408,7 +408,15 @@
   // 1) 括号里的「或 AAB + Art Foundation」是备选方案，会带进 Art 的 A、EPQ 的 E；
   // 2) 出现区间时取更高的一端——英国写「高–低」(A*A*A*–A*AA)，港中文写「低–高」(ABB–AAB)，
   //    方向相反，只取最大才两头都对（旧实现固定取第一段，对港中文等于取了低端）。
+  // 解析结果按原串缓存：数据静态，而这个函数每次判定要被调用上千次
+  //（238 条 × 摘要 + 每行徽章 + 冲稳保），正则在这里是热点。
+  var _gpCache = {};
   function gradeProfile(s) {
+    var ck = String(s == null ? '' : s);
+    if (ck in _gpCache) return _gpCache[ck];
+    return (_gpCache[ck] = _parseGradeProfile(ck));
+  }
+  function _parseGradeProfile(s) {
     if (!s) return [];
     // 先剔掉「A-Level / AL / IAL / ASL」这类资历名，否则「3 AL 合格」会被读成「3 个 A」
     var head = String(s).split('（')[0].trim()
@@ -430,7 +438,13 @@
     return segs.reduce(function (best, cur) { return gradeSum(cur) > gradeSum(best) ? cur : best; });
   }
   // 取平均而非求和，避免「要求 4 门」被误判成「更难」；折不出分数的排最后
-  function gradeScore(s) { var p = gradeProfile(s); return p.length ? gradeSum(p) / p.length : null; }
+  var _gsCache = {};
+  function gradeScore(s) {
+    var ck = String(s == null ? '' : s);
+    if (ck in _gsCache) return _gsCache[ck];
+    var p = gradeProfile(ck);
+    return (_gsCache[ck] = p.length ? gradeSum(p) / p.length : null);
+  }
   // IB 总分要求。区间同样取较高一端（"31–33" → 33）；只说「文凭 / Diploma」不给分数的返回 null
   function ibScore(s) {
     var t = String(s || '');
@@ -1161,18 +1175,21 @@
   // 主页面不再摆输入框，但状态要看得见：按钮上直接写清「填了什么、结果如何」
   function updateMyChrome() {
     var g = hasGrades(), en = hasEnglish();
+    // 摘要、按钮、警示三处都要用，各算一遍等于把 238 条判定跑三遍
+    var gc = g ? myCounts() : null;
+    var ec = en ? engCounts() : null;
     var btn = $('#grade-open'), brief = $('#grade-brief');
     if (btn) btn.classList.toggle('filled', hasProfile());
     if (brief) {
-      if (!hasProfile()) brief.textContent = '未填';
+      if (!hasProfile()) brief.textContent = '填入后看哪些能申';
       else {
         var bits = [];
         if (g) {
-          var c = myCounts(), n = c.over + c.meet + c.under;
+          var c = gc, n = c.over + c.meet + c.under;
           if (n) bits.push('够得着 ' + (c.over + c.meet) + '/' + n);
         }
         if (en) {
-          var e2 = engCounts(), m = e2.ok + e2.under;
+          var e2 = ec, m = e2.ok + e2.under;
           if (m) bits.push('英语达标 ' + e2.ok + '/' + m);
         }
         brief.textContent = gradeBrief() + (bits.length ? '｜' + bits.join(' · ') : '');
@@ -1180,7 +1197,7 @@
     }
     var only = $('#only-reach');
     if (only) {
-      only.disabled = !g;                       // 没填学业成绩时，「只看达得到」无从谈起
+      only.disabled = !hasProfile();            // 学业或英语任一填了就能用
       var box = only.closest('.onlyreach');
       if (box) box.classList.toggle('off', !g);
       if (!g && only.checked) { only.checked = false; onlyReach = false; }
@@ -1190,13 +1207,13 @@
     if (gb) {
       var parts = [];
       if (g) {
-        var c3 = myCounts(), n3 = c3.over + c3.meet + c3.under;
+        var c3 = gc, n3 = c3.over + c3.meet + c3.under;
         parts.push('分数：可比对 ' + n3 + ' 项 · 够得着 ' + (c3.over + c3.meet) +
           '（高于 ' + c3.over + ' · 达到 ' + c3.meet + '）· 够不着 ' + c3.under +
           (c3.na ? ' · 无分数可比 ' + c3.na : ''));
       }
       if (en) {
-        var e3 = engCounts();
+        var e3 = ec;
         parts.push('英语：可比对 ' + (e3.ok + e3.under) + ' 项 · 达标 ' + e3.ok +
           (e3.under ? ' · 不够 ' + e3.under : '') +
           (e3.none ? ' · 未列 IELTS / TOEFL ' + e3.none : ''));
@@ -1228,8 +1245,8 @@
       else {
         var bits2 = [];
         if (g) {
-          var c4 = myCounts();
-          if (c4.partial) {
+          var c4 = gc;
+          if (c4 && c4.partial) {
             bits2.push('你填了 ' + myAlGrades().length + ' 门 A-Level，少于 ' + c4.partial +
               ' 个专业要求的门数——它们带「部分」标记，只比对了要求里最高的那几门。');
           }
@@ -1244,9 +1261,14 @@
   // 表里的写法有「7.0（各项6.5）」「6.5（各项≥5.5）」「7.5（各项不低于 7.0）」，
   // 也有「6.5（同一次考试、两年内）」这种纯说明；只有跟着
   // 各项 / 单项 / 不低于 / 其余 的数字才是单项线，别把说明里的数字当成要求。
+  var _irCache = {};
   function ieltsReqOf(e) {
     if (!e || !e.ielts) return null;
-    var t = String(e.ielts);
+    var ck = String(e.ielts);
+    if (ck in _irCache) return _irCache[ck];
+    return (_irCache[ck] = _parseIeltsReq(ck));
+  }
+  function _parseIeltsReq(t) {
     var om = t.match(/(\d+(?:\.\d+)?)/);
     if (!om) return null;
     var out = { over: +om[1], band: null, writing: null, raw: t };
@@ -1258,8 +1280,14 @@
     if (g) out.band = +g[1];
     return out;
   }
+  var _trCache = {};
   function toeflReqOf(e) {
     if (!e) return null;
+    var ck = String(e.toeflOld || '') + '|' + String(e.toeflNew || '');
+    if (ck in _trCache) return _trCache[ck];
+    return (_trCache[ck] = _parseToeflReq(e));
+  }
+  function _parseToeflReq(e) {
     function lead(v) {                            // 「未列」之类取不到数，返回 null
       var m = String(v == null ? '' : v).match(/^\s*(\d+(?:\.\d+)?)/);
       return m ? +m[1] : null;
@@ -1387,6 +1415,20 @@
   }
 
   // 除「只看达得到」之外的全部筛选——摘要要能回答「我正看的这批里能上几个」
+  // 「只看达得到」：学业成绩与英语成绩**都要**达标才算够得着。
+  // 原先只看学业——填了雅思却筛不掉英语不够的专业，等于白填。
+  // 两者都没填时不参与过滤（这时开关本身也是禁用的）。
+  function reachOK(p, i) {
+    if (hasGrades()) {
+      var v = verdictFor(p);
+      if (!v || v.kind === 'under') return false;
+    }
+    if (hasEnglish()) {
+      var e = engVerdict(engFor(i, curRc()));
+      if (!e || e.kind === 'under') return false;
+    }
+    return true;
+  }
   function matches(p, i, toks) {
     if (activeSchools.length && activeSchools.indexOf(p.school) === -1) return false;
     if (activeDirs.length && !p.dirs.some(function (d) { return activeDirs.indexOf(d) !== -1; })) return false;
@@ -1407,7 +1449,7 @@
       if (!o.dir && activeDirs.length && !p.dirs.some(function (d) { return activeDirs.indexOf(d) !== -1; })) return false;
       if (!o.test && !testOK(p)) return false;
       if (!o.q && q && !blobHit(curRc(), i, toks)) return false;
-      if (!o.only && onlyReach) { var v = verdictFor(p); if (!v || v.kind === 'under') return false; }
+      if (!o.only && onlyReach && !reachOK(p, i)) return false;
       return true;
     }).length;
   }
@@ -1450,7 +1492,7 @@
     var toks = qTokens();
     return cur.programs.filter(function (p, i) {
       if (!matches(p, i, toks)) return false;
-      if (onlyReach) { var v = verdictFor(p); if (!v || v.kind === 'under') return false; }
+      if (onlyReach && !reachOK(p, i)) return false;
       return true;
     });
   }
@@ -1641,24 +1683,32 @@
   // 「这行和官网不一致？」总得有个出口：本站的可信度就等于数据准确度，
   // 用户发现了却无处可说，下一个人还会踩同一处。
   var REPO_ISSUES = 'https://github.com/ptcwbf-code/uk-apply/issues/new';
-  function reportURL(p) {
+  // 报告文本与 GitHub 链接都由这同一份内容生成，保证两边一致
+  function reportText(p) {
     var s = allSchoolByKey[p.school] || {};
-    var body = [
-      '**专业**：' + p.zh + ' / ' + p.en,
-      '**大学**：' + (s.zh || p.school) + '（' + (s.en || '') + '）',
-      '**本站记录**：A-Level ' + (p.alevel || '—') + ' ｜ IB ' + (p.ib || '—') + ' ｜ 成绩口径 ' + (OFFER_ZH[p.offer] || p.offer),
-      '**本站核对日期**：' + (s.checked || '—'),
-      '**该行来源页**：' + p.url,
+    return [
+      '【数据核对】' + (s.zh || p.school) + ' · ' + p.zh,
       '',
-      '**与官网不一致之处**：',
+      '专业：' + p.zh + ' / ' + p.en,
+      '大学：' + (s.zh || '') + '（' + (s.en || '') + '）',
+      '本站记录：A-Level ' + (p.alevel || '—') + ' ｜ IB ' + (p.ib || '—') +
+        ' ｜ 成绩口径 ' + (OFFER_ZH[p.offer] || p.offer),
+      '本站核对日期：' + (s.checked || '—'),
+      '该行来源页：' + p.url,
+      '',
+      '与官网不一致之处：',
       '（请贴官网原文或截图）'
     ].join('\n');
-    return REPO_ISSUES + '?title=' + encodeURIComponent('数据核对 · ' + (s.zh || p.school) + ' ' + p.zh) +
-      '&body=' + encodeURIComponent(body);
   }
-  function reportLink(p) {
-    return '<a class="report" href="' + esc(reportURL(p)) + '" target="_blank" rel="noopener noreferrer"' +
-      ' title="这一行和官网不一致？点这里报告——会自动带上专业、当前记录与来源链接">报告错误</a>';
+  function reportGithubURL(p) {
+    var s = allSchoolByKey[p.school] || {};
+    return REPO_ISSUES + '?title=' + encodeURIComponent('数据核对 · ' + (s.zh || p.school) + ' ' + p.zh) +
+      '&body=' + encodeURIComponent(reportText(p));
+  }
+  // 真链接留给「去 GitHub」用；行内那处改成按钮，点开面板先给一份可复制的报告
+  function reportLink(p, idx) {
+    return '<button type="button" class="report" data-report="' + idx + '"' +
+      ' title="这一行和官网不一致？点这里生成一份带专业、当前记录与来源页的报告，复制即可反馈">报告错误</button>';
   }
 
   // ── 卡片视图 ──
@@ -1755,7 +1805,7 @@
         engCol +
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
-        '<td>' + cmpButton(key) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' + reportLink(p) + '</td>' +
+        '<td>' + cmpButton(key) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' + reportLink(p, idxMap[i]) + '</td>' +
       '</tr>';
     }).join('');
     return '<section class="group" data-key="' + esc(groupKey || '') + '" style="--school:' + (meta.color || '#9aa3b8') + '">' + headHTML(items, meta) +
@@ -1902,13 +1952,32 @@
     ['#g-s', function (v) { gS = v; }],
     ['#g-toefl', function (v) { gToefl = v; }]
   ];
+  // 输入防抖 220ms：改成面板之后每敲一个字母仍会整表重渲染一次，
+  // 手机上（CPU 4 倍降速）单次要 0.8–1.3 秒，等于每按一个键就冻住一秒。
+  // 打字时不渲染，停手后再算——判定结果本来也不需要逐字刷新。
+  var _gradeT, _gradeStale = false;
+  function applyGradesSoon() {
+    saveGrades();
+    clearTimeout(_gradeT);
+    _gradeT = setTimeout(function () {
+      animate = false;
+      // 窄屏上面板整屏盖住结果区，此刻重渲染 238 条纯属浪费（手机上一次 200ms+）。
+      // 只刷新摘要与按钮，整表等关面板时再补——宽屏上面板是居中的，背后看得见，照常渲染。
+      if (!$('#grade-sheet').hidden && window.innerWidth <= 760) {
+        _gradeStale = true;
+        updateMyChrome();
+        return;
+      }
+      apply();
+    }, 220);
+  }
   GRADE_FIELDS.forEach(function (f) {
     $(f[0]).addEventListener('input', function (e) {
-      f[1](e.target.value.trim()); saveGrades(); animate = false; apply();
+      f[1](e.target.value.trim()); applyGradesSoon();
     });
   });
   $('#g-toefl-scale').addEventListener('change', function (e) {
-    gToeflScale = e.target.value === 'new' ? 'new' : 'old'; saveGrades(); apply();
+    gToeflScale = e.target.value === 'new' ? 'new' : 'old'; applyGradesSoon();
   });
   $('#g-clear').addEventListener('click', function () {
     gAl = gIb = gIelts = gL = gR = gW = gS = gToefl = '';
@@ -1934,6 +2003,7 @@
     closeGradeSheet._t = setTimeout(function () {
       ov.hidden = true;
       if (gradeBack && gradeBack.focus && document.contains(gradeBack)) gradeBack.focus();
+      if (_gradeStale) { _gradeStale = false; apply(); }   // 补上被推迟的那次整表渲染
     }, 200);
   }
   $('#grade-open').addEventListener('click', openGradeSheet);
@@ -2209,8 +2279,57 @@
   $('#compare-open').addEventListener('click', openCompare);
   $('#compare-close').addEventListener('click', closeCompare);
   $('#compare-overlay').addEventListener('click', function (e) { if (e.target === $('#compare-overlay')) closeCompare(); });
-  // 三个弹层：谁在最上层就管谁。顺序即层级（后开的在上）
+  // ── 报告错误面板 ──
+  // 静态站没有后端，也不能假定用户有 GitHub 账号：给一份写好的报告让他自己复制，
+  // 粘到微信 / 邮件 / 任何渠道都行。GitHub 只是给有账号的人多留一个入口。
+  var reportIdx = null, reportBack = null;
+  function openReportSheet(idx) {
+    var p = cur.programs[idx];
+    if (!p) return;
+    reportIdx = idx;
+    reportBack = document.activeElement;
+    $('#report-text').value = reportText(p);
+    $('#report-sum').textContent = cur.name + ' · ' + p.zh;
+    var ov = $('#report-sheet');
+    ov.hidden = false;
+    void ov.offsetWidth;
+    ov.classList.add('show');
+    $('#report-copy').focus();
+  }
+  function closeReportSheet() {
+    var ov = $('#report-sheet');
+    if (ov.hidden) return;
+    ov.classList.remove('show');
+    clearTimeout(closeReportSheet._t);
+    closeReportSheet._t = setTimeout(function () {
+      ov.hidden = true;
+      if (reportBack && reportBack.focus && document.contains(reportBack)) reportBack.focus();
+    }, 200);
+  }
+  $('#groups').addEventListener('click', function (e) {
+    var b = e.target.closest('button.report'); if (!b) return;
+    openReportSheet(+b.dataset.report);
+  });
+  $('#report-close').addEventListener('click', closeReportSheet);
+  $('#report-sheet').addEventListener('click', function (e) {
+    if (e.target === $('#report-sheet')) closeReportSheet();
+  });
+  $('#report-copy').addEventListener('click', function () {
+    var btn = this;
+    copyText($('#report-text').value, function () {
+      flashButton(btn, '已复制 ✓');
+      showToast('已复制报告内容，粘到微信 / 邮件里即可', 3600);
+    });
+  });
+  $('#report-github').addEventListener('click', function () {
+    var p = cur.programs[reportIdx];
+    if (!p) return;
+    window.open(reportGithubURL(p), '_blank', 'noopener');
+  });
+
+  // 四个弹层：谁在最上层就管谁。顺序即层级（后开的在上）
   var OVERLAYS = [
+    { id: 'report-sheet', close: function () { closeReportSheet(); } },
     { id: 'grade-sheet', close: function () { closeGradeSheet(); } },
     { id: 'eng-sheet', close: function () { closeEngSheet(); } },
     { id: 'compare-overlay', close: function () { closeCompare(); } }
