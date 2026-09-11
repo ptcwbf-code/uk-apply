@@ -274,11 +274,10 @@
     }).join('');
   }
   function prefersReduced() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-  // 窄屏下表格必然要横向滚动，而横向滚动容器里的表头吸不住「页面」——
-  // 所以窄屏默认给卡片视图（字段名内联，不需要列头，也就不存在吸顶问题）。
-  // 用户仍可手动切回表格，选择会被记住。
-  function isNarrow() { return window.matchMedia('(max-width:760px)').matches; }
-  function defaultView() { return isNarrow() ? 'card' : 'table'; }
+  // 视图默认：表格（窄屏也用表格——卡片虽不需要列头，但竖向占地太大）。
+  // 注：窄屏表格要横向滚动，而横向滚动容器里的表头吸不住「页面」，这是取舍。
+  // 用户手动切过视图才持久化，没切过就每次取这里的默认。
+  function defaultView() { return 'table'; }
 
   // ── 术语说明（分板块） ──
   var MANUAL = {
