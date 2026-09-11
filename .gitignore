@@ -5,3 +5,6 @@ codes.txt
 check-report.txt
 check.js
 genverify.js
+
+# 抓取/核对用的中间稿，不进版本库
+*.tsv

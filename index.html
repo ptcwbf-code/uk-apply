@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>英国九校 · 香港八校 本科录取要求速查（UK &amp; HK Admissions）</title>
 <meta name="description" content="覆盖英国九校（牛剑·G5·王爱曼华）与香港八校（港大·港中文·港科大·城大·理大·浸会·教育·岭南）热门专业本科公开录取要求检索、导出与对比，英国与香港专业可放入同一张对比表。英国含 A-level/IB/入学笔试，香港为 A-Level/IB 直申（无需 DSE）。">
-<link rel="stylesheet" href="styles.css?v=4.0">
+<link rel="stylesheet" href="styles.css?v=6.4">
 </head>
 <body>
 <a class="skip" href="#app">跳至正文</a>
@@ -38,7 +38,7 @@
     <summary>
       <span class="man-title">术语与口径说明</span>
       <span class="man-region" id="manual-region">英国九校</span>
-      <span class="man-sub">成绩口径 · 招生结构 · 笔试 / 面试 · QS 学科排名</span>
+      <span class="man-sub">成绩口径 · 招生结构 · 笔试 / 面试 · 英语要求 · QS 学科排名</span>
     </summary>
     <div class="manual-body" id="manual-body"></div>
   </details>
@@ -59,10 +59,21 @@
         </select>
       </label>
       <button class="btn btn-ghost" id="reset" type="button">重置条件</button>
-      <button class="btn btn-primary" id="export" type="button" title="将当前筛选结果导出为 CSV，可用 Excel 打开">导出当前结果（CSV）</button>
+      <button class="btn btn-primary" id="export" type="button" aria-expanded="false" title="选择范围与列后导出 CSV">导出 CSV</button>
     </div>
 
-    <p class="quickstart" id="quickstart">使用步骤：① 在下方选择学科方向与大学；② 切换表格 / 卡片视图与分组方式；③ 点行内「加入对比」——英国学校与香港学校可混选进同一张对比表（最多 30 项）；④ 点「导出当前结果」存档，或点行内「官网」链接核对原文。</p>
+    <!-- 导出面板：范围（D3）+ 列（D2） -->
+    <div class="export-panel" id="export-panel" hidden>
+      <div class="ep-row"><span class="ep-k">范围</span><div class="ep-opts" id="ep-scope" role="group" aria-label="导出范围"></div></div>
+      <div class="ep-row"><span class="ep-k">列<span class="mini-acts"><button class="mini" id="ep-all" type="button">全选</button><button class="mini" id="ep-none" type="button">仅基础列</button></span></span><div class="ep-opts" id="ep-cols" role="group" aria-label="导出列"></div></div>
+      <div class="ep-foot">
+        <button class="btn btn-primary" id="ep-go" type="button">导出</button>
+        <button class="btn btn-ghost" id="ep-cancel" type="button">取消</button>
+        <span class="ep-hint" id="ep-hint" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <p class="quickstart" id="quickstart">使用步骤：① 在下方选择学科方向与大学，点表头「专业 / A-Level / IB / QS 名次」可排序；② 切换表格 / 卡片视图与分组方式；③ 点行内「加入对比」——英国学校与香港学校可混选进同一张对比表，表内可直接比较差异；④ 点「导出 CSV」选范围与列后导出，或点行内「官网」核对原文。</p>
 
     <div class="ctl-filters">
       <div class="ctl-block">
@@ -82,9 +93,11 @@
     </div>
   </section>
 
-  <p class="resultline"><span id="result-count-label" role="status" aria-live="polite"><strong id="result-count">0</strong> 项<span id="result-context"></span></span></p>
+  <p class="resultline"><span id="result-count-label" role="status" aria-live="polite"><strong id="result-count">0</strong> 项<span id="result-context"></span><span id="result-breakdown" class="breakdown"></span></span></p>
 
-  <p class="scope-row"><button id="scope-clear" class="linklike" type="button" hidden>清除当前条件</button></p>
+  <p class="scope-row"><button id="sort-chip" class="sort-chip" type="button" hidden title="点一下取消排序"></button><button id="scope-clear" class="linklike" type="button" hidden>清除当前条件</button></p>
+  <p class="legend" id="legend" hidden></p>
+  <nav class="jumpbar" id="jumpbar" hidden aria-label="按大学跳转"></nav>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <div id="groups" class="groups"></div>
@@ -104,8 +117,13 @@
     <div class="overlay-box">
       <div class="overlay-head">
         <h2 id="compare-title">所选专业对比</h2>
-        <button type="button" class="overlay-close" id="compare-close" aria-label="关闭">×</button>
+        <div class="overlay-tools">
+          <div class="cmp-sort" id="cmp-sort" role="group" aria-label="对比表排序"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="cmp-export" title="把对比清单导出为 CSV（与筛选结果无关）">导出对比</button>
+          <button type="button" class="overlay-close" id="compare-close" aria-label="关闭">×</button>
+        </div>
       </div>
+      <p class="cmp-diff-note" id="cmp-diff-note" hidden></p>
       <div class="tblwrap"><table class="tbl" id="compare-table"></table></div>
     </div>
   </div>
@@ -113,13 +131,16 @@
   <footer class="foot">
     <p><strong>数据依据</strong>：各大学官网课程页面公开信息，逐条核对（核对时间 2026 年 9 月）。英国板块面向 <strong>2027 年 9 月入学</strong>（2026–27 申请季）；香港板块为 <strong>2026 入学轮次</strong>公布的 A-Level / IB 直申要求（无需 DSE）。各校条件随申请季更新，正式申请前请以官网最新页面为准。</p>
     <p>本页成绩按各校官网公开口径照录（<strong>典型 · 最低 · 区间 · 下限 · 门槛</strong>），不构成录取承诺；牛剑及港校医学类录取还取决于入学笔试、面试与预估成绩。</p>
-    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 4.0（英国九校 + 香港八校 + QS2026 学科排名）· 纯静态页面，可离线使用</p>
+    <p class="disclaimer"><strong>免责声明</strong>：本页为公开资料汇编，<strong>仅供参考</strong>；所有录取要求、分数与考试政策<strong>一律以各大学官网最新公布为准</strong>，请勿据本页直接决策。</p>
+    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 6.4（英国九校 + 香港八校 + QS2026 学科排名 + 英语要求）· 纯静态页面，可离线使用</p>
   </footer>
+  <button type="button" class="to-top" id="to-top" aria-label="回到顶部" title="回到顶部">↑</button>
 </main>
 
-<script src="data.js?v=4.0"></script>
-<script src="data-hk.js?v=4.0"></script>
-<script src="data-qs.js?v=4.0"></script>
-<script src="app.js?v=4.0"></script>
+<script src="data.js?v=6.4"></script>
+<script src="data-hk.js?v=6.4"></script>
+<script src="data-eng.js?v=6.4"></script>
+<script src="data-qs.js?v=6.4"></script>
+<script src="app.js?v=6.4"></script>
 </body>
 </html>
