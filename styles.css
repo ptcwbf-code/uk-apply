@@ -390,8 +390,10 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .cs-btn:hover{border-color:var(--navy-2);color:var(--navy)}
 .cs-btn.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:650}
 .overlay .tblwrap{border:0;border-radius:0;box-shadow:none;overflow:auto;max-height:calc(88vh - 61px)}
-/* 弹层里的表头吸在自己的滚动容器顶部；--stick-top 是主页学校头的高度，用在这里会把表头顶下来压住首行 */
+/* 只要容器是滚动容器（横向滚动时必然如此），表头就只能贴容器顶部；
+   --stick-top 是「页面学长头」的高度，用在这里会把表头向下顶、压住首行。 */
 .overlay .tbl thead th{top:0}
+.tblwrap.hscroll .tbl thead th{top:0}
 
 /* ══ 页脚 ══ */
 .foot{margin:30px 0 40px;color:var(--mut);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;line-height:1.8}

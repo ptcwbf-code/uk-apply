@@ -86,6 +86,7 @@
   var animate = true;
   var sortKey = 'default';   // 排序键：default | name | alevel | ib | qs
   var sortDir = 'desc';      // 排序方向：asc | desc（default 键下无意义）
+  var viewPicked = false;    // 用户是否手动切过视图（没切过就每次按屏幕宽度取默认）
 
   // ══ 视图状态：URL（可分享）> localStorage（记住上次）> 默认 ══
   // 所有筛选/视图/排序改动都只经由 apply() 落盘，避免各处各自为政
@@ -108,7 +109,7 @@
     if (st.s.length) p.set('s', st.s.join(','));
     if (st.t !== 'ALL') p.set('t', st.t);
     if (st.g !== 'school') p.set('g', st.g);
-    if (st.v !== 'table') p.set('v', st.v);
+    if (viewPicked) p.set('v', st.v);
     if (st.q) p.set('q', st.q);
     if (st.o !== 'default') { p.set('o', st.o); p.set('od', st.od); }
     return p.toString();
@@ -126,7 +127,7 @@
       s: (p.get('s') || '').split(',').filter(Boolean),
       t: TEST_KEYS.indexOf(p.get('t')) >= 0 ? p.get('t') : 'ALL',
       g: p.get('g') === 'dir' ? 'dir' : 'school',
-      v: p.get('v') === 'card' ? 'card' : 'table',
+      v: p.get('v') === 'card' ? 'card' : p.get('v') === 'table' ? 'table' : null,
       q: p.get('q') || '',
       o: SORT_KEYS[p.get('o')] ? p.get('o') : 'default',
       od: p.get('od') === 'asc' ? 'asc' : p.get('od') === 'desc' ? 'desc' : null
@@ -164,7 +165,8 @@
     cur.schools.forEach(function (s) { schoolSet[s.key] = 1; });
     activeDirs = st.d.filter(function (d) { return !!dirSet[d]; });
     activeSchools = st.s.filter(function (k) { return !!schoolSet[k]; });
-    testSel = st.t; groupBy = st.g; view = st.v; q = st.q; sortKey = st.o;
+    testSel = st.t; groupBy = st.g; view = st.v || defaultView(); q = st.q; sortKey = st.o;
+    viewPicked = !!st.v;
     sortDir = st.od || defaultDir(sortKey);
     syncRegionChrome(); syncControlsChrome();
     buildIndex(); renderManual(); renderChips(); apply();
@@ -272,6 +274,11 @@
     }).join('');
   }
   function prefersReduced() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  // 窄屏下表格必然要横向滚动，而横向滚动容器里的表头吸不住「页面」——
+  // 所以窄屏默认给卡片视图（字段名内联，不需要列头，也就不存在吸顶问题）。
+  // 用户仍可手动切回表格，选择会被记住。
+  function isNarrow() { return window.matchMedia('(max-width:760px)').matches; }
+  function defaultView() { return isNarrow() ? 'card' : 'table'; }
 
   // ── 术语说明（分板块） ──
   var MANUAL = {
@@ -575,17 +582,17 @@
       return '<li><b>' + esc(kv[0]) + '</b><span>' + engValHTML(kv[0], kv[1]) + '</span></li>';
     }).join('') + '</ul></details>';
   }
-  function engCellHTML(e, rowId, label) {
-    if (!e) return '<td class="eng-cell">—</td>';
-    return '<td class="eng-cell">' +
-      '<span class="eng-1">IELTS ' + esc(engIeltsShort(e)) + '</span>' +
+  // 只返回单元格「内容」——由调用方套 <td>。
+  // （之前自带 <td>，对比表里再包一层就变成嵌套 td，浏览器会拆成两格，整行右移一位）
+  function engCellInner(e, rowId, label) {
+    if (!e) return '—';
+    return '<span class="eng-1">IELTS ' + esc(engIeltsShort(e)) + '</span>' +
       '<span class="eng-2">TOEFL ' + esc(engPair(e)) + (e.band ? ' · ' + esc(e.band) : '') + '</span>' +
       engChipTags(e) +
       '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' +
       (rowId && engDetailItems(e).length ? '<button type="button" class="eng-open" data-eng="' + esc(rowId) +
         '" data-eng-label="' + esc(label || '') + '" aria-haspopup="dialog"' +
-        ' title="打开英语要求详情（IELTS / TOEFL / EFL / ESL / IB / GCE）">详情</button>' : '') +
-      '</td>';
+        ' title="打开英语要求详情（IELTS / TOEFL / EFL / ESL / IB / GCE）">详情</button>' : '');
   }
 
   var manualRendered = false;
@@ -890,7 +897,7 @@
       var e = engFor(idxMap[i]);
       // 行标识要带分组 key：按方向分组时同一专业会在多个组里各出现一次
       var rid = 'eng-' + (groupKey || 'g') + '-' + idxMap[i];
-      var engCol = engCellHTML(e, rid, (showSchool ? '' : s.zh + ' · ') + p.zh);
+      var engCol = '<td class="eng-cell">' + engCellInner(e, rid, (showSchool ? '' : s.zh + ' · ') + p.zh) + '</td>';
       // 详情统一走抽屉（竖排更好读，且不受表格横向滚动影响），不再渲染行内展开行
       return '<tr>' + lead +
         (showSchool ? '<td><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span></td>' : '') +
@@ -1006,7 +1013,7 @@
   $('#q').addEventListener('input', function (e) { q = e.target.value.trim().toLowerCase(); animate = false; apply(); });
   $('#view-toggle').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-v]'); if (!b || b.dataset.v === view) return;
-    view = b.dataset.v;
+    view = b.dataset.v; viewPicked = true;
     Array.prototype.forEach.call($('#view-toggle').children, function (x) { x.setAttribute('aria-pressed', String(x === b)); });
     apply();
   });
@@ -1261,7 +1268,10 @@
         varies[c.i] = n > 1;
       });
     }
-    function td(i, html) { return '<td' + (varies[i] ? ' class="diff"' : '') + '>' + html + '</td>'; }
+    function td(i, html, cls) {
+      var c = (cls || '') + (varies[i] ? (cls ? ' ' : '') + 'diff' : '');
+      return '<td' + (c ? ' class="' + c + '"' : '') + '>' + html + '</td>';
+    }
     var rows = items.map(function (it) {
       var p = it.p, isHK = it.isHK;
       var s = allSchoolByKey[p.school];
@@ -1274,7 +1284,7 @@
         td(4, scoreHTML(p.ib, 'g g-ib')) +
         td(5, test) +
         td(6, '<span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(offer) + '</span>') +
-        td(7, engCellHTML(engFor(it.idx, isHK ? 'hk' : 'uk'))) +
+        td(7, engCellInner(engFor(it.idx, isHK ? 'hk' : 'uk')), 'eng-cell') +
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
         '<td><a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a></td></tr>';
@@ -1482,6 +1492,6 @@
   var boot = decodeState(location.hash.replace(/^#/, ''));
   if (!boot) { try { boot = decodeState(localStorage.getItem(STORE_KEY) || ''); } catch (e) { boot = null; } }
   if (boot) applyState(boot);
-  else { syncRegionChrome(); syncControlsChrome(); buildIndex(); renderManual(); renderChips(); apply(); }
+  else { view = defaultView(); syncRegionChrome(); syncControlsChrome(); buildIndex(); renderManual(); renderChips(); apply(); }
   updateCompareBar();
 })();
