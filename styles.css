@@ -350,6 +350,10 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 /* 科目数不到要求时只做了部分比对：虚线边 + 一个「部分」小标，别让它看起来像完整结论 */
 .verdict.partial{border-style:dashed}
 .verdict .pv{font-size:9.5px;margin-left:3px;opacity:.85}
+/* 「另有要求」标记：科目 / 笔试 / 面试。成绩对上了也不等于条件满足，
+   所以要有一个看得见的记号，不能只写在悬停说明里（手机上等于没有） */
+.pvx{margin-left:3px;font-size:10px;font-weight:700;line-height:1;vertical-align:1px;opacity:.9}
+.pos .pvx,.pos i{font-style:normal}
 .pos.partial{border-style:dashed}
 .rating .verdict{margin-top:6px}
 

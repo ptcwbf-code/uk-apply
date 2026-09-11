@@ -1146,6 +1146,24 @@
   }
   // 「门槛」是大学通用最低要求，不是该专业的录取条件，措辞必须分开
   function barWord(p) { return p.offer === 'ger' ? '门槛' : '要求'; }
+  // 分数达标 ≠ 条件满足。这些专业另有科目要求 / 入学笔试 / 面试 / 作品集，
+  // 成绩档对得上也不代表能申——「高于要求」必须带上这句，否则最容易被读成「我稳了」。
+  function extraReqs(p) {
+    var out = [];
+    if (p.alevelNote) out.push('科目要求：' + p.alevelNote);
+    if (p.test) out.push((cur.testIsExam ? '入学笔试：' : '附加要求：') + p.test);
+    if (p.note) out.push('备注：' + p.note);
+    return out;
+  }
+  // 触发条件不能是「有 alevelNote」——407 条里 318 条都有科目要求，那样等于每条都标，
+  // 记号就没有信息量了。只标「比分数档多出来的东西」：
+  //   ① 有入学笔试 / 面试 / 作品集（要单独报名或准备）
+  //   ② 科目要求里点名了必修 / 仅限的科目（如「化学必修」「须含高数」）
+  // 泛泛的科目说明不标：它已经写在各行自己的列里，且几乎条条都有。
+  var EXTRA_NOTE_RE = /必修|仅限|必须|须含|须选|须有|指定/;
+  function hasExtraReqs(p) {
+    return !!(p.test || (p.alevelNote && EXTRA_NOTE_RE.test(p.alevelNote)));
+  }
   var VERDICT_ZH = { over: '高于', meet: '达到', under: '低于' };
   function verdictBadge(p) {
     var v = verdictFor(p);
@@ -1153,12 +1171,16 @@
     var label = VERDICT_ZH[v.kind] + barWord(p);
     var mine = v.by === 'alevel' ? 'A-Level ' + String(gAl).trim() : 'IB ' + myIbTotal();
     var req = v.by === 'alevel' ? 'A-Level ' + p.alevel : 'IB ' + p.ib;
+    var extra = extraReqs(p), marked = hasExtraReqs(p);
     var tip = '按你输入的 ' + mine + ' 对照 ' + req + '：' + label + '。' +
       (v.partial ? '注意：你只填了 ' + v.have + ' 门，该专业要求 ' + v.need +
         ' 门，这里只比对了要求里最高的 ' + v.have + ' 门。' : '') +
+      (marked ? '另外，这个专业还有下面这些要求，成绩对上了也要逐条确认：' + extra.join('；') + '。' : '') +
       (OFFER_TITLE[p.offer] || '') + '—— 只对照公布口径，不是录取概率。';
     return '<span class="verdict ' + v.kind + (v.partial ? ' partial' : '') + '" title="' + esc(tip) + '">' +
-      esc(label) + (v.partial ? '<span class="pv">部分</span>' : '') + '</span>';
+      esc(label) + (v.partial ? '<span class="pv">部分</span>' : '') +
+      (marked ? '<span class="pvx" title="' + esc('该专业另有要求：' + extra.join('；')) + '">+</span>' : '') +
+      '</span>';
   }
   function myCounts() {
     var c = { over: 0, meet: 0, under: 0, na: 0, partial: 0 };
@@ -1224,12 +1246,20 @@
     var vl = $('#vlegend');
     if (vl) {
       vl.hidden = !g;
-      vl.innerHTML = g
-        ? '<span class="vl-k">判定怎么读</span>' +
+      if (!g) vl.innerHTML = '';
+      else {
+        // 「+」的解释只在这批结果里确实有带标记的行时才出现，否则是噪音
+        var toks2 = qTokens(), hasX = false;
+        for (var k = 0; k < cur.programs.length; k++) {
+          if (matches(cur.programs[k], k, toks2) && hasExtraReqs(cur.programs[k])) { hasX = true; break; }
+        }
+        vl.innerHTML = '<span class="vl-k">判定怎么读</span>' +
           '<span class="vl-i"><b class="verdict over">高于要求</b>你的成绩超出该校公布的分数口径</span>' +
           '<span class="vl-i"><b class="verdict meet">达到要求</b>正好持平；热门专业实收常更高</span>' +
-          '<span class="vl-i"><b class="verdict under">低于要求</b>还差一些</span>'
-        : '';
+          '<span class="vl-i"><b class="verdict under">低于要求</b>还差一些</span>' +
+          (hasX ? '<span class="vl-i"><b class="verdict meet">达到要求<i class="pvx">+</i></b>' +
+            '该专业另有科目要求或笔试 / 面试，成绩对上了也要逐条核（悬停看具体是什么）</span>' : '');
+      }
     }
     // 面板里的口径提醒（主页面另有一行可见的同款说明）
     var gw = $('#gb-warn');
@@ -1252,6 +1282,7 @@
           }
         }
         bits2.push('判定只对照各校公布的分数口径，不等于录取概率：热门专业实际录取普遍高于公布数字，「达到 / 高于」也应当冲刺看。');
+        bits2.push('另外，判定只比成绩档——科目要求、入学笔试、面试 / 作品集等附加条件写在各行自己的列里，成绩对上了也要逐条核。');
         warn.textContent = bits2.join(' ');
       }
     }
@@ -1302,15 +1333,21 @@
     if (!req) return null;
     var o = ieltsOverall(), parts = ieltsParts();
     if (o == null && !parts.length) return null;
-    if (o != null && o < req.over) return { kind: 'under', why: '雅思总分' };
+    var lowOver = (o != null && o < req.over);
+    // 小分：逐项对「各项不低于 X」，写作另有专项线时也算进小分。
+    // 只说「小分不够」，不点名某一门——多门不够时点名一门是以偏概全；
+    // 到底是哪几门写在悬停说明里，既不占芯片宽度也不丢信息。
+    var lowNames = [];
     if (req.band != null) {
-      var low = parts.filter(function (x) { return x.v < req.band; });
-      if (low.length) return { kind: 'under', why: '雅思' + low[0].k };
+      parts.forEach(function (x) { if (x.v < req.band) lowNames.push(x.k); });
     }
     if (req.writing != null) {
       var w = parts.filter(function (x) { return x.k === '写作'; })[0];
-      if (w && w.v < req.writing) return { kind: 'under', why: '雅思写作' };
+      if (w && w.v < req.writing && lowNames.indexOf('写作') < 0) lowNames.push('写作');
     }
+    if (lowOver && lowNames.length) return { kind: 'under', why: '雅思总分与小分', low: lowNames };
+    if (lowOver) return { kind: 'under', why: '雅思总分' };
+    if (lowNames.length) return { kind: 'under', why: '雅思小分', low: lowNames };
     return { kind: 'ok' };
   }
   function toeflVerdictOf(e) {
@@ -1335,6 +1372,7 @@
     if (!v) return '';
     var label = v.kind === 'ok' ? '英语达标' : v.why + '不够';
     var tip = '按你填的 ' + gradeBrief() + ' 对照 ' + (e.ielts || e.toeflOld || '—') + '：' + label +
+      (v.low && v.low.length ? '（不够的是：' + v.low.join('、') + '）' : '') +
       '。雅思 / 托福任一达标即算达标；只填总分时只比总分。';
     return '<span class="everdict ' + v.kind + '" title="' + esc(tip) + '">' + esc(label) + '</span>';
   }
@@ -1728,7 +1766,6 @@
         (p.alevelNote ? '<div class="score-note">' + esc(p.alevelNote) + '</div>' : '') +
         (mode === 'alevel' ? vb : '') + '</div>' +
         '<div><div class="k">IB（45 分制）</div>' + scoreHTML(p.ib, 'v') +
-        (p.ibNote ? '<div class="score-note">' + esc(p.ibNote) + '</div>' : '') +
         (mode === 'ib' ? vb : '') + '</div>' +
       '</div>' +
       (e ? '<div class="eng-block">' +
@@ -2424,15 +2461,18 @@
   // ── 冲 / 稳 / 保 ──
   // 把「我的成绩」的判定翻成选校语言：低于公布要求＝冲，达到＝稳，高于＝保。
   // UCAS 本科一般只能填 5 个志愿，学生真正要的是一张排过优先级的短名单，而不是 30 项对照表。
-  var POS_ZH = { under: '冲', meet: '稳', over: '保' };
+  // 用「冲刺 / 匹配 / 保底」而不是「冲 / 稳 / 保」：
+  // 刚够线叫「稳」是误导——正好达到公布口径既不高也不低，热门专业实收普遍更高，
+  // 把它当稳妥志愿会出事。「匹配」只说「你的成绩和要求对得上」，不含把握的含义。
+  var POS_ZH = { under: '冲刺', meet: '匹配', over: '保底' };
   var POS_TITLE = {
-    under: '冲：低于该校公布的分数口径，属于冲刺志愿',
-    meet: '稳：正好达到公布的分数口径；热门专业实收常高于此，别当保底',
-    over: '保：高于公布的分数口径，可作保底'
+    under: '冲刺：成绩低于该校公布的分数口径，属于冲刺志愿',
+    meet: '匹配：成绩正好达到公布的分数口径。叫「匹配」不叫「稳」——刚够线不等于录取把握，热门专业实收普遍高于公布数字，仍要留保底',
+    over: '保底：成绩高于公布的分数口径'
   };
   var POS_LONG = {
-    under: '冲 · 低于公布要求', meet: '稳 · 达到公布要求',
-    over: '保 · 高于公布要求', none: '无分数可比（该校只公布通用门槛，或没给分数）'
+    under: '冲刺 · 低于公布要求', meet: '匹配 · 达到公布要求',
+    over: '保底 · 高于公布要求', none: '无分数可比（该校只公布通用门槛，或没给分数）'
   };
   var cmpGroupPos = false;                 // 对比清单按冲/稳/保分段
   var CMP_COLS_TOTAL = 13;                 // 分组标题行 colspan 用；与 renderCompareTable 的表头数一致
@@ -2464,9 +2504,11 @@
     var v = verdictFor(it.p);
     if (!v) return '';
     // 部分比对（科目数不够）加个星号，对比表的小结里会解释它的含义
+    var extra = extraReqs(it.p), marked = hasExtraReqs(it.p);
     return '<span class="pos ' + v.kind + (v.partial ? ' partial' : '') + '" title="' +
-      esc(POS_TITLE[v.kind] + (v.partial ? '（你填的科目数不够，这里只做了部分比对）' : '')) + '">' +
-      POS_ZH[v.kind] + (v.partial ? '*' : '') + '</span>';
+      esc(POS_TITLE[v.kind] + (v.partial ? '（你填的科目数不够，这里只做了部分比对）' : '') +
+        (marked ? '该专业另有要求：' + extra.join('；') : '')) + '">' +
+      POS_ZH[v.kind] + (v.partial ? '*' : '') + (marked ? '+' : '') + '</span>';
   }
   // CSV 里只有「冲」两个字太单薄——导出的表常常是直接发给顾问的，要能自己说明白
   function posText(p) {
@@ -2489,11 +2531,11 @@
     }
     el.hidden = false;
     el.innerHTML = '<span class="pss-k">按你输入的成绩</span>' +
-      '<span class="pos under">冲 ' + c.under + '</span>' +
-      '<span class="pos meet">稳 ' + c.meet + '</span>' +
-      '<span class="pos over">保 ' + c.over + '</span>' +
+      '<span class="pos under">' + POS_ZH.under + ' ' + c.under + '</span>' +
+      '<span class="pos meet">' + POS_ZH.meet + ' ' + c.meet + '</span>' +
+      '<span class="pos over">' + POS_ZH.over + ' ' + c.over + '</span>' +
       (c.na ? '<span class="pss-na">另有 ' + c.na + ' 项无分数可比</span>' : '') +
-      '<span class="pss-tip">UCAS 本科一般只能填 5 个志愿，建议 1–2 冲、2–3 稳、1–2 保' +
+      '<span class="pss-tip">UCAS 本科一般只能填 5 个志愿，建议 1–2 冲刺、2–3 匹配、1–2 保底' +
       (c.partial ? '；带 <b>*</b> 的项你填的科目数不够，只做了部分比对' : '') + '</span>';
   }
   function renderCompareTable() {
@@ -2771,7 +2813,7 @@
   }
   var CSV_COLS = [
     { k: 'sys', h: '体系', base: 1 }, { k: 'uni', h: '大学', base: 1 }, { k: 'sch', h: 'School', base: 1 },
-    { k: 'cycle', h: '入学 / 申请季', base: 1 }, { k: 'pos', h: '你的位置（冲/稳/保）' }, { k: 'checked', h: '核对' },
+    { k: 'cycle', h: '入学 / 申请季', base: 1 }, { k: 'pos', h: '你的位置（冲刺/匹配/保底）' }, { k: 'checked', h: '核对' },
     { k: 'dirs', h: '学科方向', base: 1 }, { k: 'zh', h: '专业（中文）', base: 1 }, { k: 'en', h: '专业（英文）', base: 1 },
     { k: 'degree', h: '代码/学制', base: 1 }, { k: 'alevel', h: 'A-Level', base: 1 }, { k: 'alevelNote', h: '科目/要求', base: 1 },
     { k: 'ib', h: 'IB', base: 1 }, { k: 'test', h: '笔试 / 面试', base: 1 }, { k: 'offer', h: '成绩口径', base: 1 },
