@@ -94,7 +94,10 @@ a{color:inherit}
 .masthead::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
   background:linear-gradient(90deg,var(--gold) 0%,var(--gold-2) 16%,rgba(var(--gold-rgb),.40) 58%,rgba(var(--gold-rgb),.12) 100%)}
 .masthead-grid{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between}
-.eyebrow{margin:0 0 10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#9fb0cd}
+/* 眉标：原来 10.5px + .22em 全大写 + 中英混排，在 1280 屏上几乎读不出来，
+   而它带着最要紧的年份口径。收短文案、放大一点、字距收到 .12em、底色上提亮一档 */
+.eyebrow{margin:0 0 9px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:#b9c7dd}
 h1{margin:0;font-size:clamp(26px,3.4vw,38px);line-height:1.18;letter-spacing:-.01em;font-weight:700}
 .lede{margin:12px 0 0;max-width:62ch;color:#c2cde0;font-size:13.5px;line-height:1.75}
 .lede strong{color:#fff;font-weight:600}
@@ -185,7 +188,9 @@ h1{margin:0;font-size:clamp(26px,3.4vw,38px);line-height:1.18;letter-spacing:-.0
 .region-tab[aria-selected="true"]{background:linear-gradient(180deg,var(--navy-2),var(--navy));border-color:var(--navy);color:#fff;
   box-shadow:0 2px 8px -3px rgba(22,50,92,.5)}
 .region-desc{color:var(--mut);font-size:12.5px;margin:0 0 0 4px;max-width:70ch}
-body.region-hk .testblock{display:none}
+/* 香港板块的「面试 / 附加」筛选不再整块隐藏（那样会让人以为香港什么都不用考），
+   改为显示 + 一行说明。见 app.js 的 testOptionsFor */
+.ctl-note{flex:1 1 100%;margin:2px 0 0;font-size:11.5px;color:var(--mut);line-height:1.6}
 
 /* ══ 检索与筛选 ══ */
 .controls{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 18px;margin:0 0 12px;box-shadow:var(--sh-1)}
@@ -240,6 +245,15 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 .myg-sum{font-size:12.5px;color:var(--mut);line-height:1.6}
 .myg-sum.on{color:var(--ink-2)}
 .myg-hint{font-size:11.5px;color:#9aa4b5;margin-left:auto}
+/* ── 最近搜索：只在搜索框空着且正在用时出现，所以平时不占首屏高度 ── */
+.hist{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px}
+.hist-k{font-size:11.5px;color:var(--mut)}
+.hist-b{font:inherit;font-size:12px;border:1px solid var(--line-2);background:var(--card);color:var(--ink-2);
+  border-radius:6px;padding:3px 9px;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease}
+.hist-b:hover{border-color:var(--navy-2);color:var(--navy);background:var(--panel)}
+.hist-x{font:inherit;font-size:11.5px;border:0;background:none;color:var(--mut);cursor:pointer;padding:2px 4px;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2)}
+.hist-x:hover{color:var(--navy)}
 /* 判定的可见限制：悬停说明在手机上等于不存在，这行必须看得见 */
 .myg-warn{margin:10px 0 0;padding-left:10px;border-left:2px solid var(--line-2);
   font-size:12px;line-height:1.75;color:var(--ink-2)}
@@ -258,6 +272,10 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 .verdict.over{color:var(--v-over);background:var(--v-over-bg);border-color:var(--v-over-line)}
 .verdict.meet{color:var(--v-meet);background:var(--v-meet-bg);border-color:var(--v-meet-line)}
 .verdict.under{color:var(--v-under);background:var(--v-under-bg);border-color:var(--v-under-line)}
+/* 科目数不到要求时只做了部分比对：虚线边 + 一个「部分」小标，别让它看起来像完整结论 */
+.verdict.partial{border-style:dashed}
+.verdict .pv{font-size:9.5px;margin-left:3px;opacity:.85}
+.pos.partial{border-style:dashed}
 .rating .verdict{margin-top:6px}
 
 /* ══ 结果行 / 提示 ══ */

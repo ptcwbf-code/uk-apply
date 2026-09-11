@@ -112,13 +112,13 @@
   var REGIONS = {
     uk: {
       name: '英国九校', short: 'UK', schools: SCHOOLS, programs: PROGRAMS, dirs: DIRS,
-      testVisible: true, testHead: '入学笔试',
+      testIsExam: true, testHead: '入学笔试',
       year: '2027 年 9 月入学', cycle: '2026–27 申请季',
       sub: '牛剑 · G5 · 王爱曼华 · 2027 年入学（A-level / IB / 入学笔试）'
     },
     hk: {
       name: '香港八校', short: 'HK', schools: HKSCHOOLS, programs: HKPROGRAMS, dirs: DIRS,
-      testVisible: false, testHead: '面试 / 附加', noDse: true,
+      testIsExam: false, testHead: '面试 / 附加', testHeadHK: true, noDse: true,
       year: '2026 年 9 月入学', cycle: '2025–26 申请季',
       sub: '港大 · 港中文 · 港科大 · 城大 · 理大 · 浸会 · 教育 · 岭南 —— A-Level / IB 直申（无需 DSE；2026 入学轮次口径）'
     }
@@ -243,7 +243,6 @@
   var STORE_KEY = 'ukapply.state.v1';
   // 笔试筛选取值：筛选按钮与 URL 解码共用一份，避免两处漂移
   var TEST_OPTS = [['ALL', '不限'], ['NONE', '无笔试'], ['YES', '需笔试'], ['ESAT', 'ESAT'], ['TMUA', 'TMUA'], ['TARA', 'TARA'], ['LNAT', 'LNAT'], ['STEP', 'STEP'], ['UCAT', 'UCAT']];
-  var TEST_KEYS = TEST_OPTS.map(function (t) { return t[0]; });
 
   function snapshot() {
     return {
@@ -275,7 +274,9 @@
       r: r,
       d: (p.get('d') || '').split(',').filter(Boolean),
       s: (p.get('s') || '').split(',').filter(Boolean),
-      t: TEST_KEYS.indexOf(p.get('t')) >= 0 ? p.get('t') : 'ALL',
+      // 筛选项的取值随板块而变（英国是 ESAT，香港是「面试」），这里只做形式校验，
+      // 能不能用由 applyState 按板块再核一次
+      t: (p.get('t') || 'ALL').slice(0, 24),
       g: p.get('g') === 'dir' ? 'dir' : 'school',
       v: p.get('v') === 'card' ? 'card' : p.get('v') === 'table' ? 'table' : null,
       q: p.get('q') || '',
@@ -339,7 +340,9 @@
     cur.schools.forEach(function (s) { schoolSet[s.key] = 1; });
     activeDirs = st.d.filter(function (d) { return !!dirSet[d]; });
     activeSchools = st.s.filter(function (k) { return !!schoolSet[k]; });
-    testSel = st.t; groupBy = st.g; view = st.v || defaultView(); q = st.q; sortKey = st.o;
+    // 链接里的筛选项可能来自另一个板块，对不上就重置——否则会筛出空结果还找不到原因
+    testSel = testOptionsFor(st.r).some(function (o) { return o[0] === st.t; }) ? st.t : 'ALL';
+    groupBy = st.g; view = st.v || defaultView(); q = st.q; sortKey = st.o;
     viewPicked = !!st.v;
     sortDir = st.od || defaultDir(sortKey);
     syncRegionChrome(); syncControlsChrome();
@@ -866,6 +869,18 @@
   }
 
   // ── 筛选 chips ──
+  // 各板块的「笔试 / 面试」筛选项。英国是固定几种入学笔试；
+  // 香港的取值直接来自数据本身（面试 / 面试（入围）/ 作品集），不写死——
+  // 原先整个筛选行在香港板块是 display:none，学生会以为香港不用考任何东西。
+  function testOptionsFor(rc) {
+    if (rc !== 'hk') return TEST_OPTS;
+    var opts = [['ALL', '不限'], ['NONE', '无附加'], ['YES', '有附加']];
+    var seen = { ALL: 1, NONE: 1, YES: 1 };
+    REGIONS.hk.programs.forEach(function (p) {
+      if (p.test && !seen[p.test]) { seen[p.test] = 1; opts.push([p.test, p.test]); }
+    });
+    return opts;
+  }
   function chipRows(list, isSchool) {
     return list.map(function (s) {
       var on = (isSchool ? activeSchools : activeDirs).indexOf(s.key) !== -1;
@@ -879,15 +894,25 @@
     var dirKeys = Object.keys(cur.dirs).filter(function (d) { return (dirCount[d] || 0) > 0; });
     $('#filters-dir').innerHTML = chipRows(dirKeys.map(function (d) { return { key: d, zh: cur.dirs[d].zh }; }), false);
     $('#filters-school').innerHTML = chipRows(cur.schools, true);
-    $('#filters-test').innerHTML = TEST_OPTS.map(function (t) {
-      return '<button type="button" class="chip" data-k="' + t[0] + '" aria-pressed="' + (testSel === t[0]) + '"' +
+    $('#filters-test').innerHTML = testOptionsFor(curRc()).map(function (t) {
+      return '<button type="button" class="chip" data-k="' + esc(t[0]) + '" aria-pressed="' + (testSel === t[0]) + '"' +
         (TEST_TITLE[t[0]] ? ' title="' + TEST_TITLE[t[0]] + '"' : '') + '>' + esc(t[1]) + '</button>';
     }).join('');
+    // 标签与说明随板块换：香港这一列装的是面试 / 作品集，不是入学笔试
+    var lbl = $('#test-label');
+    if (lbl) lbl.textContent = cur.testHead;
+    var grp = $('#filters-test');
+    if (grp) grp.setAttribute('aria-label', '按' + cur.testHead + '筛选');
+    var note = $('#test-note');
+    if (note) {
+      note.hidden = !cur.testHeadHK;
+      note.textContent = cur.testHeadHK ? '香港本轮多数专业不设入学笔试；这一列列的是面试 / 作品集等附加要求' : '';
+    }
   }
 
   // ── 过滤 ──
   function testOK(p) {
-    if (!cur.testVisible || testSel === 'ALL') return true;
+    if (testSel === 'ALL') return true;
     if (testSel === 'NONE') return !p.test;
     if (testSel === 'YES') return !!p.test;
     return !!p.test && p.test.indexOf(testSel) !== -1;
@@ -914,7 +939,7 @@
     // 院校分组：SCHOOLS 上的 group（G5·牛剑 / 王爱曼华 / 港八）是学生真会打的词，
     // 但它只画在分组标签上，不索引就等于搜「牛剑」「G5」返回空
     add('院校分组', s.group);
-    if (p.test) add(reg.testVisible ? '入学笔试' : '面试 / 附加甄选', p.test + ' ' + (TEST_TITLE[p.test] || ''));
+    if (p.test) add(reg.testIsExam ? '入学笔试' : '面试 / 附加甄选', p.test + ' ' + (TEST_TITLE[p.test] || ''));
     if (e) {
       // 每个值都补上英文缩写前缀：表里只渲染分数（「6.5（各项≥6.0）」），
       // 不补 "IELTS" 的话「ielts 6.5」这类查询永远搜不到。
@@ -984,9 +1009,17 @@
       var req = gradeProfile(p.alevel);
       if (!req.length) return null;                    // 只写「≥3 AL / 3 AL 合格」的，没有档可比
       var mine = myGradeValues();
-      if (mine.length < req.length) return { kind: 'under', by: 'alevel', short: true };
-      var gap = gradeSum(mine.slice(0, req.length)) - gradeSum(req);
-      return { kind: gap > 0 ? 'over' : gap === 0 ? 'meet' : 'under', by: 'alevel', gap: gap };
+      if (!mine.length) return null;
+      // 填的科目数不到要求的门数时，拿现有的门数去对「要求里最高的那几门」做部分比对。
+      // 原先是一律判「低于要求」——满屏红字，看着就像功能坏了。
+      // partial 会一路带到徽章、摘要与对比清单，别让人把部分比对当成完整对照。
+      var n = Math.min(mine.length, req.length);
+      var gap = gradeSum(mine.slice(0, n)) - gradeSum(req.slice(0, n));
+      return {
+        kind: gap > 0 ? 'over' : gap === 0 ? 'meet' : 'under',
+        by: 'alevel', gap: gap,
+        partial: mine.length < req.length, have: mine.length, need: req.length
+      };
     }
     var reqIb = ibScore(p.ib);
     var v = myIbValue();
@@ -1002,19 +1035,22 @@
     if (!v) return '';
     var label = VERDICT_ZH[v.kind] + barWord(p);
     var mine = v.by === 'alevel' ? 'A-Level ' + myTrim() : 'IB ' + myIbValue();
-    var req = v.short ? '要求 ' + gradeProfile(p.alevel).length + ' 门 A-Level'
-                      : (v.by === 'alevel' ? 'A-Level ' + p.alevel : 'IB ' + p.ib);
-    var tip = '按你输入的 ' + mine + ' 对照 ' + req + '：' + label +
-      (v.short ? '（科目门数不够）' : '') + '。' + (OFFER_TITLE[p.offer] || '') +
-      '—— 只对照公布口径，不是录取概率。';
-    return '<span class="verdict ' + v.kind + '" title="' + esc(tip) + '">' + esc(label) + '</span>';
+    var req = v.by === 'alevel' ? 'A-Level ' + p.alevel : 'IB ' + p.ib;
+    var tip = '按你输入的 ' + mine + ' 对照 ' + req + '：' + label + '。' +
+      (v.partial ? '注意：你只填了 ' + v.have + ' 门，该专业要求 ' + v.need +
+        ' 门，这里只比对了要求里最高的 ' + v.have + ' 门。' : '') +
+      (OFFER_TITLE[p.offer] || '') + '—— 只对照公布口径，不是录取概率。';
+    return '<span class="verdict ' + v.kind + (v.partial ? ' partial' : '') + '" title="' + esc(tip) + '">' +
+      esc(label) + (v.partial ? '<span class="pv">部分</span>' : '') + '</span>';
   }
   function myCounts() {
-    var c = { over: 0, meet: 0, under: 0, na: 0 };
+    var c = { over: 0, meet: 0, under: 0, na: 0, partial: 0 };
     cur.programs.forEach(function (p, i) {
       if (!matches(p, i)) return;
       var v = verdictFor(p);
-      if (!v) c.na++; else c[v.kind]++;
+      if (!v) { c.na++; return; }
+      c[v.kind]++;
+      if (v.partial) c.partial++;
     });
     return c;
   }
@@ -1040,13 +1076,21 @@
       if (!usable && only.checked) { only.checked = false; onlyReach = false; }
     }
     // 「达到 / 高于」最容易被读成「稳了」。徽章上的悬停说明在手机上根本看不到，
-    // 所以把口径限制写成可见的一行
+    // 所以把口径限制写成可见的一行；科目数不够时也要先说清楚，否则部分比对会被当成完整对照
     var warn = $('#my-warn');
     if (warn) {
       warn.hidden = !mode;
-      warn.textContent = mode
-        ? '判定只对照各校公布的分数口径，不等于录取概率：热门专业实际录取普遍高于公布数字，「达到 / 高于」也应当冲刺看。'
-        : '';
+      if (!mode) warn.textContent = '';
+      else {
+        var bits = [];
+        var c = myCounts();
+        if (c.partial) {
+          bits.push('你填了 ' + myGradeValues().length + ' 门 A-Level，少于 ' + c.partial +
+            ' 个专业要求的门数——它们带「部分」标记，只比对了要求里最高的那几门。');
+        }
+        bits.push('判定只对照各校公布的分数口径，不等于录取概率：热门专业实际录取普遍高于公布数字，「达到 / 高于」也应当冲刺看。');
+        warn.textContent = bits.join(' ');
+      }
     }
   }
   function loadMyGrades() {
@@ -1060,6 +1104,45 @@
   }
   function saveMyGrades() {
     try { localStorage.setItem(MY_STORE, JSON.stringify({ g: myGrades, only: onlyReach })); } catch (e) {}
+  }
+
+  // ── 最近搜索 ──
+  // 存最近 5 条，只在搜索框空着且正在用时显示——平时不占首屏高度。
+  // 记的是用户敲进去的原样（大小写保留），不是匹配用的那份小写。
+  var HIST_STORE = 'ukapply.searches.v1', HIST_MAX = 5;
+  var HISTORY = [];
+  function loadHistory() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(HIST_STORE) || '[]');
+      if (Array.isArray(raw)) {
+        HISTORY = raw.filter(function (x) { return typeof x === 'string' && x.trim(); }).slice(0, HIST_MAX);
+      }
+    } catch (e) { HISTORY = []; }
+  }
+  function saveHistory() {
+    try { localStorage.setItem(HIST_STORE, JSON.stringify(HISTORY)); } catch (e) {}
+  }
+  function pushHistory(term) {
+    term = String(term || '').trim();
+    if (term.length < 2) return;
+    var i = HISTORY.indexOf(term);
+    if (i === 0) return;                       // 已经是最新一条，不重排
+    if (i > 0) HISTORY.splice(i, 1);
+    HISTORY.unshift(term);
+    HISTORY = HISTORY.slice(0, HIST_MAX);
+    saveHistory(); renderHistory();
+  }
+  function renderHistory() {
+    var host = $('#hist'), input = $('#q');
+    if (!host || !input) return;
+    var show = HISTORY.length > 0 && document.activeElement === input && !input.value.trim() && !q;
+    host.hidden = !show;
+    if (!show) { host.innerHTML = ''; return; }
+    host.innerHTML = '<span class="hist-k">最近搜索</span>' +
+      HISTORY.map(function (t) {
+        return '<button type="button" class="hist-b" data-hist="' + esc(t) + '">' + esc(t) + '</button>';
+      }).join('') +
+      '<button type="button" class="hist-x" data-hist-clear="1">清除</button>';
   }
 
   // 除「只看达得到」之外的全部筛选——摘要要能回答「我正看的这批里能上几个」
@@ -1131,7 +1214,7 @@
     return '<span class="badge offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(OFFER_ZH[p.offer] || p.offer) + '</span>';
   }
   function testBadge(p) {
-    if (!cur.testVisible) {
+    if (!cur.testIsExam) {
       return p.test ? '<span class="badge test">需' + esc(p.test) + '</span>' : '<span class="badge test no">—</span>';
     }
     return p.test ? '<span class="badge test">需考 ' + esc(p.test) + '</span>' : '<span class="badge test no">无笔试</span>';
@@ -1535,7 +1618,32 @@
   $('#school-all').addEventListener('click', function () { activeSchools = cur.schools.map(function (s) { return s.key; }); renderChips(); apply(); });
   $('#school-none').addEventListener('click', function () { activeSchools = []; renderChips(); apply(); });
   $('#groupby').addEventListener('change', function (e) { groupBy = e.target.value; apply(); });
-  $('#q').addEventListener('input', function (e) { q = e.target.value.trim().toLowerCase(); animate = false; apply(); });
+  var _histT;
+  $('#q').addEventListener('input', function (e) {
+    q = e.target.value.trim().toLowerCase(); animate = false; apply();
+    // 停手 1.5 秒才记进历史：一边打字一边记会把「港」「港大」「港大 C」全塞进去
+    clearTimeout(_histT);
+    var term = e.target.value.trim();
+    if (term.length >= 2) _histT = setTimeout(function () { pushHistory(term); }, 1500);
+    else renderHistory();          // 清空输入时把历史重新露出来
+  });
+  $('#q').addEventListener('focus', renderHistory);
+  $('#q').addEventListener('blur', function () { var h = $('#hist'); if (h) { h.hidden = true; h.innerHTML = ''; } });
+  // 用 mousedown 而不是 click：click 之前输入框会先失焦，列表已经被收起来，点不中
+  $('#hist').addEventListener('mousedown', function (e) {
+    var b = e.target.closest('button[data-hist]');
+    if (b) {
+      e.preventDefault();
+      $('#q').value = b.dataset.hist;
+      $('#q').dispatchEvent(new Event('input', { bubbles: true }));
+      renderHistory();             // 有内容了，历史自行收起
+      return;
+    }
+    if (e.target.closest('button[data-hist-clear]')) {
+      e.preventDefault();
+      HISTORY = []; saveHistory(); renderHistory();
+    }
+  });
   // 我的成绩：每次输入都要重算全表判定
   $('#my').addEventListener('input', function (e) {
     myGrades = e.target.value.trim(); saveMyGrades(); animate = false; apply();
@@ -1933,7 +2041,10 @@
   function posChip(it) {
     var v = verdictFor(it.p);
     if (!v) return '';
-    return '<span class="pos ' + v.kind + '" title="' + esc(POS_TITLE[v.kind]) + '">' + POS_ZH[v.kind] + '</span>';
+    // 部分比对（科目数不够）加个星号，对比表的小结里会解释它的含义
+    return '<span class="pos ' + v.kind + (v.partial ? ' partial' : '') + '" title="' +
+      esc(POS_TITLE[v.kind] + (v.partial ? '（你填的科目数不够，这里只做了部分比对）' : '')) + '">' +
+      POS_ZH[v.kind] + (v.partial ? '*' : '') + '</span>';
   }
   // CSV 里只有「冲」两个字太单薄——导出的表常常是直接发给顾问的，要能自己说明白
   function posText(p) {
@@ -1943,10 +2054,10 @@
   }
   function updatePosSum(items) {
     var el = $('#cmp-pos-sum'); if (!el) return;
-    var c = { under: 0, meet: 0, over: 0, na: 0 };
+    var c = { under: 0, meet: 0, over: 0, na: 0, partial: 0 };
     items.forEach(function (it) {
       var v = verdictFor(it.p);
-      if (v) c[v.kind]++; else c.na++;
+      if (v) { c[v.kind]++; if (v.partial) c.partial++; } else c.na++;
     });
     var n = c.under + c.meet + c.over;
     if (!n) {
@@ -1960,7 +2071,8 @@
       '<span class="pos meet">稳 ' + c.meet + '</span>' +
       '<span class="pos over">保 ' + c.over + '</span>' +
       (c.na ? '<span class="pss-na">另有 ' + c.na + ' 项无分数可比</span>' : '') +
-      '<span class="pss-tip">UCAS 本科一般只能填 5 个志愿，建议 1–2 冲、2–3 稳、1–2 保</span>';
+      '<span class="pss-tip">UCAS 本科一般只能填 5 个志愿，建议 1–2 冲、2–3 稳、1–2 保' +
+      (c.partial ? '；带 <b>*</b> 的项你填的科目数不够，只做了部分比对' : '') + '</span>';
   }
   function renderCompareTable() {
     var items = cmpItems();
@@ -2293,6 +2405,7 @@
   $('#comparebar').title = '清单最多 ' + CMP_MAX + ' 项。UCAS 本科一般只能填 5 个志愿，建议先留 5–8 项当短名单。';
   loadCompare();                             // 对比清单也要跨会话保留；渲染前恢复，按钮状态直接就对
   loadMyGrades();                            // 成绩也只存本机：分享链接里不带别人的分数
+  loadHistory();                             // 最近搜索（同样只在本机）
   buildSibCount();                           // 「同方向 +N」的数量（数据静态，构建一次）
   var boot = decodeState(location.hash.replace(/^#/, ''));
   if (!boot) { try { boot = decodeState(localStorage.getItem(STORE_KEY) || ''); } catch (e) { boot = null; } }
