@@ -3,9 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>英国九校 · 香港八校 本科录取要求速查（UK &amp; HK Admissions）</title>
+<!-- 标题把「本科录取要求速查」放最前：浏览器标签页只露十几个字，
+     原先「英国九校 · 香港八校」把位置占满，真正能辨认这个站的那截反而被截掉了 -->
+<title>本科录取要求速查 · 英国九校 · 香港八校</title>
 <meta name="description" content="覆盖英国九校（牛剑·G5·王爱曼华）与香港八校（港大·港中文·港科大·城大·理大·浸会·教育·岭南）热门专业本科公开录取要求检索、导出与对比，英国与香港专业可放入同一张对比表。英国含 A-level/IB/入学笔试，香港为 A-Level/IB 直申（无需 DSE）。">
-<link rel="stylesheet" href="styles.css?v=8.5">
+<link rel="stylesheet" href="styles.css?v=8.6">
+
+<!-- 图标：SVG 给现代浏览器，PNG 兜底（Safari 等对 SVG favicon 支持不全） -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<!-- 移动端地址栏配色。第一条不带 media：不认 media 的浏览器要拿到品牌藏蓝，
+     而不是深色模式那支，否则浅色主题下地址栏是黑的 -->
+<meta name="theme-color" content="#16325c">
+<meta name="theme-color" content="#0e131b" media="(prefers-color-scheme: dark)">
+
+<!-- 分享卡：本站靠微信群传播，裸链接与带图卡片的打开率差别很大。
+     og:image 必须是绝对地址——微信 / QQ / Slack 的抓取器都不解析相对路径。
+     状态全在 hash 里，抓取器会忽略它，所以所有分享链接共用这张卡。 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="英国九校 · 香港八校 本科录取要求速查">
+<meta property="og:title" content="英国九校 · 香港八校 本科录取要求速查">
+<meta property="og:description" content="牛津 · 剑桥 · 帝国理工 · LSE · UCL · KCL · 曼大 · 爱丁堡 · 华威，与港大 · 港中文 · 港科大 · 城大 · 理大 · 浸会 · 教育 · 岭南共 17 所大学的本科公开录取条件：A-Level / IB 要求、入学笔试、英语要求与 QS2026 学科排名，可检索、排序、对比并导出。">
+<meta property="og:url" content="https://mtennnn.cn/">
+<meta property="og:image" content="https://mtennnn.cn/og-cover.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="英国九校 · 香港八校 本科录取要求速查">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="英国九校 · 香港八校 本科录取要求速查">
+<meta name="twitter:description" content="17 所英港大学的本科公开录取条件：A-Level / IB 要求、入学笔试、英语要求与 QS2026 学科排名，可检索、排序、对比并导出。">
+<meta name="twitter:image" content="https://mtennnn.cn/og-cover.png">
 </head>
 <body>
 <a class="skip" href="#app">跳至正文</a>
@@ -15,38 +46,72 @@
     <div class="brand">
       <p class="eyebrow">UK &amp; HONG KONG · UNDERGRADUATE ADMISSIONS REFERENCE · 2026–27</p>
       <h1>英国九校 · 香港八校 本科录取要求速查</h1>
-      <p class="lede">同一站点覆盖两个申请体系：<strong>英国九校</strong>（牛津 · 剑桥 · 帝国理工 · LSE · UCL · KCL · 曼大 · 爱丁堡 · 华威，2027 年入学）与<strong>香港八校</strong>（港大 · 港中文 · 港科大 · 城大 · 理大 · 浸会 · 教育 · 岭南，A-Level / IB 直申、无需 DSE）。在下方选择板块后检索、导出与对比；两边专业可放进同一张对比表。</p>
+      <!-- lede 只留「这是什么 + 两个板块的入学年份」：学校名单在下方切换键旁边已经逐板块写了，
+           同一份信息在首屏重复三遍只会把第一行数据推得更远 -->
+      <p class="lede">英国九校（2027 年入学）与香港八校（2026 入学轮次）的本科公开录取条件——检索、排序、对比、导出，两边专业可放进同一张表。</p>
     </div>
     <dl class="stats">
       <div><dt>范围</dt><dd>英 + 港</dd></div>
-      <div><dt>当前板块大学</dt><dd><span id="stat-schools">9</span></dd></div>
-      <div><dt>当前板块专业</dt><dd><span id="stat-programs">0</span></dd></div>
+      <!-- 初始值写「—」而不是 0 / 9：脚本跑完才会填真值，写死数字会让慢网络下先闪一个错数
+           （「当前板块专业 0」看起来像没数据；9 只在英国板块成立，香港链接会先闪一个错的校数） -->
+      <div><dt>当前板块大学</dt><dd><span id="stat-schools">—</span></dd></div>
+      <div><dt>当前板块专业</dt><dd><span id="stat-programs">—</span></dd></div>
       <div><dt>信息核对</dt><dd>2026-09</dd></div>
     </dl>
   </div>
 </header>
 
+<!-- 脚本失败时页面不能只剩一个空壳：说明为什么没内容，并给出可直接读的原文。
+     正文标题与 lede 是静态 HTML，本来就会显示，所以这段嵌在页眉与 main 之间。 -->
+<noscript>
+  <div class="wrap">
+    <div class="noscript">
+      <h2>本页的表格、筛选与对比需要 JavaScript</h2>
+      <p>本站没有后端，检索 / 排序 / 对比全部由浏览器脚本在你本机完成。<strong>当前浏览器未启用 JavaScript</strong>，所以下方只剩静态外壳——按钮点了没有反应，专业表格是空的。</p>
+      <p>在浏览器设置里开启 JavaScript 后刷新即可正常使用。若暂时不能开启，可直接阅读原始数据文件（纯文本，字段含义写在文件开头的注释里）：</p>
+      <ul>
+        <li><a href="data.js">data.js</a> —— 英国九校，面向 2027 年 9 月入学</li>
+        <li><a href="data-hk.js">data-hk.js</a> —— 香港八校，2026 入学轮次</li>
+        <li><a href="data-qs.js">data-qs.js</a> —— QS 2026 学科排名</li>
+        <li><a href="data-eng.js">data-eng.js</a> —— 各校英语要求（IELTS / TOEFL / GCSE / IGCSE-ESL / IB）</li>
+      </ul>
+      <p>数据为各大学官网公开信息汇编，仅供参考，一律以官网最新公布为准。</p>
+    </div>
+  </div>
+</noscript>
+
 <main class="wrap" id="app">
-  <div class="regionbar" role="tablist" aria-label="数据范围">
-    <button class="region-tab" id="tab-uk" type="button" role="tab" aria-selected="true" data-r="uk">英国九校</button>
-    <button class="region-tab" id="tab-hk" type="button" role="tab" aria-selected="false" data-r="hk">香港八校</button>
+  <!-- tablist 只包住标签本身：混进徽章与说明文字不符合 APG，也会让读屏把说明当成页签。
+       aria-controls 指向下方唯一的面板；左右方向键在页签间移动（见 app.js） -->
+  <div class="regionbar">
+    <div class="region-tabs" role="tablist" aria-label="数据范围">
+      <button class="region-tab" id="tab-uk" type="button" role="tab" aria-selected="true" aria-controls="panel-data" data-r="uk">英国九校</button>
+      <button class="region-tab" id="tab-hk" type="button" role="tab" aria-selected="false" aria-controls="panel-data" data-r="hk">香港八校</button>
+    </div>
+    <!-- 入学年份做成显眼徽章：同一屏里英国 2027 入学、香港 2026 入学轮次，最容易读错。
+         「无需 DSE」也是同样的道理——它是港校这条路径成立的前提，不该只写在页眉的 lede 里 -->
+    <span class="cycle-badge" id="cycle-badge"></span>
+    <span class="dse-badge" id="dse-badge" hidden></span>
     <p class="region-desc" id="region-desc">牛剑 · G5 · 王爱曼华 · 2027 年入学（A-level / IB / 入学笔试）</p>
   </div>
 
-  <!-- 口径说明跟随板块：放在切换键正下方，并标出当前板块，避免切换后错过另一套口径 -->
-  <details class="manual" id="manual">
+  <!-- 板块切换后面板内容整体替换：与上面的 tablist 构成一套完整的 tabs（APG） -->
+  <div id="panel-data" role="tabpanel" aria-labelledby="tab-uk">
+
+  <!-- 申请时间线：折叠状态下也要能看见最近的那个截止日，倒计时在浏览器里现算、不会过期 -->
+  <details class="manual timeline" id="timeline">
     <summary>
-      <span class="man-title">术语与口径说明</span>
-      <span class="man-region" id="manual-region">英国九校</span>
-      <span class="man-sub">成绩口径 · 招生结构 · 笔试 / 面试 · 英语要求 · QS 学科排名</span>
+      <span class="man-title">申请时间线</span>
+      <span class="tl-next" id="tl-next"></span>
+      <span class="man-sub">UCAS 关键日期 · 报名与考试截止</span>
     </summary>
-    <div class="manual-body" id="manual-body"></div>
+    <div class="tl-body" id="timeline-body"></div>
   </details>
   <section class="controls" aria-label="检索与筛选">
     <div class="ctl-row">
       <label class="search">
         <span class="visually-hidden">检索专业</span>
-        <input id="q" type="search" placeholder="检索专业名称、大学或关键词（如：统计学、MORSE、ESAT）" autocomplete="off">
+        <input id="q" type="search" placeholder="检索专业、大学或关键词（如：统计学、MORSE、ESAT、雅思 6.5、面试）" autocomplete="off">
       </label>
       <div class="seg" id="view-toggle" role="group" aria-label="视图">
         <button type="button" class="seg-btn" data-v="table" aria-pressed="true">表格</button>
@@ -58,22 +123,40 @@
           <option value="dir">按学科方向</option>
         </select>
       </label>
-      <button class="btn btn-ghost" id="reset" type="button">重置条件</button>
+      <button class="btn btn-ghost" id="reset" type="button" title="清空筛选、搜索、排序、分组与视图，回到本板块的默认状态">重置全部</button>
       <button class="btn btn-primary" id="export" type="button" aria-expanded="false" title="选择范围与列后导出 CSV">导出 CSV</button>
+      <button class="btn btn-ghost" id="share" type="button" title="复制一条带当前板块、筛选、排序与搜索词的链接——发给同学或顾问，对方打开就是同一批结果">复制链接</button>
+      <button class="btn btn-ghost" id="print" type="button" title="打印当前结果，或存成 PDF——打印样式会去掉交互件、每页重复表头，并强制展开术语与口径说明">打印 / 存 PDF</button>
     </div>
+
+    <!-- 我的成绩：站上最常被问的其实是「我这样够不够」，而不只是「要求是多少」。
+         一行输入自动判 A-Level / IB，纯本地计算，不联网、不外传，也不写进分享链接。 -->
+    <div class="ctl-row myrow">
+      <label class="myg">
+        <span class="myg-k">我的成绩</span>
+        <input id="my" type="text" autocomplete="off" spellcheck="false"
+               placeholder="A-Level 填 A*A*A ｜ IB 填 43" aria-describedby="my-hint">
+      </label>
+      <button class="btn btn-ghost btn-sm" id="my-clear" type="button" hidden>清除</button>
+      <label class="onlyreach"><input type="checkbox" id="only-reach" disabled> 只看达得到</label>
+      <span class="myg-sum" id="my-sum"></span>
+      <span class="myg-hint" id="my-hint">只在本机比对，不会上传，也不会写进分享链接</span>
+    </div>
+    <!-- 判定是个很容易被读成「我稳了」的东西：悬停说明在手机上根本看不到，
+         所以把口径限制写成可见的一行，紧跟在判定摘要下面 -->
+    <p class="myg-warn" id="my-warn" hidden></p>
 
     <!-- 导出面板：范围（D3）+ 列（D2） -->
     <div class="export-panel" id="export-panel" hidden>
       <div class="ep-row"><span class="ep-k">范围</span><div class="ep-opts" id="ep-scope" role="group" aria-label="导出范围"></div></div>
       <div class="ep-row"><span class="ep-k">列<span class="mini-acts"><button class="mini" id="ep-all" type="button">全选</button><button class="mini" id="ep-none" type="button">仅基础列</button></span></span><div class="ep-opts" id="ep-cols" role="group" aria-label="导出列"></div></div>
       <div class="ep-foot">
-        <button class="btn btn-primary" id="ep-go" type="button">导出</button>
+        <button class="btn btn-primary" id="ep-go" type="button">导出 CSV</button>
+        <button class="btn btn-ghost" id="ep-copy" type="button" title="按当前勾选的列复制成制表符分隔的文本，可直接粘进 Excel / Notion / 微信">复制到剪贴板</button>
         <button class="btn btn-ghost" id="ep-cancel" type="button">取消</button>
         <span class="ep-hint" id="ep-hint" role="status" aria-live="polite"></span>
       </div>
     </div>
-
-    <p class="quickstart" id="quickstart">使用步骤：① 在下方选择学科方向与大学，点表头「专业 / A-Level / IB / QS 名次」可排序；② 切换表格 / 卡片视图与分组方式；③ 点行内「加入对比」——英国学校与香港学校可混选进同一张对比表，表内可直接比较差异；④ 点「导出 CSV」选范围与列后导出，或点行内「官网」核对原文。</p>
 
     <div class="ctl-filters">
       <div class="ctl-block">
@@ -82,7 +165,7 @@
       </div>
       <div class="ctl-block">
         <div class="ctl-label">大学
-          <span class="mini-acts"><button class="mini" id="school-all" type="button">全选</button><button class="mini" id="school-none" type="button">清空</button></span>
+          <span class="mini-acts"><button class="mini" id="school-all" type="button">全选</button><button class="mini" id="school-none" type="button">全不选</button></span>
         </div>
         <div class="chips" id="filters-school" role="group" aria-label="按大学筛选"></div>
       </div>
@@ -93,9 +176,12 @@
     </div>
   </section>
 
-  <p class="resultline"><span id="result-count-label" role="status" aria-live="polite"><strong id="result-count">0</strong> 项<span id="result-context"></span><span id="result-breakdown" class="breakdown"></span></span></p>
+  <p class="resultline"><span id="result-count-label" role="status" aria-live="polite"><strong id="result-count">—</strong> 项<span id="result-context"></span><span id="result-breakdown" class="breakdown"></span></span></p>
 
-  <p class="scope-row"><button id="sort-chip" class="sort-chip" type="button" hidden title="点一下取消排序"></button><button id="scope-clear" class="linklike" type="button" hidden>清除当前条件</button></p>
+  <!-- 只在打印时出现：纸质版会脱离这个页面，得能自己说清是哪一批结果、按什么条件筛的 -->
+  <p class="print-meta" id="print-meta"></p>
+
+  <p class="scope-row"><button id="sort-chip" class="sort-chip" type="button" hidden title="点一下取消排序"></button><button id="scope-clear" class="linklike" type="button" hidden>清除筛选</button></p>
   <p class="legend" id="legend" hidden></p>
   <nav class="jumpbar" id="jumpbar" hidden aria-label="按大学跳转"></nav>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -104,11 +190,39 @@
 
   <div id="empty" class="empty" hidden>
     <h2>未检索到符合条件的专业</h2>
-    <p>可放宽学科方向、大学等筛选条件；也可点「重置条件」查看本板块全部专业。</p>
+    <p>可放宽学科方向、大学等筛选条件；也可点「重置全部」查看本板块全部专业。</p>
+    <!-- 具体放宽哪一条能剩下多少项，逐个给出来——比一句「请放宽条件」有用得多 -->
+    <div class="empty-help" id="empty-help"></div>
   </div>
 
+  <!-- 口径说明挪到结果之后：它是参考材料，不是每次查询都要先跨过去的东西。
+       首屏因此少一层，第一行数据更早出现；成绩口径的即时解释由结果上方的图例承担。
+       内容仍随板块整体替换，只是不再占据首屏 -->
+  <details class="manual" id="manual">
+    <summary>
+      <span class="man-title">术语与口径说明</span>
+      <span class="man-region" id="manual-region">英国九校</span>
+      <span class="man-sub">成绩口径 · 招生结构 · 笔试 / 面试 · 英语要求 · QS 学科排名</span>
+    </summary>
+    <div class="manual-body" id="manual-body"></div>
+  </details>
+
+  <!-- 「怎么用」与口径说明同类：都是参考资料，放在结果之后，不再占首屏
+       （原来是压在控件区底部的 ①②③④ 一整段灰字，没人读） -->
+  <details class="howto" id="quickstart">
+    <summary>怎么用（4 步）</summary>
+    <ol>
+      <li>在「学科方向」「大学」「入学笔试」里点选条件；点表头「专业 / A-Level / IB / QS 名次」可排序。</li>
+      <li>切「表格 / 卡片」视图，或按大学 / 学科方向重新分组。</li>
+      <li>点行内「加入对比」——英国与香港的专业可混选进同一张对比表，表内会标出各专业有差异的列。</li>
+      <li>「导出 CSV」选范围与列；「复制链接」把这批结果发给别人；「打印 / 存 PDF」出纸质版。</li>
+    </ol>
+  </details>
+  </div><!-- /#panel-data -->
+
   <div id="comparebar" class="comparebar" hidden>
-    <span><strong id="compare-count">0</strong> / <span id="compare-max">30</span> 项已加入对比</span>
+    <!-- 分母（/30）对学生没意义——他们只需要 5 个。上限挪进 title，条上只留当前数量 -->
+    <span>已加入对比 <strong id="compare-count">0</strong> 项</span>
     <button class="btn btn-ghost" id="compare-clear" type="button">清空</button>
     <button class="btn btn-primary" id="compare-open" type="button">查看对比</button>
   </div>
@@ -119,10 +233,15 @@
         <h2 id="compare-title">所选专业对比</h2>
         <div class="overlay-tools">
           <div class="cmp-sort" id="cmp-sort" role="group" aria-label="对比表排序"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="cmp-group" aria-pressed="false"
+                  title="按冲 / 稳 / 保把清单分成三段（需要先填「我的成绩」）">按冲稳保分组</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="cmp-share" title="生成一条带这份清单的链接——发给顾问或同学，对方打开就是同一份短名单">复制清单</button>
           <button type="button" class="btn btn-ghost btn-sm" id="cmp-export" title="把对比清单导出为 CSV（与筛选结果无关）">导出对比</button>
-          <button type="button" class="overlay-close" id="compare-close" aria-label="关闭">×</button>
+          <button type="button" class="overlay-close" id="compare-close" aria-label="关闭"><svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.2 4.2 11.8 11.8"/><path d="M11.8 4.2 4.2 11.8"/></svg></button>
         </div>
       </div>
+      <!-- 冲 / 稳 / 保 的小结：只有输了成绩才出现 -->
+      <p class="cmp-pos-sum" id="cmp-pos-sum" hidden></p>
       <p class="cmp-diff-note" id="cmp-diff-note" hidden></p>
       <div class="tblwrap"><table class="tbl" id="compare-table"></table></div>
     </div>
@@ -133,7 +252,7 @@
     <div class="overlay-box">
       <div class="overlay-head">
         <h2 id="eng-sheet-title">英语要求</h2>
-        <button type="button" class="overlay-close" id="eng-sheet-close" aria-label="关闭">×</button>
+        <button type="button" class="overlay-close" id="eng-sheet-close" aria-label="关闭"><svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.2 4.2 11.8 11.8"/><path d="M11.8 4.2 4.2 11.8"/></svg></button>
       </div>
       <div class="eng-sheet-body" id="eng-sheet-body"></div>
     </div>
@@ -143,15 +262,15 @@
     <p><strong>数据依据</strong>：各大学官网课程页面公开信息，逐条核对（核对时间 2026 年 9 月）。英国板块面向 <strong>2027 年 9 月入学</strong>（2026–27 申请季）；香港板块为 <strong>2026 入学轮次</strong>公布的 A-Level / IB 直申要求（无需 DSE）。各校条件随申请季更新，正式申请前请以官网最新页面为准。</p>
     <p>本页成绩按各校官网公开口径照录（<strong>典型 · 最低 · 区间 · 下限 · 门槛</strong>），不构成录取承诺；牛剑及港校医学类录取还取决于入学笔试、面试与预估成绩。</p>
     <p class="disclaimer"><strong>免责声明</strong>：本页为公开资料汇编，<strong>仅供参考</strong>；所有录取要求、分数与考试政策<strong>一律以各大学官网最新公布为准</strong>，请勿据本页直接决策。</p>
-    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 8.5（英国九校 + 香港八校 + QS2026 学科排名 + 英语要求）· 纯静态页面，可离线使用</p>
+    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 8.6（英国九校 + 香港八校 + QS2026 学科排名 + 英语要求）· 纯静态页面，可离线使用</p>
   </footer>
-  <button type="button" class="to-top" id="to-top" aria-label="回到顶部" title="回到顶部">↑</button>
+  <button type="button" class="to-top" id="to-top" aria-label="回到顶部" title="回到顶部"><svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 13V3.4"/><path d="M4.2 7.2 8 3.4l3.8 3.8"/></svg></button>
 </main>
 
-<script src="data.js?v=8.5"></script>
-<script src="data-hk.js?v=8.5"></script>
-<script src="data-eng.js?v=8.5"></script>
-<script src="data-qs.js?v=8.5"></script>
-<script src="app.js?v=8.5"></script>
+<script src="data.js?v=8.6"></script>
+<script src="data-hk.js?v=8.6"></script>
+<script src="data-eng.js?v=8.6"></script>
+<script src="data-qs.js?v=8.6"></script>
+<script src="app.js?v=8.6"></script>
 </body>
 </html>

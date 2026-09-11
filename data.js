@@ -3,15 +3,15 @@
 // 成绩口径见"术语与口径说明"：典型（典型录取水平）/ 最低 / 区间；剑桥为各学院最低 offer 水平
 
 const SCHOOLS = [
-  { key: 'oxford',    zh: '牛津',   en: 'University of Oxford',  group: 'G5·牛剑', mark: '牛', color: '#7c0f28' },
-  { key: 'cambridge', zh: '剑桥',   en: 'University of Cambridge', group: 'G5·牛剑', mark: '剑', color: '#0f4c81' },
-  { key: 'imperial',  zh: '帝国理工', en: 'Imperial College London', group: 'G5', mark: '帝', color: '#162d5c' },
-  { key: 'lse',       zh: 'LSE',    en: 'London School of Economics', group: 'G5', mark: 'LSE', color: '#a61c5b' },
-  { key: 'ucl',       zh: 'UCL',    en: 'University College London', group: 'G5', mark: 'UCL', color: '#511c5c' },
-  { key: 'kcl',       zh: 'KCL',    en: "King's College London", group: '王爱曼华', mark: 'KCL', color: '#3a5da8' },
-  { key: 'manchester',zh: '曼大',   en: 'University of Manchester', group: '王爱曼华', mark: '曼', color: '#73172d' },
-  { key: 'edinburgh', zh: '爱丁堡', en: 'University of Edinburgh', group: '王爱曼华', mark: '爱', color: '#1e2d3d' },
-  { key: 'warwick',   zh: '华威',   en: 'University of Warwick',  group: '王爱曼华', mark: '华', color: '#4b1e64' }
+  { key: 'oxford',    zh: '牛津',   en: 'University of Oxford',  group: 'G5·牛剑', mark: '牛', color: '#7c0f28', checked: '2026-09' },
+  { key: 'cambridge', zh: '剑桥',   en: 'University of Cambridge', group: 'G5·牛剑', mark: '剑', color: '#0f4c81', checked: '2026-09' },
+  { key: 'imperial',  zh: '帝国理工', en: 'Imperial College London', group: 'G5', mark: '帝', color: '#162d5c', checked: '2026-09' },
+  { key: 'lse',       zh: 'LSE',    en: 'London School of Economics', group: 'G5', mark: 'LSE', color: '#a61c5b', checked: '2026-09' },
+  { key: 'ucl',       zh: 'UCL',    en: 'University College London', group: 'G5', mark: 'UCL', color: '#511c5c', checked: '2026-09' },
+  { key: 'kcl',       zh: 'KCL',    en: "King's College London", group: '王爱曼华', mark: 'KCL', color: '#3a5da8', checked: '2026-09' },
+  { key: 'manchester',zh: '曼大',   en: 'University of Manchester', group: '王爱曼华', mark: '曼', color: '#73172d', checked: '2026-09' },
+  { key: 'edinburgh', zh: '爱丁堡', en: 'University of Edinburgh', group: '王爱曼华', mark: '爱', color: '#1e2d3d', checked: '2026-09' },
+  { key: 'warwick',   zh: '华威',   en: 'University of Warwick',  group: '王爱曼华', mark: '华', color: '#4b1e64', checked: '2026-09' }
 ];
 
 const DIRS = {

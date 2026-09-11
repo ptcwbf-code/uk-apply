@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="英国九校 · 香港八校 本科录取要求速查">
+  <title>英国九校 · 香港八校 本科录取要求速查</title>
+  <!-- 站内语汇的缩微：藏蓝砖（.seal）+ 左侧烫金竖条（.group-head::before）+ 表格行 -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e4a80"/>
+      <stop offset="1" stop-color="#16325c"/>
+    </linearGradient>
+    <clipPath id="clip"><rect width="64" height="64" rx="14"/></clipPath>
+  </defs>
+  <g clip-path="url(#clip)">
+    <rect width="64" height="64" fill="url(#tile)"/>
+    <!-- 元素比站内 .seal 更粗：favicon 会被缩到 16px，细线在那里会糊成一片 -->
+    <rect x="10" y="13" width="6" height="38" rx="3" fill="#c9a227"/>
+    <rect x="22" y="15" width="32" height="7" rx="3.5" fill="#fff" fill-opacity=".95"/>
+    <rect x="22" y="29" width="23" height="7" rx="3.5" fill="#fff" fill-opacity=".6"/>
+    <rect x="22" y="43" width="28" height="7" rx="3.5" fill="#fff" fill-opacity=".6"/>
+  </g>
+</svg>

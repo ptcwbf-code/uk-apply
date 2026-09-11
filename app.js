@@ -17,6 +17,23 @@
     if (i < 0) return esc(str);
     return esc(str.slice(0, i)) + '<mark class="hl">' + esc(str.slice(i, i + q.length)) + '</mark>' + esc(str.slice(i + q.length));
   }
+  // ── 图标 ──
+  // 原来用的是 ▾ ▴ ⇅ ✕ ▸ ↑ × 这些文字符号：不同字体下字重与基线各不相同，凑在一起很花。
+  // 统一成一套：16 网格、1.7 描边、圆头圆角、不用填充；尺寸由各自上下文用 CSS 指定。
+  // （CSS 伪元素上的三角用同一套几何做成 mask，见 styles.css 的 --ic-right / --ic-down）
+  function svgIcon(d, cls) {
+    return '<svg class="ic' + (cls ? ' ' + cls : '') + '" viewBox="0 0 16 16" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" ' +
+      'aria-hidden="true" focusable="false">' + d + '</svg>';
+  }
+  var ICON = {
+    sortAsc:  svgIcon('<path d="M4 9.6 8 5.6l4 4"/>'),
+    sortDesc: svgIcon('<path d="M4 6.4 8 10.4l4-4"/>'),
+    sortNone: svgIcon('<path d="M5 6.3 8 3.3l3 3"/><path d="M5 9.7l3 3 3-3"/>'),
+    right:    svgIcon('<path d="M6 4l4 4-4 4"/>'),
+    close:    svgIcon('<path d="M4.2 4.2 11.8 11.8"/><path d="M11.8 4.2 4.2 11.8"/>'),
+    top:      svgIcon('<path d="M8 13V3.4"/><path d="M4.2 7.2 8 3.4l3.8 3.8"/>')
+  };
   function shortUrl(u) { return u.replace(/^https?:\/\//, '').replace(/\/$/, ''); }
   // 统一的分数渲染：主分数 + 括注（各校同款字体与层级）
   function scoreHTML(v, cls) {
@@ -30,11 +47,40 @@
     return '<span class="' + cls + '">' + brk +
       (sub ? '<span class="score-sub">' + esc(sub) + '</span>' : '') + '</span>';
   }
-  function showToast(msg, ms) {
+  function hideToast() {
+    var t = $('#toast'); if (t) t.classList.remove('show');
+  }
+  // action（可选）在提示条右侧挂一个按钮，用于「清空对比」这类需要一个后悔阀门的操作
+  function showToast(msg, ms, action) {
     var t = $('#toast'); if (!t) return;
-    t.textContent = msg; t.classList.add('show');
     clearTimeout(showToast._t);
-    showToast._t = setTimeout(function () { t.classList.remove('show'); }, ms || 2800);
+    t.textContent = msg;                      // 顺带清掉上一条的按钮
+    if (action) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'toast-act'; b.textContent = action.label;
+      b.addEventListener('click', function () { hideToast(); action.fn(); });
+      t.appendChild(b);
+    }
+    t.classList.add('show');
+    showToast._t = setTimeout(hideToast, ms || 2800);
+  }
+  // 复制到剪贴板：安全上下文用 clipboard API，file:// 与旧浏览器回落 execCommand
+  function copyText(text, onOk) {
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:-1000px;left:0;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      ta.remove();
+      if (ok) onOk(); else showToast('复制失败，请手动复制地址栏里的链接', 4200);
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(onOk, fallback);
+    } else fallback();
   }
 
   // ── 成绩口径标签（全中文、短词，避免中英混排） ──
@@ -61,18 +107,121 @@
   };
 
   // ── 两个板块（数据集 + 展示口径） ──
+  // year / cycle 单独成字段：同一屏里英国是 2027 年入学、香港是 2026 入学轮次，
+  // 跨板块混选进同一张对比表时，这是最容易被读错的一处，必须每行都带着。
   var REGIONS = {
     uk: {
       name: '英国九校', short: 'UK', schools: SCHOOLS, programs: PROGRAMS, dirs: DIRS,
       testVisible: true, testHead: '入学笔试',
+      year: '2027 年 9 月入学', cycle: '2026–27 申请季',
       sub: '牛剑 · G5 · 王爱曼华 · 2027 年入学（A-level / IB / 入学笔试）'
     },
     hk: {
       name: '香港八校', short: 'HK', schools: HKSCHOOLS, programs: HKPROGRAMS, dirs: DIRS,
-      testVisible: false, testHead: '面试 / 附加',
+      testVisible: false, testHead: '面试 / 附加', noDse: true,
+      year: '2026 年 9 月入学', cycle: '2025–26 申请季',
       sub: '港大 · 港中文 · 港科大 · 城大 · 理大 · 浸会 · 教育 · 岭南 —— A-Level / IB 直申（无需 DSE；2026 入学轮次口径）'
     }
   };
+  function cycleShort(rc) { return REGIONS[rc].year.replace(' 年 9 月入学', ' 入学'); }
+
+  // ── 申请时间线 ──
+  // 这是「申请季」级别的日历，不是专业数据，所以不进 data*.js 的合并流程，只在 app.js 里维护；
+  // 每换一个申请季要整体重核一遍。
+  // 硬性规矩：只有核到官方页面的日期才进 items（它们驱动「还剩 N 天」这种强提示）；
+  // 只从第三方汇总看到的一律进 pending，明说「本站未核到官网」。
+  var TIMELINE = {
+    uk: {
+      items: [
+        { d: '2026-09-01', t: 'UCAS 开放提交申请', src: 'UCAS 官方日历' },
+        { d: '2026-09-15', t: 'LNAT 报名截止——申请牛剑者须在此前报名，才能赶在 10 月 15 日前完成考试', src: 'LNAT 官网', u: 'https://lnat.ac.uk/registration/dates-and-deadlines/' },
+        { d: '2026-09-16', t: 'UCAT 报名截止（15:00 英国时间）——医学 / 牙医必考，不接受逾期', src: 'UCAT 官网', u: 'https://www.ucat.ac.uk/' },
+        { d: '2026-09-28', t: 'ESAT / TMUA 十月场报名截止（英国时间 18:00，不接受逾期报名）', src: 'UAT-UK 官网与考生手册', u: 'https://esat-tmua.ac.uk/' },
+        { d: '2026-10-12', t: 'ESAT / TMUA 十月场考试（12–16 日；中国内地与港澳：ESAT 12–13 日、TMUA 15–16 日）', src: 'UAT-UK', u: 'https://esat-tmua.ac.uk/' },
+        { d: '2026-10-15', t: '牛津、剑桥全部专业，及多数医学 / 牙医 / 兽医截止（18:00）；LNAT 亦须在此前完成', src: 'UCAS 官方日历', u: 'https://lnat.ac.uk/registration/dates-and-deadlines/' },
+        { d: '2026-11-16', t: 'ESAT / TMUA 成绩公布', src: 'UAT-UK', u: 'https://esat-tmua.ac.uk/' },
+        { d: '2027-01-13', t: '平权审核截止：多数专业（18:00）——此前提交的申请获得同等审核', src: 'UCAS 官方日历' },
+        { d: '2027-01-20', t: 'LNAT 报名截止——申请 KCL / LSE / UCL 者（Bristol 与 Durham 的报名截止为 1 月 13 日）', src: 'LNAT 官网', u: 'https://lnat.ac.uk/registration/dates-and-deadlines/' },
+        { d: '2027-06-30', t: '逾期申请截止；此后提交的自动进入 Clearing', src: 'UCAS 官方日历' }
+      ],
+      pending: [
+        { t: 'STEP（剑桥数学等，录取后条件）', s: '2027 年 6 月考试，2024 年起由 OCR 主办；属录取后的条件考试，具体日期会写在 offer 上，本站未核到公开时间表', u: 'https://www.ocr.org.uk/students/step-mathematics/' }
+      ],
+      srcNote: '日期来源：UCAS 官方日历、各校官网、UAT-UK 官网与考生手册、UCAT 官网、LNAT 官网（2026-09 核对）。各校与考试局每年调整，正式申请前请再核对一次。'
+    },
+    hk: {
+      items: [],
+      notes: [
+        '本板块数据为 **2026 入学轮次**：该轮申请已在 2025 年底至 2026 年初结束。',
+        '**2027 入学轮次**（2026 年底开放）的各校 non-JUPAS 截止日期尚未公布；公布后这里会补上具体日期。',
+        '香港没有像 UCAS 那样的统一申请平台，**八校各自独立招生**，A-Level / IB 申请人走各校的 non-JUPAS（国际资历）通道，因此有八个不同的截止日期。',
+        '节奏上的大致规律：秋季开放申请，**11 月前后为早轮、次年 1 月上旬为主轮**，早轮提交通常更有利——但每年日期都不同，务必以各校官网为准。'
+      ],
+      srcNote: '本板块暂无经官方核实的日期，所以不做倒计时。上一轮的截止日期可作节奏参考，但不能当成本轮日期使用。'
+    }
+  };
+  function daysTo(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!m) return null;
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.round((new Date(+m[1], +m[2] - 1, +m[3]) - today) / 86400000);
+  }
+  function fmtDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    return m ? (+m[2]) + ' 月 ' + (+m[3]) + ' 日' : '';
+  }
+  function daysWord(n) {
+    if (n === 0) return '今天';
+    if (n === 1) return '明天';
+    return n < 0 ? '已过' : '还剩 ' + n + ' 天';
+  }
+  // 21 天以内算「近」：报名类截止一旦错过就没有补救（ESAT / TMUA 明确不接受逾期报名），
+  // 留三周才够学生安排考试与准备
+  var TL_SOON = 21;
+  // 倒计时是打开页面时现算的：静态页也能给出「还剩几天」，不必每次改数据
+  function renderTimeline() {
+    var host = $('#timeline-body'), nx = $('#tl-next');
+    if (!host) return;
+    var rc = curRc();
+    var tl = TIMELINE[rc] || { items: [] };
+    var items = (tl.items || []).slice().sort(function (a, b) { return a.d < b.d ? -1 : 1; });
+    var next = null;
+    items.forEach(function (it) { if (!next && daysTo(it.d) >= 0) next = it; });
+    if (nx) {
+      if (next) {
+        var n = daysTo(next.d);
+        nx.className = 'tl-next' + (n <= TL_SOON ? ' urgent' : '');
+        nx.textContent = '下一个：' + fmtDate(next.d) + ' ' + next.t.replace(/（[^）]*）/g, '') + '（' + daysWord(n) + '）';
+      } else {
+        nx.className = 'tl-next';
+        nx.textContent = rc === 'hk' ? '上一轮已结束，下一轮日期尚未公布' : '本季关键日期均已过';
+      }
+    }
+    var out = '';
+    if (items.length) {
+      out += '<ol class="tl-list">' + items.map(function (it) {
+        var n = daysTo(it.d), past = n < 0, soon = n >= 0 && n <= TL_SOON;
+        return '<li class="' + (past ? 'past' : '') + (soon ? ' soon' : '') + '">' +
+          '<span class="tl-d">' + esc(fmtDate(it.d)) + '</span>' +
+          '<span class="tl-c"><span class="tl-t">' + esc(it.t) + '</span>' +
+          '<span class="tl-m">' + daysWord(n) + ' · ' + esc(it.src || '') +
+          (it.u ? ' · <a href="' + esc(it.u) + '" target="_blank" rel="noopener noreferrer">官网</a>' : '') +
+          '</span></span></li>';
+      }).join('') + '</ol>';
+    }
+    if (tl.notes) out += '<ul class="tl-notes">' + tl.notes.map(function (s) { return '<li>' + fmtBold(s) + '</li>'; }).join('') + '</ul>';
+    if (tl.pending && tl.pending.length) {
+      out += '<section class="tl-pending"><h3>' +
+        (tl.pending.length === 1 ? '另一个考试没有可核实的公开日期' : '另有 ' + tl.pending.length + ' 个考试没有可核实的公开日期') +
+        '</h3><ul>' +
+        tl.pending.map(function (p) {
+          return '<li><b>' + esc(p.t) + '</b>：' + esc(p.s) + ' —— <a href="' + esc(p.u) + '" target="_blank" rel="noopener noreferrer">去官网确认</a></li>';
+        }).join('') + '</ul></section>';
+    }
+    if (tl.srcNote) out += '<p class="tl-src">' + esc(tl.srcNote) + '</p>';
+    host.innerHTML = out;
+  }
   // 两个板块的大学索引合并，对比清单可跨板块混选
   var allSchoolByKey = {};
   Object.keys(REGIONS).forEach(function (r) {
@@ -131,7 +280,9 @@
       v: p.get('v') === 'card' ? 'card' : p.get('v') === 'table' ? 'table' : null,
       q: p.get('q') || '',
       o: SORT_KEYS[p.get('o')] ? p.get('o') : 'default',
-      od: p.get('od') === 'asc' ? 'asc' : p.get('od') === 'desc' ? 'desc' : null
+      od: p.get('od') === 'asc' ? 'asc' : p.get('od') === 'desc' ? 'desc' : null,
+      // 清单分享链接里才有：对比清单不像筛选条件那样常驻 URL，只有点「复制清单」才带上
+      c: p.get('c') || ''
     };
   }
   function persistState() {
@@ -143,19 +294,41 @@
     } catch (e) { /* file:// 下 replaceState 可能被拒；地址栏不更新，但 localStorage 已记住 */ }
   }
   // 板块相关的界面（页签 / 说明 / 统计）——切换板块与从状态恢复共用
+  // tabs 按 APG 补齐：aria-selected 之外还要管 roving tabindex 与面板的 aria-labelledby，
+  // 否则读屏只会念「页签 1/2」却不知道它是哪块内容的开关。
+  function syncTabs() {
+    var tabs = [$('#tab-uk'), $('#tab-hk')];
+    var active = cur === REGIONS.hk ? 1 : 0;
+    tabs.forEach(function (t, i) {
+      var on = i === active;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;     // 只让当前页签进 Tab 序列，其余靠左右方向键
+    });
+    var panel = $('#panel-data');
+    if (panel) panel.setAttribute('aria-labelledby', tabs[active].id);
+  }
   function syncRegionChrome() {
     var isHK = cur === REGIONS.hk;
     document.body.classList.toggle('region-hk', isHK);
-    $('#tab-uk').setAttribute('aria-selected', String(!isHK));
-    $('#tab-hk').setAttribute('aria-selected', String(isHK));
+    syncTabs();
     $('#region-desc').textContent = cur.sub;
+    $('#cycle-badge').textContent = cur.year + ' · ' + cur.cycle;
+    // 「无需 DSE」是港校这条路径成立的前提，紧挨着切换键比埋在图注里管用
+    var dse = $('#dse-badge');
+    if (dse) {
+      dse.hidden = !cur.noDse;
+      dse.textContent = cur.noDse ? 'A-Level / IB 直申 · 无需 DSE' : '';
+    }
     $('#stat-schools').textContent = cur.schools.length;
     $('#stat-programs').textContent = cur.programs.length;
+    renderTimeline();   // 时间线同样跟随板块（英国有倒计时，香港暂无可核实的日期）
   }
   // 控件回填（搜索框 / 分组 / 视图按钮）——重置、切换板块、从状态恢复共用
   function syncControlsChrome() {
     $('#q').value = q;
     $('#groupby').value = groupBy;
+    $('#my').value = myGrades;
+    $('#only-reach').checked = onlyReach;
     Array.prototype.forEach.call($('#view-toggle').children, function (x) {
       x.setAttribute('aria-pressed', String(x.getAttribute('data-v') === view));
     });
@@ -174,50 +347,105 @@
   }
 
   // ══ 排序 ══
-  // 把 A-Level 字符串折成一个可比较的分数：A*=4 / A=3 / B=2 / C=1 / D=0 / E=-1，取平均
-  // （取平均而非求和，避免「要求 4 门」被误判成「更难」；区间取较高一端；折不出分数的排最后）
+  // ══ 成绩解析 ══
+  // 排序与「我的成绩」判定共用这一套：两处若各解析各的，会出现「排序说它更高、判定说你够不着」。
   var GRADE_VAL = { 'A*': 4, A: 3, B: 2, C: 1, D: 0, E: -1 };
-  function gradeScore(s) {
-    if (!s) return null;
-    var t = String(s)
-      // 先剔掉「A-Level / AL / IAL / ASL」这类资历名——否则 "3 AL" 会被读成「3 个 A」
-      .replace(/A[\s-]?L(?:evel)?s?/gi, ' ').replace(/A[\s-]?S[\s-]?L/gi, ' ')
-      .split(/[–—~]|\s*\/\s*/)[0];                    // 区间 / 并列写法一律取第一段
-    var re = /(\d+)\s*([A-E])(\*)?|([A-E])(\*)?/g, m, total = 0, n = 0;
-    while ((m = re.exec(t))) {
+  function gradeSum(a) { return a.reduce(function (s, v) { return s + v; }, 0); }
+  // 把一段等级串拆成降序的等级值数组："A*A*A" → [4,4,3]；"4A*" → [4,4,4,4]
+  function parseGrades(t) {
+    var re = /(\d+)\s*([A-E])(\*)?|([A-E])(\*)?/g, m, out = [];
+    while ((m = re.exec(String(t || '')))) {
       var v = m[1] ? GRADE_VAL[m[2] + (m[3] || '')] : GRADE_VAL[m[4] + (m[5] || '')];
       if (v === undefined) continue;
-      var cnt = m[1] ? +m[1] : 1;
-      total += cnt * v; n += cnt;
+      var n = m[1] ? +m[1] : 1;
+      while (n--) out.push(v);
     }
-    return n ? total / n : null;
+    return out.sort(function (a, b) { return b - a; });
   }
-  function ibScore(s) { var m = String(s || '').match(/\d+/); return m ? +m[0] : null; }
+  // 一座专业的 A-Level 要求档。两处必须清洗，否则会读进不属于要求的字母：
+  // 1) 括号里的「或 AAB + Art Foundation」是备选方案，会带进 Art 的 A、EPQ 的 E；
+  // 2) 出现区间时取更高的一端——英国写「高–低」(A*A*A*–A*AA)，港中文写「低–高」(ABB–AAB)，
+  //    方向相反，只取最大才两头都对（旧实现固定取第一段，对港中文等于取了低端）。
+  function gradeProfile(s) {
+    if (!s) return [];
+    // 先剔掉「A-Level / AL / IAL / ASL」这类资历名，否则「3 AL 合格」会被读成「3 个 A」
+    var head = String(s).split('（')[0].trim()
+      .replace(/A[\s-]?L(?:evel)?s?/gi, ' ').replace(/A[\s-]?S[\s-]?L/gi, ' ').trim();
+    // 门槛写法「3 AL ≥ B」= 三门各达 B，要按门数展开，否则会被当成「一门 B」
+    var g = head.match(/^(\d+)\s*[≥>=]+\s*([A-E])(\*)?/i);
+    if (g) {
+      var v = GRADE_VAL[g[2].toUpperCase() + (g[3] || '')];
+      if (v !== undefined) {
+        var out = [];
+        for (var i = 0; i < +g[1]; i++) out.push(v);
+        return out;
+      }
+    }
+    // 截到第一个非等级字符为止：剩下的中文说明（「合格」「或…」）不该再往下读
+    var body = (head.match(/^[A-E*\d\s+–—~\/]*/) || [''])[0];
+    var segs = body.split(/[–—~]|\s*\/\s*/).map(parseGrades).filter(function (a) { return a.length; });
+    if (!segs.length) return [];
+    return segs.reduce(function (best, cur) { return gradeSum(cur) > gradeSum(best) ? cur : best; });
+  }
+  // 取平均而非求和，避免「要求 4 门」被误判成「更难」；折不出分数的排最后
+  function gradeScore(s) { var p = gradeProfile(s); return p.length ? gradeSum(p) / p.length : null; }
+  // IB 总分要求。区间同样取较高一端（"31–33" → 33）；只说「文凭 / Diploma」不给分数的返回 null
+  function ibScore(s) {
+    var t = String(s || '');
+    var r = t.match(/(\d{2})\s*[–—~-]\s*(\d{2})/);
+    var v = r ? Math.max(+r[1], +r[2]) : null;
+    if (v == null) {
+      // 数字要自成词：「Diploma（Year1 无分数下限）」里的 1 不是分数
+      var m = t.match(/\b(\d{1,2})\b/);
+      v = m ? +m[1] : null;
+    }
+    // IB 总分只可能是 24–45，超出这个范围的一定是误读（学年、科目数等）
+    return (v != null && v >= 20 && v <= 45) ? v : null;
+  }
   // QS 存成负名次：这样「降序」对所有键都等于「从好/从高到低」，方向语义统一
   function qsScore(p) { var l = qsListFor(p); return l.length ? -rankNum(l[0].rank) : null; }
-  var SORT_KEYS = { name: 1, alevel: 1, ib: 1, qs: 1 };
+  // 雅思要求：取字符串开头的分数（"6.5（各项≥6.0）" → 6.5）。
+  // 需要 idx / rc 才能取到英语数据，所以排序时传的是整条 pair 而不是单条专业。
+  function ieltsOf(x) {
+    var e = engFor(x.idx, x.rc || curRc());
+    if (!e || !e.ielts) return null;
+    var m = String(e.ielts).match(/(\d(?:\.\d)?)/);
+    if (!m) return null;
+    var v = +m[1];
+    return (v >= 4 && v <= 9) ? v : null;   // 雅思只可能是 4–9，超出范围的是误读
+  }
+  var SORT_KEYS = { name: 1, alevel: 1, ib: 1, qs: 1, ielts: 1 };
+  // 每个键一个取值函数；取不到值返回 null，一律排最后
+  var SORT_VAL = {
+    name: function (x) { return String(x.p.zh); },
+    alevel: function (x) { return gradeScore(x.p.alevel); },
+    ib: function (x) { return ibScore(x.p.ib); },
+    qs: function (x) { return qsScore(x.p); },
+    ielts: function (x) { return ieltsOf(x); }
+  };
   function defaultDir(k) { return k === 'name' ? 'asc' : 'desc'; }
   var SORT_TITLE = {
     name: '按专业名排序',
     alevel: '按 A-Level 要求排序：A*=4 / A=3 / B=2 / C=1 / D=0 / E=-1 取平均（不看科目难易，只看等级本身）；区间取较高一端，折不出分数的排在最后',
     ib: '按 IB 总分要求排序；区间取较高一端',
-    qs: '按 QS2026 最好名次排序（名次数字越小越靠前）'
+    qs: '按 QS2026 最好名次排序（名次数字越小越靠前）',
+    ielts: '按雅思总分要求排序：数字越大要求越严。校级统一口径的学校，其所有专业按同一个分数排；官网未列 IELTS 的排在最后'
   };
   // pairs: [{p, idx}] —— 排序后仍要保持 p 与 idx 对应
   function sortPairs(pairs, key, dir) {
     var sign = dir === 'asc' ? 1 : -1;
+    var val = SORT_VAL[key] || SORT_VAL.name;
     return pairs.slice().sort(function (a, b) {
-      if (key === 'name') return sign * String(a.p.zh).localeCompare(String(b.p.zh), 'zh-Hans-CN');
-      var va = key === 'alevel' ? gradeScore(a.p.alevel) : key === 'ib' ? ibScore(a.p.ib) : qsScore(a.p);
-      var vb = key === 'alevel' ? gradeScore(b.p.alevel) : key === 'ib' ? ibScore(b.p.ib) : qsScore(b.p);
+      if (key === 'name') return sign * val(a).localeCompare(val(b), 'zh-Hans-CN');
+      var va = val(a), vb = val(b);
       if (va == null && vb == null) return 0;
-      if (va == null) return 1;      // 折不出分数的恒排最后，不受升降序影响
+      if (va == null) return 1;      // 取不到值的恒排最后，不受升降序影响
       if (vb == null) return -1;
       return sign * (va - vb);
     });
   }
   // 排序状态常驻提示：表头可能已被滚出视野，这里保证随时看得到、点得到（点一下取消）
-  var SORT_LABEL = { name: '专业名', alevel: 'A-Level', ib: 'IB', qs: 'QS 名次' };
+  var SORT_LABEL = { name: '专业名', alevel: 'A-Level', ib: 'IB', qs: 'QS 名次', ielts: '雅思' };
   function dirWord(k, d) {
     if (k === 'name') return d === 'asc' ? 'A → Z' : 'Z → A';
     if (k === 'qs') return d === 'desc' ? '名次好 → 差' : '名次差 → 好';
@@ -227,7 +455,7 @@
     var chip = $('#sort-chip'); if (!chip) return;
     if (sortKey === 'default') { chip.hidden = true; return; }
     chip.hidden = false;
-    chip.textContent = '排序：' + SORT_LABEL[sortKey] + ' ' + dirWord(sortKey, sortDir) + ' ✕';
+    chip.innerHTML = esc('排序：' + SORT_LABEL[sortKey] + ' ' + dirWord(sortKey, sortDir)) + '<span class="ar">' + ICON.close + '</span>';
   }
 
   // ══ 结果构成 / 成绩口径图例 / 学校速跳 ══
@@ -274,11 +502,27 @@
       return '<button type="button" class="jb" data-jump="' + s.key + '">' + sealHTML(s, false) + esc(s.zh) + '</button>';
     }).join('');
   }
+  // 打印时纸上那行上下文：一张脱离本站的纸，得能自己说清是哪一批、按什么条件筛的
+  function renderPrintMeta(n) {
+    var el = $('#print-meta'); if (!el) return;
+    var bits = [cur.name + ' · ' + cur.year + '（' + cur.cycle + '）'];
+    if (activeDirs.length) bits.push('学科方向：' + activeDirs.map(function (d) { return cur.dirs[d].zh; }).join('、'));
+    if (activeSchools.length) bits.push('大学：' + activeSchools.map(function (k) { return schoolByKey[k].zh; }).join('、'));
+    if (testSel !== 'ALL') bits.push(cur.testHead + '：' + (testSel === 'NONE' ? '无' : testSel === 'YES' ? '需笔试' : testSel));
+    if (q) bits.push('搜索：' + q);
+    if (myMode()) bits.push('我的成绩：' + myGrades + '（按 ' + (myMode() === 'alevel' ? 'A-Level' : 'IB 总分') + ' 判定）');
+    bits.push('共 ' + n + ' 项');
+    el.textContent = bits.join(' ｜ ');
+  }
   function prefersReduced() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
   // 视图默认：表格（窄屏也用表格——卡片虽不需要列头，但竖向占地太大）。
   // 注：窄屏表格要横向滚动，而横向滚动容器里的表头吸不住「页面」，这是取舍。
   // 用户手动切过视图才持久化，没切过就每次取这里的默认。
-  function defaultView() { return 'table'; }
+  // 视图默认：窄屏给卡片，宽屏给表格。
+  // 8.0 时窄屏也默认表格（注释里的理由是「卡片竖向占地太大」），可表格 min-width 是 900px，
+  // 手机上唯一能做的就是横向拖。卡片压成紧凑几行之后这个理由就不成立了——
+  // 「一眼扫到分数」比「拖到英语列再拖回来」快得多。用户手动切过视图就按用户的来。
+  function defaultView() { return window.innerWidth <= 700 ? 'card' : 'table'; }
 
   // ── 术语说明（分板块） ──
   var MANUAL = {
@@ -408,6 +652,7 @@
     });
     engByRegion.uk = engBuildFor(REGIONS.uk);
     engByRegion.hk = engBuildFor(REGIONS.hk);
+    if (!qBlob.uk.length) buildSearchBlobs();   // 数据静态，两个板块各建一次就够（切板块会重跑 buildIndex）
   }
   // 取某专业的英语要求：优先逐专业记录，否则回落到该校校级口径
   function engFor(idx, regCode) {
@@ -647,17 +892,236 @@
     if (testSel === 'YES') return !!p.test;
     return !!p.test && p.test.indexOf(testSel) !== -1;
   }
-  function qText(p) {
-    return (schoolByKey[p.school].zh + ' ' + schoolByKey[p.school].en + ' ' + p.zh + ' ' + p.en + ' ' +
-      p.degree + ' ' + (p.alevel || '') + ' ' + (p.ib || '') + ' ' + (p.alevelNote || '') + ' ' +
-      (p.note || '') + ' ' + p.dirs.map(function (d) { return cur.dirs[d].zh; }).join(' ')).toLowerCase();
+  // ── 搜索索引 ──
+  // 这份字段清单同时干两件事：拼索引串，以及回答「这行为什么被搜出来」。
+  // 关键：索引必须覆盖用户真会打的字。入学笔试（ESAT / 面试）与英语要求（IELTS / 雅思）
+  // 原先完全不在索引里——搜「雅思」英港两边都是 0 条，搜香港的「面试」也是 0 条，
+  // 而搜索框自己的占位文案还在推荐搜 ESAT。
+  function searchFields(p, idx, rc) {
+    var reg = REGIONS[rc], s = {};
+    reg.schools.forEach(function (x) { if (x.key === p.school) s = x; });
+    var e = engFor(idx, rc);
+    var out = [];
+    function add(label, val) { if (val) out.push([label, String(val)]); }
+    add('', s.zh); add('', s.en);                      // 名字由 hi() 高亮，标签留空
+    add('', p.zh); add('', p.en);
+    add('代码 / 学制', p.degree);
+    add('A-Level 要求', p.alevel);
+    add('IB 要求', p.ib);
+    add('科目要求', p.alevelNote);
+    add('备注', p.note);
+    add('学科方向', p.dirs.map(function (d) { return reg.dirs[d].zh; }).join('、'));
+    // 院校分组：SCHOOLS 上的 group（G5·牛剑 / 王爱曼华 / 港八）是学生真会打的词，
+    // 但它只画在分组标签上，不索引就等于搜「牛剑」「G5」返回空
+    add('院校分组', s.group);
+    if (p.test) add(reg.testVisible ? '入学笔试' : '面试 / 附加甄选', p.test + ' ' + (TEST_TITLE[p.test] || ''));
+    if (e) {
+      // 每个值都补上英文缩写前缀：表里只渲染分数（「6.5（各项≥6.0）」），
+      // 不补 "IELTS" 的话「ielts 6.5」这类查询永远搜不到。
+      // 中文别名同理——表里写 IELTS / TOEFL，学生打的是「雅思 / 托福」。
+      add('英语要求', e.tag); add('英语要求', e.band);
+      if (e.ielts) { add('英语要求', 'IELTS ' + e.ielts); add('英语要求', '雅思 ' + e.ielts); }
+      if (e.toeflOld) { add('英语要求', 'TOEFL ' + e.toeflOld); add('英语要求', '托福 ' + e.toeflOld); }
+      if (e.toeflNew) add('英语要求', 'TOEFL 新制 ' + e.toeflNew);
+      if (e.gcse) add('英语要求', 'GCSE ' + e.gcse);
+      if (e.ibEnglish) add('英语要求', 'IB English ' + e.ibEnglish);
+      if (e.gceEnglish) add('英语要求', 'GCE English ' + e.gceEnglish);
+      add('英语要求', igcseValue(e, 'efl'));
+      add('英语要求', igcseValue(e, 'esl'));
+      add('英语要求', e.note);
+    }
+    return out;
   }
+  // 索引串与字段表都预先算好：每敲一个字都重算 238 条会明显卡手
+  var qBlob = { uk: [], hk: [] }, qFields = { uk: [], hk: [] };
+  function buildSearchBlobs() {
+    ['uk', 'hk'].forEach(function (rc) {
+      qBlob[rc] = []; qFields[rc] = [];
+      REGIONS[rc].programs.forEach(function (p, i) {
+        var f = searchFields(p, i, rc);
+        qFields[rc].push(f);
+        qBlob[rc].push(f.map(function (x) { return x[1]; }).join(' ').toLowerCase());
+      });
+    });
+  }
+  // 命中说明：名字已经高亮过就不必再解释，其余字段被搜到时在行内点明是哪个字段
+  function hitChip(p, idx) {
+    if (!q) return '';
+    var fields = qFields[curRc()][idx] || [];
+    // 标签为空的就是校名 / 专业名那几条——名字所在格已经有 hi() 的高亮，不必再解释
+    if (fields.some(function (f) { return !f[0] && f[1].toLowerCase().indexOf(q) >= 0; })) return '';
+    var why = [];
+    fields.forEach(function (f) {
+      if (!f[0] || why.indexOf(f[0]) >= 0) return;
+      if (f[1].toLowerCase().indexOf(q) >= 0) why.push(f[0]);
+    });
+    if (!why.length) return '';
+    return '<span class="hit">命中：' + esc(why.slice(0, 2).join('；') + (why.length > 2 ? ' 等' : '')) + '</span>';
+  }
+  // ── 我的成绩 → 哪些能申 ──
+  // 站上回答的一直是「要求是多少」，而学生问的是「我这样够不够」。
+  // 判定只在这台机器上算：不联网、不外传，也刻意不写进 URL——分享链接里不该带着别人的成绩。
+  var myGrades = '';       // 一行输入，自动判断是 A-Level 还是 IB
+  var onlyReach = false;   // 只看达得到的（滤掉「低于要求」）
+  var MY_STORE = 'ukapply.mygrades.v1';
+
+  function myTrim() { return String(myGrades || '').trim().replace(/^IB\s*/i, ''); }
+  // 含 A–E 字母按 A-Level 读，纯数字按 IB 总分读（"IB 43" 里的 B 不算）
+  function myMode() {
+    var t = myTrim();
+    if (!t) return null;
+    if (/[A-Ea-e]/.test(t)) return 'alevel';
+    return /\d/.test(t) ? 'ib' : null;
+  }
+  function myIbValue() { var m = myTrim().match(/(\d{1,2})/); return m ? +m[1] : null; }
+  function myGradeValues() { return parseGrades(myTrim().replace(/[^A-E*\d\s+]/gi, ' ')); }
+  // 判定：拿「你最好的 N 门」对要求的 N 门求和比较（N = 要求的门数）。
+  // 用求和而不是平均——考四门拿到 A*AAA 的人应当按最好的三门算，不该被第四门拉低。
+  function verdictFor(p) {
+    var mode = myMode();
+    if (!mode) return null;
+    if (mode === 'alevel') {
+      var req = gradeProfile(p.alevel);
+      if (!req.length) return null;                    // 只写「≥3 AL / 3 AL 合格」的，没有档可比
+      var mine = myGradeValues();
+      if (mine.length < req.length) return { kind: 'under', by: 'alevel', short: true };
+      var gap = gradeSum(mine.slice(0, req.length)) - gradeSum(req);
+      return { kind: gap > 0 ? 'over' : gap === 0 ? 'meet' : 'under', by: 'alevel', gap: gap };
+    }
+    var reqIb = ibScore(p.ib);
+    var v = myIbValue();
+    if (reqIb == null || v == null) return null;
+    var g = v - reqIb;
+    return { kind: g > 0 ? 'over' : g === 0 ? 'meet' : 'under', by: 'ib', gap: g };
+  }
+  // 「门槛」是大学通用最低要求，不是该专业的录取条件，措辞必须分开
+  function barWord(p) { return p.offer === 'ger' ? '门槛' : '要求'; }
+  var VERDICT_ZH = { over: '高于', meet: '达到', under: '低于' };
+  function verdictBadge(p) {
+    var v = verdictFor(p);
+    if (!v) return '';
+    var label = VERDICT_ZH[v.kind] + barWord(p);
+    var mine = v.by === 'alevel' ? 'A-Level ' + myTrim() : 'IB ' + myIbValue();
+    var req = v.short ? '要求 ' + gradeProfile(p.alevel).length + ' 门 A-Level'
+                      : (v.by === 'alevel' ? 'A-Level ' + p.alevel : 'IB ' + p.ib);
+    var tip = '按你输入的 ' + mine + ' 对照 ' + req + '：' + label +
+      (v.short ? '（科目门数不够）' : '') + '。' + (OFFER_TITLE[p.offer] || '') +
+      '—— 只对照公布口径，不是录取概率。';
+    return '<span class="verdict ' + v.kind + '" title="' + esc(tip) + '">' + esc(label) + '</span>';
+  }
+  function myCounts() {
+    var c = { over: 0, meet: 0, under: 0, na: 0 };
+    cur.programs.forEach(function (p, i) {
+      if (!matches(p, i)) return;
+      var v = verdictFor(p);
+      if (!v) c.na++; else c[v.kind]++;
+    });
+    return c;
+  }
+  function updateMyChrome() {
+    var mode = myMode();
+    var clear = $('#my-clear'), only = $('#only-reach'), sum = $('#my-sum');
+    if (clear) clear.hidden = !myGrades;
+    if (sum) {
+      if (!mode) { sum.textContent = ''; sum.className = 'myg-sum'; }
+      else {
+        var c = myCounts(), n = c.over + c.meet + c.under;
+        sum.className = 'myg-sum on';
+        sum.textContent = '当前条件下 ' + n + ' 项可比对：够得着 ' + (c.over + c.meet) +
+          '（高于 ' + c.over + ' · 达到 ' + c.meet + '）· 够不着 ' + c.under +
+          (c.na ? ' · 无分数可比 ' + c.na : '');
+      }
+    }
+    if (only) {
+      var usable = !!mode;
+      only.disabled = !usable;
+      var box = only.closest('.onlyreach');
+      if (box) box.classList.toggle('off', !usable);
+      if (!usable && only.checked) { only.checked = false; onlyReach = false; }
+    }
+    // 「达到 / 高于」最容易被读成「稳了」。徽章上的悬停说明在手机上根本看不到，
+    // 所以把口径限制写成可见的一行
+    var warn = $('#my-warn');
+    if (warn) {
+      warn.hidden = !mode;
+      warn.textContent = mode
+        ? '判定只对照各校公布的分数口径，不等于录取概率：热门专业实际录取普遍高于公布数字，「达到 / 高于」也应当冲刺看。'
+        : '';
+    }
+  }
+  function loadMyGrades() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(MY_STORE) || 'null');
+      if (raw && typeof raw === 'object') {
+        myGrades = String(raw.g || '').slice(0, 24);
+        onlyReach = !!raw.only;
+      }
+    } catch (e) { /* 隐私模式忽略 */ }
+  }
+  function saveMyGrades() {
+    try { localStorage.setItem(MY_STORE, JSON.stringify({ g: myGrades, only: onlyReach })); } catch (e) {}
+  }
+
+  // 除「只看达得到」之外的全部筛选——摘要要能回答「我正看的这批里能上几个」
+  function matches(p, i) {
+    if (activeSchools.length && activeSchools.indexOf(p.school) === -1) return false;
+    if (activeDirs.length && !p.dirs.some(function (d) { return activeDirs.indexOf(d) !== -1; })) return false;
+    if (!testOK(p)) return false;
+    if (q && qBlob[curRc()][i].indexOf(q) === -1) return false;
+    return true;
+  }
+  // 空结果时逐条给出「放宽哪一项还剩几项」——是能直接点的解法，比一句「请放宽条件」管用
+  // o 里写了哪个键就表示「这一项不参与过滤」，用来试算放宽后的数量
+  function countWithout(o) {
+    o = o || {};
+    return cur.programs.filter(function (p, i) {
+      if (!o.school && activeSchools.length && activeSchools.indexOf(p.school) === -1) return false;
+      if (!o.dir && activeDirs.length && !p.dirs.some(function (d) { return activeDirs.indexOf(d) !== -1; })) return false;
+      if (!o.test && !testOK(p)) return false;
+      if (!o.q && q && qBlob[curRc()][i].indexOf(q) === -1) return false;
+      if (!o.only && onlyReach) { var v = verdictFor(p); if (!v || v.kind === 'under') return false; }
+      return true;
+    }).length;
+  }
+  var RELAX = [
+    { k: 'q', on: function () { return !!q; },
+      label: function () { return '清除搜索「' + q + '」'; },
+      fn: function () { q = ''; } },
+    { k: 'school', on: function () { return activeSchools.length > 0; },
+      label: function () { return '不限大学（当前限了 ' + activeSchools.length + ' 所）'; },
+      fn: function () { activeSchools = []; } },
+    { k: 'dir', on: function () { return activeDirs.length > 0; },
+      label: function () { return '不限学科方向（当前限了 ' + activeDirs.length + ' 个）'; },
+      fn: function () { activeDirs = []; } },
+    { k: 'test', on: function () { return testSel !== 'ALL'; },
+      label: function () { return '不限' + cur.testHead; },
+      fn: function () { testSel = 'ALL'; } },
+    { k: 'only', on: function () { return onlyReach; },
+      label: function () { return '取消「只看达得到」'; },
+      fn: function () { onlyReach = false; } }
+  ];
+  function renderEmptyHelp() {
+    var host = $('#empty-help'); if (!host) return;
+    var active = RELAX.filter(function (r) { return r.on(); });
+    if (!active.length) { host.innerHTML = ''; return; }
+    host.innerHTML = '<p class="eh-k">放宽任意一条就能看到结果：</p><div class="eh-list">' +
+      active.map(function (r) {
+        var o = {}; o[r.k] = 1;
+        var n = countWithout(o);
+        return '<button type="button" class="eh-b" data-relax="' + r.k + '"' + (n ? '' : ' disabled') + '>' +
+          esc(r.label()) + '<span class="eh-n">' + (n ? n + ' 项' : '仍无结果') + '</span></button>';
+      }).join('') + '</div>';
+  }
+  $('#empty-help').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-relax]'); if (!b) return;
+    var r = RELAX.filter(function (x) { return x.k === b.dataset.relax; })[0];
+    if (!r) return;
+    r.fn(); saveMyGrades(); syncControlsChrome(); renderChips(); apply();
+  });
   function filtered() {
-    return cur.programs.filter(function (p) {
-      if (activeSchools.length && activeSchools.indexOf(p.school) === -1) return false;
-      if (activeDirs.length && !p.dirs.some(function (d) { return activeDirs.indexOf(d) !== -1; })) return false;
-      if (!testOK(p)) return false;
-      if (q && qText(p).indexOf(q) === -1) return false;
+    return cur.programs.filter(function (p, i) {
+      if (!matches(p, i)) return false;
+      if (onlyReach) { var v = verdictFor(p); if (!v || v.kind === 'under') return false; }
       return true;
     });
   }
@@ -800,20 +1264,30 @@
     });
     return out.sort(function (a, b) { return rankNum(a.rank) - rankNum(b.rank); });
   }
+  // QS 名次的写法统一：并列的「=4」把等号收缩成一个小标记（读数仍是 4），
+  // 区间统一成 en dash——数据里混着「51-100」这种半角连字符，跟「101–200」排在一起很花
+  function rankText(r) {
+    return String(r == null ? '' : r).replace(/(\d)\s*[-–—]\s*(\d)/g, '$1–$2');
+  }
+  function rankHTML(r) {
+    var s = String(r == null ? '' : r);
+    var tie = s.charAt(0) === '=';
+    return (tie ? '<span class="tie" title="并列">=</span>' : '') + esc(rankText(tie ? s.slice(1) : s));
+  }
   function qsBadge(p) {
     var list = qsListFor(p);
     if (!list.length) return '';
-    var title = list.map(function (x) { return (QS_SUBJECT_ZH[x.sub] || x.sub) + ' #' + x.rank; }).join(' · ');
+    var title = list.map(function (x) { return (QS_SUBJECT_ZH[x.sub] || x.sub) + ' #' + rankText(x.rank); }).join(' · ');
     // 徽章带上学科名：只写「#24」看不出是哪个学科的排名，容易误读
     var top = list[0];
     return '<span class="badge qs" title="QS 2026 学科排名（' + esc(title) + '）">' +
-      esc(QS_SUBJECT_ZH[top.sub] || top.sub) + ' #' + esc(top.rank) + '</span>';
+      esc(QS_SUBJECT_ZH[top.sub] || top.sub) + ' #' + rankHTML(top.rank) + '</span>';
   }
   function qsCell(p) {
     var list = qsListFor(p);
     if (!list.length) return '<span class="t-qs no">—</span>';
     function row(x) {
-      return '<div class="t-qs"><span class="qn">#' + esc(x.rank) + '</span>' +
+      return '<div class="t-qs"><span class="qn">#' + rankHTML(x.rank) + '</span>' +
         '<span class="qz">' + esc(QS_SUBJECT_ZH[x.sub] || x.sub) + '</span></div>';
     }
     return list.map(row).join('');
@@ -829,21 +1303,54 @@
     if (!s || !s.color) return '';
     return '<span class="seal' + (lg ? ' lg' : '') + '" style="--c:' + s.color + '" aria-hidden="true">' + esc(schoolMark(s)) + '</span>';
   }
+  // 逐条可追溯到「哪个月核对过」——页脚只写一个总的月份，单行上看不出来
+  function checkedTag(meta) {
+    return (meta && meta.checked)
+      ? '<span class="gd-checked" title="这所大学的数据逐条核对的月份；每一行的来源页面见「操作」列里的官网链接">核对 ' + esc(meta.checked) + '</span>'
+      : '';
+  }
+  // 「这行和官网不一致？」总得有个出口：本站的可信度就等于数据准确度，
+  // 用户发现了却无处可说，下一个人还会踩同一处。
+  var REPO_ISSUES = 'https://github.com/ptcwbf-code/uk-apply/issues/new';
+  function reportURL(p) {
+    var s = allSchoolByKey[p.school] || {};
+    var body = [
+      '**专业**：' + p.zh + ' / ' + p.en,
+      '**大学**：' + (s.zh || p.school) + '（' + (s.en || '') + '）',
+      '**本站记录**：A-Level ' + (p.alevel || '—') + ' ｜ IB ' + (p.ib || '—') + ' ｜ 成绩口径 ' + (OFFER_ZH[p.offer] || p.offer),
+      '**本站核对日期**：' + (s.checked || '—'),
+      '**该行来源页**：' + p.url,
+      '',
+      '**与官网不一致之处**：',
+      '（请贴官网原文或截图）'
+    ].join('\n');
+    return REPO_ISSUES + '?title=' + encodeURIComponent('数据核对 · ' + (s.zh || p.school) + ' ' + p.zh) +
+      '&body=' + encodeURIComponent(body);
+  }
+  function reportLink(p) {
+    return '<a class="report" href="' + esc(reportURL(p)) + '" target="_blank" rel="noopener noreferrer"' +
+      ' title="这一行和官网不一致？点这里报告——会自动带上专业、当前记录与来源链接">报告错误</a>';
+  }
 
   // ── 卡片视图 ──
   function cardHTML(p, idx, showSchool) {
     var s = schoolByKey[p.school];
     var key = cur === REGIONS.hk ? 'hk:' : 'uk:';
     var e = engFor(idx);
+    var mode = myMode();
+    var vb = verdictBadge(p);
     return '<article class="card" style="--school:' + s.color + '">' +
       (showSchool ? '<div class="school-line">' + sealHTML(s, false) + hi(s.zh) + ' · ' + hi(s.en) + '</div>' : '') +
       '<h3><span class="zh">' + hi(p.zh) + '</span><span class="en">' + hi(p.en) + '</span></h3>' +
+      hitChip(p, idx) +
       '<div class="card-meta">' + esc(p.degree) + '</div>' +
       '<div class="rating">' +
         '<div><div class="k">' + 'A-Level' + '</div>' + scoreHTML(p.alevel, 'v') +
-        (p.alevelNote ? '<div class="score-note">' + esc(p.alevelNote) + '</div>' : '') + '</div>' +
+        (p.alevelNote ? '<div class="score-note">' + esc(p.alevelNote) + '</div>' : '') +
+        (mode === 'alevel' ? vb : '') + '</div>' +
         '<div><div class="k">IB（45 分制）</div>' + scoreHTML(p.ib, 'v') +
-        (p.ibNote ? '<div class="score-note">' + esc(p.ibNote) + '</div>' : '') + '</div>' +
+        (p.ibNote ? '<div class="score-note">' + esc(p.ibNote) + '</div>' : '') +
+        (mode === 'ib' ? vb : '') + '</div>' +
       '</div>' +
       (e ? '<div class="eng-block">' +
         '<div class="eng-line"><span class="eng-k">英语</span>' +
@@ -859,7 +1366,7 @@
   }
   function cardGroupHTML(items, idxMap, meta, showSchool, groupKey) {
     return '<section class="group" data-key="' + esc(groupKey || '') + '" style="--school:' + (meta.color || '#9aa3b8') + '">' +
-      '<div class="group-head"><h2>' + esc(meta.zh) + '</h2>' + (meta.en ? '<span class="en">' + esc(meta.en) + '</span>' : '') +
+      '<div class="group-head"><h2>' + esc(meta.zh) + '</h2>' + (meta.en ? '<span class="en">' + esc(meta.en) + '</span>' : '') + checkedTag(meta) +
       '<span class="cnt">' + items.length + ' 项</span></div>' +
       '<div class="cards">' + items.map(function (p, i) { return cardHTML(p, idxMap[i], showSchool); }).join('') + '</div></section>';
   }
@@ -868,17 +1375,17 @@
   // 可排序表头：点一下按该列排序，再点反向，第三下回到默认顺序
   function thSort(label, key) {
     var on = sortKey === key;
-    var arrow = on ? (sortDir === 'desc' ? '▾' : '▴') : '⇅';
+    var arrow = on ? (sortDir === 'desc' ? ICON.sortDesc : ICON.sortAsc) : ICON.sortNone;
     var sortAttr = on ? ' aria-sort="' + (sortDir === 'desc' ? 'descending' : 'ascending') + '"' : '';
     return '<th scope="col" class="th-sortable"' + sortAttr + '>' +
       '<button type="button" class="th-sort' + (on ? ' on' : '') + '" data-sort="' + key + '"' +
       ' title="' + esc(SORT_TITLE[key]) + '">' + esc(label) +
-      '<span class="ar" aria-hidden="true">' + arrow + '</span></button></th>';
+      '<span class="ar">' + arrow + '</span></button></th>';
   }
   function headHTML(items, meta) {
     var seal = sealHTML(meta, true);
     return '<div class="group-head' + (seal ? ' has-seal' : '') + '">' + seal + '<h2>' + esc(meta.zh) + '</h2>' +
-      (meta.en ? '<span class="en">' + esc(meta.en) + '</span>' : '') +
+      (meta.en ? '<span class="en">' + esc(meta.en) + '</span>' : '') + checkedTag(meta) +
       '<span class="cnt">' + items.length + ' 项</span></div>';
   }
   // colgroup 必须与表头同列数——原来按大学分组时表头 11 列、colgroup 只有 10 个 col，
@@ -893,12 +1400,14 @@
     var extra = showSchool ? '<colgroup><col style="width:104px"></colgroup>' : '<colgroup><col style="width:0px"></colgroup>';
     var schoolTh = showSchool ? '<th scope="col">大学</th>' : '';
     var testHead = esc(cur.testHead);
+    var mode = myMode();   // 判定徽章贴在它对照的那一列下面：A-Level 模式贴 A-Level，IB 模式贴 IB
     var rows = items.map(function (p, i) {
       var s = schoolByKey[p.school];
       var key = (cur === REGIONS.hk ? 'hk:' : 'uk:') + idxMap[i];
+      var vb = verdictBadge(p);
       var lead = showSchool
         ? '<td style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + hi(s.zh) + '</span><span class="sub-line">' + hi(s.en) + '</span></td>'
-        : '<td style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span></td>';
+        : '<td style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span>' + hitChip(p, idxMap[i]) + '</td>';
       var testCol = p.test
         ? '<span class="t-test" title="' + (TEST_TITLE[p.test] || '') + '">' + esc(p.test) + '</span>'
         : '<span class="t-test no">—</span>';
@@ -908,21 +1417,21 @@
       var engCol = '<td class="eng-cell">' + engCellInner(e, rid, (showSchool ? '' : s.zh + ' · ') + p.zh) + '</td>';
       // 详情统一走抽屉（竖排更好读，且不受表格横向滚动影响），不再渲染行内展开行
       return '<tr>' + lead +
-        (showSchool ? '<td><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span></td>' : '') +
+        (showSchool ? '<td><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span>' + hitChip(p, idxMap[i]) + '</td>' : '') +
         '<td>' + esc(p.degree) + '</td>' +
-        '<td>' + scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '') + '</td>' +
-        '<td>' + scoreHTML(p.ib, 'g g-ib') + '</td>' +
+        '<td>' + scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '') + (mode === 'alevel' ? vb : '') + '</td>' +
+        '<td>' + scoreHTML(p.ib, 'g g-ib') + (mode === 'ib' ? vb : '') + '</td>' +
         '<td>' + testCol + '</td>' +
         '<td><span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(OFFER_ZH[p.offer] || p.offer) + '</span></td>' +
         engCol +
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
-        '<td>' + cmpButton(key) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a></td>' +
+        '<td>' + cmpButton(key) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' + reportLink(p) + '</td>' +
       '</tr>';
     }).join('');
     return '<section class="group" data-key="' + esc(groupKey || '') + '" style="--school:' + (meta.color || '#9aa3b8') + '">' + headHTML(items, meta) +
       '<div class="tblwrap"><table class="tbl">' + colgroupHTML(showSchool) +
-      '<thead><tr>' + schoolTh + thSort('专业', 'name') + '<th scope="col">代码/学制</th>' + thSort('A-Level', 'alevel') + thSort('IB（45 分制）', 'ib') + '<th scope="col">' + testHead + '</th><th scope="col">成绩口径</th><th scope="col">英语要求</th>' + thSort('QS2026 学科', 'qs') + '<th scope="col">备注</th><th scope="col">操作</th></tr></thead>' +
+      '<thead><tr>' + schoolTh + thSort('专业', 'name') + '<th scope="col">代码/学制</th>' + thSort('A-Level', 'alevel') + thSort('IB（45 分制）', 'ib') + '<th scope="col">' + testHead + '</th><th scope="col">成绩口径</th>' + thSort('英语要求', 'ielts') + thSort('QS2026 学科', 'qs') + '<th scope="col">备注</th><th scope="col">操作</th></tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div></section>';
   }
 
@@ -939,7 +1448,12 @@
   var _syncT;
   window.addEventListener('resize', function () {
     clearTimeout(_syncT);
-    _syncT = setTimeout(syncTableOverflow, 150);
+    _syncT = setTimeout(function () {
+      // 对比栏在窄屏会换行变高，提示条的抬升量要跟着重算
+      syncTableOverflow(); syncCmpBarLift();
+      // 用户没手动挑过视图时，跟着屏幕宽度走（手机横竖屏切换、桌面拖窗口都算）
+      if (!viewPicked && view !== defaultView()) { view = defaultView(); syncControlsChrome(); apply(); }
+    }, 150);
   }, { passive: true });
 
   // ── 渲染 ──
@@ -949,6 +1463,8 @@
     persistState();   // 所有状态改动都汇到这里，统一写 URL + localStorage
     renderSortChip();
     var list = filtered();
+    updateMyChrome();
+    renderPrintMeta(list.length);   // 放在空结果提前 return 之前，两种情况下纸上都有上下文
     renderBreakdown(list); renderLegend(list); renderJumpbar(list);   // 列表为空时会各自隐藏
     var scClear = $('#scope-clear');
     if (scClear) scClear.hidden = !(activeDirs.length || activeSchools.length || testSel !== 'ALL' || q);
@@ -956,6 +1472,7 @@
       $('#empty').hidden = false;
       $('#groups').innerHTML = '';
       syncTableOverflow();
+      renderEmptyHelp();
       $('#result-count').textContent = 0;
       $('#result-context').textContent = '';
       return;
@@ -1019,20 +1536,70 @@
   $('#school-none').addEventListener('click', function () { activeSchools = []; renderChips(); apply(); });
   $('#groupby').addEventListener('change', function (e) { groupBy = e.target.value; apply(); });
   $('#q').addEventListener('input', function (e) { q = e.target.value.trim().toLowerCase(); animate = false; apply(); });
-  $('#view-toggle').addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-v]'); if (!b || b.dataset.v === view) return;
-    view = b.dataset.v; viewPicked = true;
-    Array.prototype.forEach.call($('#view-toggle').children, function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+  // 我的成绩：每次输入都要重算全表判定
+  $('#my').addEventListener('input', function (e) {
+    myGrades = e.target.value.trim(); saveMyGrades(); animate = false; apply();
+  });
+  $('#my-clear').addEventListener('click', function () {
+    myGrades = ''; onlyReach = false;
+    $('#my').value = ''; $('#only-reach').checked = false;
+    saveMyGrades(); apply();
+  });
+  $('#only-reach').addEventListener('change', function (e) {
+    onlyReach = e.target.checked; saveMyGrades(); apply();
+  });
+  // 视图切换单独成函数：点击、键盘快捷键、状态回填三处共用
+  function setView(v) {
+    if (v === view) return;
+    view = v; viewPicked = true;
+    Array.prototype.forEach.call($('#view-toggle').children, function (x) {
+      x.setAttribute('aria-pressed', String(x.getAttribute('data-v') === v));
+    });
     apply();
+  }
+  $('#view-toggle').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-v]'); if (!b) return;
+    setView(b.dataset.v);
+  });
+  // 方向键在页签间移动、Home/End 到两端——tabs 模式该有的键盘行为
+  $('.region-tabs').addEventListener('keydown', function (e) {
+    var i = cur === REGIONS.hk ? 1 : 0, n = 2, next = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % n;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i + n - 1) % n;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = n - 1;
+    if (next === null || next === i) return;
+    e.preventDefault();
+    var btn = [$('#tab-uk'), $('#tab-hk')][next];
+    switchRegion(next === 1 ? 'hk' : 'uk');
+    btn.focus();     // 焦点跟着选中项走，键盘用户不会掉到页面别处
   });
   $('#reset').addEventListener('click', function () {
-    activeSchools = []; activeDirs = []; testSel = 'ALL'; q = ''; groupBy = 'school'; view = 'table'; sortKey = 'default';
+    activeSchools = []; activeDirs = []; testSel = 'ALL'; q = ''; groupBy = 'school'; sortKey = 'default';
+    // 视图也回到「按屏幕自动」而不是钉死在表格：既然是重置全部，就不该继续把视图写进分享链接
+    view = defaultView(); viewPicked = false;
     syncControlsChrome(); renderChips(); apply();
     showToast('已重置：显示全部 ' + cur.programs.length + ' 项');
   });
   $('#scope-clear').addEventListener('click', function () {
     activeSchools = []; activeDirs = []; testSel = 'ALL'; q = '';
     syncControlsChrome(); renderChips(); apply(); showToast('已清除所选条件');
+  });
+  // 「把这批筛选结果发到群里」是这个站最常被需要、界面上却一直没有入口的动作：
+  // 状态全在 hash 里，能分享这件事本身没人知道。
+  // 链接从 snapshot() 现拼，而不是读 location.href——file:// 下 replaceState 可能被拒，
+  // 地址栏未必是最新的那份状态。
+  function shareURL() {
+    var enc = encodeState(snapshot());
+    var base = location.href.split('#')[0];
+    return enc ? base + '#' + enc : base;
+  }
+  $('#share').addEventListener('click', function () {
+    copyText(shareURL(), function () {
+      var n = activeDirs.length + activeSchools.length + (testSel !== 'ALL' ? 1 : 0) + (q ? 1 : 0);
+      showToast(n ? '已复制链接：含当前板块与 ' + n + ' 项筛选条件'
+                  : '已复制本页链接（当前是默认视图）');
+    });
   });
   $('#sort-chip').addEventListener('click', function () { sortKey = 'default'; apply(); });
   // 学校速跳：长表里直接跳到某校（吸顶分组头会接管定位，所以只滚到该组顶端即可）
@@ -1053,7 +1620,8 @@
   function switchRegion(r) {
     if (cur === REGIONS[r]) return;
     cur = REGIONS[r];
-    activeSchools = []; activeDirs = []; testSel = 'ALL'; q = ''; groupBy = 'school'; view = 'table'; sortKey = 'default';
+    activeSchools = []; activeDirs = []; testSel = 'ALL'; q = ''; groupBy = 'school'; sortKey = 'default';
+    view = defaultView();   // 切板块也重新按屏幕宽度取默认（窄屏卡片、宽屏表格）
     // 对比清单跨板块保留，英国学校与香港学校可放进同一张对比表
     syncRegionChrome(); syncControlsChrome();
     buildIndex(); renderManual(); renderChips(); apply();
@@ -1090,19 +1658,21 @@
     var raw;
     try { raw = JSON.parse(localStorage.getItem(CMP_STORE) || '[]'); } catch (e) { return; }
     if (!Array.isArray(raw)) return;
-    raw.forEach(function (sig) {
-      // 同名同校可能有两条（如帝国 Computing 的 MEng/BEng），按顺序各认领一条未占用的
-      ['uk', 'hk'].some(function (rc) {
-        var progs = REGIONS[rc].programs;
-        for (var i = 0; i < progs.length; i++) {
-          if (progs[i].school + '|' + progs[i].en !== sig) continue;
-          var key = rc + ':' + i;
-          if (compare.has(key)) continue;
-          compare.add(key);
-          return true;
-        }
-        return false;
-      });
+    raw.forEach(addCompareSig);
+  }
+  // 认领一条还没被占用的记录：同名同校可能有两条（如帝国 Computing 的 MEng/BEng），按顺序各认一条
+  function addCompareSig(sig) {
+    if (!sig) return false;
+    return ['uk', 'hk'].some(function (rc) {
+      var progs = REGIONS[rc].programs;
+      for (var i = 0; i < progs.length; i++) {
+        if (progs[i].school + '|' + progs[i].en !== sig) continue;
+        var key = rc + ':' + i;
+        if (compare.has(key)) continue;
+        compare.add(key);
+        return true;
+      }
+      return false;
     });
   }
   // 一键加入「本校同方向」的全部专业（以该专业的首个方向为准，结果确定可预期）
@@ -1187,25 +1757,57 @@
     syncCmpButtons(); updateCompareBar(); saveCompare();
     showToast(n ? '已加入本校同方向 ' + n + ' 项' : '本校该方向没有其他可加入的专业');
   });
+  // 对比栏是常驻的底部 fixed 栏，而提示条与「回到顶部」也是底部 fixed——
+  // 不把对比栏的高度告诉它们，提示条就会被整个盖住（对比栏 z-index 更高），
+  // 窄屏上「回到顶部」也会被压在栏下面。高度随窄屏换行而变，所以出现时与改尺寸时都重算。
+  function syncCmpBarLift() {
+    var bar = $('#comparebar');
+    var lift = (bar && !bar.hidden && compare.size) ? bar.offsetHeight + 8 : 0;
+    // 封顶：极度窄 / 矮的视口里对比栏会换行成很高的一条，一味上移会把提示条顶出屏幕。
+    // 顶到上限时提示条会压住对比栏一角，所以它的 z-index 也高于对比栏——被压住还能读，
+    // 顶出屏幕就什么也看不见了。
+    if (lift && window.innerHeight) lift = Math.min(lift, Math.max(0, window.innerHeight - 160));
+    document.documentElement.style.setProperty('--cmpbar-lift', lift + 'px');
+  }
   function updateCompareBar() {
     var bar = $('#comparebar');
     if (!compare.size) {
       // 先播完收起动画再真正隐藏，避免「啪」地消失
       if (!bar.hidden) {
+        $('#compare-count').textContent = 0;   // 留着旧数字会被读屏念出来
         bar.classList.remove('show');
         clearTimeout(updateCompareBar._t);
-        updateCompareBar._t = setTimeout(function () { if (!compare.size) bar.hidden = true; }, 220);
+        updateCompareBar._t = setTimeout(function () {
+          if (!compare.size) { bar.hidden = true; syncCmpBarLift(); }
+        }, 220);
       }
       return;
     }
     clearTimeout(updateCompareBar._t);
-    var wasHidden = bar.hidden;
+    // 收起动画要跑 220ms 才把 hidden 置上，而这段时间里用户完全可能又加回来（例如点「撤销」）——
+    // 只认 bar.hidden 会漏掉这一类：hidden 还是 false，但 .show 已经被拿掉，
+    // 于是对比栏停在不透明度 0 的状态再也不会自己回来。真正的判据是「它现在看不看得见」。
+    var wasHidden = bar.hidden || !bar.classList.contains('show');
     bar.hidden = false;
     $('#compare-count').textContent = compare.size;
-    // 只在首次出现时滑入；之后改数字不重播动画
+    // 只在真正从无到有时滑入；之后改数字不重播动画
     if (wasHidden) { void bar.offsetWidth; bar.classList.add('show'); }
+    syncCmpBarLift();
   }
-  $('#compare-clear').addEventListener('click', function () { compare.clear(); updateCompareBar(); syncCmpButtons(); saveCompare(); });
+  // 清空是「一下没了 30 项」的动作，给一个 5 秒的后悔阀门
+  $('#compare-clear').addEventListener('click', function () {
+    if (!compare.size) return;
+    var backup = Array.from(compare);
+    compare.clear(); updateCompareBar(); syncCmpButtons(); saveCompare();
+    showToast('已清空对比清单 ' + backup.length + ' 项', 5200, {
+      label: '撤销',
+      fn: function () {
+        backup.forEach(function (k) { compare.add(k); });
+        updateCompareBar(); syncCmpButtons(); saveCompare();
+        showToast('已恢复 ' + backup.length + ' 项');
+      }
+    });
+  });
   $('#compare-open').addEventListener('click', openCompare);
   $('#compare-close').addEventListener('click', closeCompare);
   $('#compare-overlay').addEventListener('click', function (e) { if (e.target === $('#compare-overlay')) closeCompare(); });
@@ -1223,6 +1825,40 @@
       if (act === first || !ov.contains(act)) { e.preventDefault(); last.focus(); }
     } else if (act === last || !ov.contains(act)) { e.preventDefault(); first.focus(); }
   });
+  // 全局键盘快捷：此前只有弹层内部能纯键盘操作。
+  // 全部限定在「没有弹层打开、且焦点不在输入框里」时才生效——否则打字打到一半就被劫持
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!$('#eng-sheet').hidden || !$('#compare-overlay').hidden) return;   // 弹层开着时归上面那个处理
+    var el = document.activeElement;
+    var typing = !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+    if (e.key === '/' && !typing) {
+      e.preventDefault(); $('#q').focus(); $('#q').select(); return;
+    }
+    // Esc 清空搜索：只在焦点确实在搜索框、且里面真有内容时动手，
+    // 否则 Esc 该保持「什么都不发生」，不该顺手把用户的筛选抹掉
+    if (e.key === 'Escape' && el === $('#q') && (q || $('#q').value)) {
+      $('#q').value = ''; q = ''; apply(); $('#q').blur(); return;
+    }
+    if (typing) return;
+    if (e.key === 't' || e.key === 'T') setView('table');
+    else if (e.key === 'c' || e.key === 'C') setView('card');
+  });
+  // 打印样式早就写好了（去交互件、每页重复表头、强制展开口径说明），只是界面上一直没有兑现它的按钮。
+  // <details> 收起时内容仍会被隐藏，所以打印前后要真的开合一次；
+  // 挂在 beforeprint 上，用户直接按 Ctrl+P 也走得通。
+  var printOpened = [];
+  window.addEventListener('beforeprint', function () {
+    printOpened = [];
+    [$('#manual'), $('#timeline')].forEach(function (d) {
+      if (d && !d.open) { d.open = true; printOpened.push(d); }
+    });
+  });
+  window.addEventListener('afterprint', function () {
+    printOpened.forEach(function (d) { d.open = false; });
+    printOpened = [];
+  });
+  $('#print').addEventListener('click', function () { window.print(); });
   function syncCmpButtons() {
     Array.prototype.forEach.call(document.querySelectorAll('button.cmp'), function (b) {
       var on = compare.has(b.dataset.key);
@@ -1238,32 +1874,104 @@
       return p ? { p: p, isHK: isHK, rc: isHK ? 'hk' : 'uk', idx: parts.idx } : null;
     }).filter(Boolean);
     if (cmpSort !== 'default') {
-      // 借 sortPairs 的比较器：把整条记录塞进 idx 一并带过去
-      items = sortPairs(items.map(function (x) { return { p: x.p, idx: x }; }), cmpSort, cmpDir)
-        .map(function (x) { return x.idx; });
+      // 借 sortPairs 的比较器：把整条记录挂在 ref 上带过去。
+      // ielts 键还要 rc 才能取到英语数据（对比表里英港混排，不能靠当前板块推断）
+      items = sortPairs(items.map(function (x) { return { p: x.p, idx: x.idx, rc: x.rc, ref: x }; }), cmpSort, cmpDir)
+        .map(function (x) { return x.ref; });
     }
     return items;
   }
   function renderCmpSort() {
     var host = $('#cmp-sort'); if (!host) return;
     host.innerHTML = '<span class="cs-label">排序</span>' +
-      ['default', 'alevel', 'ib', 'qs'].map(function (k) {
+      ['default', 'alevel', 'ib', 'ielts', 'qs'].map(function (k) {
         var on = cmpSort === k;
         var txt = k === 'default' ? '默认' : (SORT_LABEL[k] + (on ? (cmpDir === 'desc' ? ' ▾' : ' ▴') : ''));
         return '<button type="button" class="cs-btn' + (on ? ' on' : '') + '" data-ck="' + k + '"' +
           (k === 'default' ? '' : ' title="' + esc(SORT_TITLE[k]) + '"') + '>' + esc(txt) + '</button>';
       }).join('');
   }
+  // ── 冲 / 稳 / 保 ──
+  // 把「我的成绩」的判定翻成选校语言：低于公布要求＝冲，达到＝稳，高于＝保。
+  // UCAS 本科一般只能填 5 个志愿，学生真正要的是一张排过优先级的短名单，而不是 30 项对照表。
+  var POS_ZH = { under: '冲', meet: '稳', over: '保' };
+  var POS_TITLE = {
+    under: '冲：低于该校公布的分数口径，属于冲刺志愿',
+    meet: '稳：正好达到公布的分数口径；热门专业实收常高于此，别当保底',
+    over: '保：高于公布的分数口径，可作保底'
+  };
+  var POS_LONG = {
+    under: '冲 · 低于公布要求', meet: '稳 · 达到公布要求',
+    over: '保 · 高于公布要求', none: '无分数可比（该校只公布通用门槛，或没给分数）'
+  };
+  var cmpGroupPos = false;                 // 对比清单按冲/稳/保分段
+  var CMP_COLS_TOTAL = 13;                 // 分组标题行 colspan 用；与 renderCompareTable 的表头数一致
+  // 清单里每一条都要能单独移出、能调顺序。
+  // 用上/下按钮而不是拖动：触屏拖动要自己实现指针事件，而按钮顺带把键盘和读屏一起覆盖了。
+  // 手排的顺序只在「默认」排序下成立，所以套了排序键时把按钮禁用并说明原因。
+  function cmpOps(key) {
+    var manual = cmpSort === 'default';
+    var dis = manual ? '' : ' disabled';
+    var tip = manual ? '' : '（先切回「默认」排序才能手排顺序）';
+    return '<span class="ops">' +
+      '<button type="button" class="op" data-mv="-1" data-key="' + esc(key) + '"' + dis +
+        ' title="上移' + tip + '" aria-label="上移">' + ICON.sortAsc + '</button>' +
+      '<button type="button" class="op" data-mv="1" data-key="' + esc(key) + '"' + dis +
+        ' title="下移' + tip + '" aria-label="下移">' + ICON.sortDesc + '</button>' +
+      '<button type="button" class="op rm" data-rm="' + esc(key) + '"' +
+        ' title="从清单里移除这一条" aria-label="移除">' + ICON.close + '</button></span>';
+  }
+  // 手动排序：Set 本身保持插入顺序，所以调顺序就是把 Set 重排一遍
+  function moveCompare(key, delta) {
+    var arr = Array.from(compare);
+    var i = arr.indexOf(key), j = i + delta;
+    if (i < 0 || j < 0 || j >= arr.length) return false;
+    arr.splice(j, 0, arr.splice(i, 1)[0]);
+    compare = new Set(arr);
+    return true;
+  }
+  function posChip(it) {
+    var v = verdictFor(it.p);
+    if (!v) return '';
+    return '<span class="pos ' + v.kind + '" title="' + esc(POS_TITLE[v.kind]) + '">' + POS_ZH[v.kind] + '</span>';
+  }
+  // CSV 里只有「冲」两个字太单薄——导出的表常常是直接发给顾问的，要能自己说明白
+  function posText(p) {
+    var v = verdictFor(p);
+    if (!v) return '';
+    return POS_ZH[v.kind] + '（' + VERDICT_ZH[v.kind] + barWord(p) + '）';
+  }
+  function updatePosSum(items) {
+    var el = $('#cmp-pos-sum'); if (!el) return;
+    var c = { under: 0, meet: 0, over: 0, na: 0 };
+    items.forEach(function (it) {
+      var v = verdictFor(it.p);
+      if (v) c[v.kind]++; else c.na++;
+    });
+    var n = c.under + c.meet + c.over;
+    if (!n) {
+      el.hidden = true;
+      el.textContent = '';
+      return;
+    }
+    el.hidden = false;
+    el.innerHTML = '<span class="pss-k">按你输入的成绩</span>' +
+      '<span class="pos under">冲 ' + c.under + '</span>' +
+      '<span class="pos meet">稳 ' + c.meet + '</span>' +
+      '<span class="pos over">保 ' + c.over + '</span>' +
+      (c.na ? '<span class="pss-na">另有 ' + c.na + ' 项无分数可比</span>' : '') +
+      '<span class="pss-tip">UCAS 本科一般只能填 5 个志愿，建议 1–2 冲、2–3 稳、1–2 保</span>';
+  }
   function renderCompareTable() {
     var items = cmpItems();
     // 逐列比对：全都一样的列没必要细看，把有差异的列标出来，省掉逐格对眼
     var CMP_COLS = [
-      { i: 3, get: function (it) { return it.p.alevel || ''; } },
-      { i: 4, get: function (it) { return it.p.ib || ''; } },
-      { i: 5, get: function (it) { return it.p.test || ''; } },
-      { i: 6, get: function (it) { return it.p.offer || ''; } },
+      { i: 4, get: function (it) { return it.p.alevel || ''; } },
+      { i: 5, get: function (it) { return it.p.ib || ''; } },
+      { i: 6, get: function (it) { return it.p.test || ''; } },
+      { i: 7, get: function (it) { return it.p.offer || ''; } },
       // 英语按「取值」比较而不是整格 HTML，否则几乎永远算作有差异
-      { i: 7, get: function (it) {
+      { i: 8, get: function (it) {
         var e = engFor(it.idx, it.rc) || {};
         return [e.ielts, e.toeflOld, e.toeflNew, e.band, igcseValue(e, 'efl'), igcseValue(e, 'esl')].join('|');
       } }
@@ -1280,36 +1988,56 @@
       var c = (cls || '') + (varies[i] ? (cls ? ' ' : '') + 'diff' : '');
       return '<td' + (c ? ' class="' + c + '"' : '') + '>' + html + '</td>';
     }
-    var rows = items.map(function (it) {
+    // 每行单独成函数：按冲/稳/保分组时要分桶铺行
+    function cmpRow(it) {
       var p = it.p, isHK = it.isHK;
       var s = allSchoolByKey[p.school];
       var test = p.test ? esc(p.test) : '—';
       var offer = OFFER_ZH[p.offer] || p.offer;
+      var key = (it.rc === 'hk' ? 'hk:' : 'uk:') + it.idx;
       return '<tr><td style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + esc(s.zh) + '</span><span class="sub-line">' + esc((isHK ? '香港' : '英国') + ' · ' + s.en) + '</span></td>' +
         '<td><span class="lead-line">' + esc(p.zh) + '</span><span class="sub-line">' + esc(p.en) + '</span></td>' +
-        td(2, esc(p.degree)) +
-        td(3, scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '')) +
-        td(4, scoreHTML(p.ib, 'g g-ib')) +
-        td(5, test) +
-        td(6, '<span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(offer) + '</span>') +
-        td(7, engCellInner(engFor(it.idx, isHK ? 'hk' : 'uk')), 'eng-cell') +
+        // 入学年份逐行写死：跨板块混选时这一列就是防读错的
+        '<td class="cycle-cell"><span class="cy">' + esc(cycleShort(it.rc)) + '</span>' +
+          '<span class="cy-sub">' + esc(REGIONS[it.rc].cycle) + '</span></td>' +
+        td(3, esc(p.degree)) +
+        td(4, scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '')) +
+        td(5, scoreHTML(p.ib, 'g g-ib')) +
+        td(6, test) +
+        td(7, '<span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(offer) + '</span>' + posChip(it)) +
+        td(8, engCellInner(engFor(it.idx, isHK ? 'hk' : 'uk')), 'eng-cell') +
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
-        '<td><a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a></td></tr>';
-    }).join('');
+        '<td><a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a></td>' +
+        '<td class="cmp-ops">' + cmpOps(key) + '</td></tr>';
+    }
+    var rows;
+    if (cmpGroupPos && myMode()) {
+      var buckets = { under: [], meet: [], over: [], none: [] };
+      items.forEach(function (it) { var v = verdictFor(it.p); buckets[v ? v.kind : 'none'].push(it); });
+      rows = ['under', 'meet', 'over', 'none'].map(function (k) {
+        var g = buckets[k];
+        if (!g.length) return '';
+        return '<tr class="cmp-group"><td colspan="' + CMP_COLS_TOTAL + '">' + esc(POS_LONG[k]) +
+          '<span class="cg-n">' + g.length + ' 项</span></td></tr>' + g.map(cmpRow).join('');
+      }).join('');
+    } else {
+      rows = items.map(cmpRow).join('');
+    }
     function th(i, label, extra) {
       return '<th scope="col"' + (extra || '') + (varies[i] ? ' class="diff"' : '') + '>' + label + '</th>';
     }
     var anyDiff = Object.keys(varies).some(function (k) { return varies[k]; });
     $('#compare-table').innerHTML =
-      '<thead><tr>' + th(0, '大学') + th(1, '专业') + th(2, '代码/学制') + th(3, 'A-Level') + th(4, 'IB（45 分制）') +
-      th(5, '笔试 / 面试') + th(6, '成绩口径') + th(7, '英语要求') + th(8, 'QS2026 学科') + th(9, '备注') + th(10, '官网') +
-      '</tr></thead><tbody>' + rows + '</tbody>';
+      '<thead><tr>' + th(0, '大学') + th(1, '专业') + th(2, '入学') + th(3, '代码/学制') + th(4, 'A-Level') + th(5, 'IB（45 分制）') +
+      th(6, '笔试 / 面试') + th(7, '成绩口径') + th(8, '英语要求') + th(9, 'QS2026 学科') + th(10, '备注') + th(11, '官网') +
+      th(12, '操作') + '</tr></thead><tbody>' + rows + '</tbody>';
+    updatePosSum(items);
     var note = $('#cmp-diff-note');
     if (note) {
       if (items.length > 1 && anyDiff) {
         var names = CMP_COLS.filter(function (c) { return varies[c.i]; })
-          .map(function (c) { return ['', '', '', 'A-Level', 'IB', '笔试 / 面试', '成绩口径', '英语要求'][c.i]; });
+          .map(function (c) { return ['', '', '', '', 'A-Level', 'IB', '笔试 / 面试', '成绩口径', '英语要求'][c.i]; });
         note.hidden = false;
         note.textContent = '底色标出的是各专业有差异的列：' + names.join('、') + '；其余列所有专业一致。';
       } else note.hidden = true;
@@ -1356,6 +2084,9 @@
     var e = engFor(it.idx, it.rc) || {}, sch = allSchoolByKey[p.school] || {};
     return {
       sys: reg.name, uni: sch.zh || '', sch: sch.en || '',
+      cycle: reg.year + '（' + reg.cycle + '）',
+      pos: posText(p),
+      checked: sch.checked || '',
       dirs: p.dirs.map(function (d) { return reg.dirs[d].zh; }).join('、'),
       zh: p.zh, en: p.en, degree: p.degree, alevel: p.alevel,
       alevelNote: p.alevelNote || '', ib: p.ib || '', test: p.test || '—',
@@ -1363,12 +2094,13 @@
       ielts: e.ielts || '', toeflOld: e.toeflOld || '', toeflNew: e.toeflNew || '',
       gcse: e.gcse || '', igcseESL: e.igcseESL || '', ibEng: e.ibEnglish || '', gceEng: e.gceEnglish || '',
       engTag: e.tag || '',
-      qs: qsListFor(p).map(function (x) { return (QS_SUBJECT_ZH[x.sub] || x.sub) + ' #' + x.rank; }).join('；') || '—',
+      qs: qsListFor(p).map(function (x) { return (QS_SUBJECT_ZH[x.sub] || x.sub) + ' #' + rankText(x.rank); }).join('；') || '—',
       note: p.note || '', url: p.url
     };
   }
   var CSV_COLS = [
     { k: 'sys', h: '体系', base: 1 }, { k: 'uni', h: '大学', base: 1 }, { k: 'sch', h: 'School', base: 1 },
+    { k: 'cycle', h: '入学 / 申请季', base: 1 }, { k: 'pos', h: '你的位置（冲/稳/保）' }, { k: 'checked', h: '核对' },
     { k: 'dirs', h: '学科方向', base: 1 }, { k: 'zh', h: '专业（中文）', base: 1 }, { k: 'en', h: '专业（英文）', base: 1 },
     { k: 'degree', h: '代码/学制', base: 1 }, { k: 'alevel', h: 'A-Level', base: 1 }, { k: 'alevelNote', h: '科目/要求', base: 1 },
     { k: 'ib', h: 'IB', base: 1 }, { k: 'test', h: '笔试 / 面试', base: 1 }, { k: 'offer', h: '成绩口径', base: 1 },
@@ -1478,6 +2210,28 @@
     showToast('已导出 ' + items.length + ' 行 × ' + cols.length + ' 列：' + fname);
     openExportPanel(false);
   });
+  // 制表符分隔：Excel、Notion、微信里粘出来都能各归各位（CSV 直接粘进 Excel 会挤在一列）
+  function tsvText(items) {
+    var cols = CSV_COLS.filter(function (c) { return csvCols[c.k]; });
+    if (!cols.length) return '';
+    var rows = [cols.map(function (c) { return c.h; })];
+    items.forEach(function (it) {
+      var r = csvRowOf(it);
+      rows.push(cols.map(function (c) {
+        return String(r[c.k] == null ? '' : r[c.k]).replace(/[\t\n\r]+/g, ' ');
+      }));
+    });
+    return rows.map(function (r) { return r.join('\t'); }).join('\n');
+  }
+  $('#ep-copy').addEventListener('click', function () {
+    var items = scopeItems().filter(function (it) { return it && it.p; });
+    if (!items.length) { showToast('该范围当前没有可复制的条目'); return; }
+    var cols = CSV_COLS.filter(function (c) { return csvCols[c.k]; });
+    if (!cols.length) { showToast('至少要勾选一列'); return; }
+    copyText(tsvText(items), function () {
+      showToast('已复制 ' + items.length + ' 行 × ' + cols.length + ' 列，可直接粘进 Excel / Notion');
+    });
+  });
   // 对比弹层里的快捷导出（沿用同一套列设置）
   $('#cmp-export').addEventListener('click', function () {
     var items = cmpItems();
@@ -1485,6 +2239,47 @@
     var fname = '对比_' + items.length + '项.csv';
     downloadCSV(csvText(items), fname);
     showToast('已导出对比清单 ' + items.length + ' 行：' + fname);
+  });
+  // 清单分享：把短名单编进链接（c=校|英文名，~ 分隔），顾问点开就是同一份。
+  // 刻意不做成常驻 URL——筛选条件该进 URL，30 项清单不该每次都拖着。
+  var CMP_SEP = '~';
+  function shortlistURL() {
+    var sigs = Array.from(compare).map(function (k) {
+      var p = cmpProgram(k);
+      return p ? encodeURIComponent(p.school + '|' + p.en) : null;
+    }).filter(Boolean);
+    var base = location.href.split('#')[0];
+    return base + '#' + encodeState(snapshot()) + (sigs.length ? '&c=' + sigs.join(CMP_SEP) : '');
+  }
+  $('#cmp-share').addEventListener('click', function () {
+    if (!compare.size) { showToast('对比清单是空的'); return; }
+    copyText(shortlistURL(), function () {
+      showToast('已复制清单链接：' + compare.size + ' 项，对方打开会看到同一份短名单');
+    });
+  });
+  // 清单行内操作：上移 / 下移 / 移出
+  $('#compare-table').addEventListener('click', function (e) {
+    var mv = e.target.closest('button[data-mv]');
+    if (mv) {
+      if (mv.disabled) return;
+      if (moveCompare(mv.dataset.key, +mv.dataset.mv)) { saveCompare(); renderCompareTable(); }
+      return;
+    }
+    var rm = e.target.closest('button[data-rm]');
+    if (!rm) return;
+    compare.delete(rm.dataset.rm);
+    saveCompare(); updateCompareBar(); syncCmpButtons();
+    if (!compare.size) { closeCompare(); showToast('对比清单已空'); return; }
+    renderCompareTable();
+    showToast('已移出 1 项，还剩 ' + compare.size + ' 项');
+  });
+  // 按冲 / 稳 / 保分段：先把清单分好段，导出与复制清单也就自然带上了这个层次
+  $('#cmp-group').addEventListener('click', function () {
+    if (!myMode()) { showToast('先在「我的成绩」里填上成绩，才能按冲 / 稳 / 保分组', 4000); return; }
+    cmpGroupPos = !cmpGroupPos;
+    this.setAttribute('aria-pressed', String(cmpGroupPos));
+    this.classList.toggle('on', cmpGroupPos);
+    renderCompareTable();
   });
 
   // 地址栏被手改 / 粘贴新链接时跟随（落盘走 replaceState，不产生历史，因此不会回环）
@@ -1494,11 +2289,20 @@
   });
 
   // ── 初始化：URL 优先，其次上次的状态，最后默认 ──
-  $('#compare-max').textContent = CMP_MAX;   // 对比上限只在 CMP_MAX 一处定义，避免文案与实际不符
+  // 对比上限仍只在 CMP_MAX 一处定义；分母不再挂条上（学生只关心手上的 5 个），改放悬停说明
+  $('#comparebar').title = '清单最多 ' + CMP_MAX + ' 项。UCAS 本科一般只能填 5 个志愿，建议先留 5–8 项当短名单。';
   loadCompare();                             // 对比清单也要跨会话保留；渲染前恢复，按钮状态直接就对
+  loadMyGrades();                            // 成绩也只存本机：分享链接里不带别人的分数
   buildSibCount();                           // 「同方向 +N」的数量（数据静态，构建一次）
   var boot = decodeState(location.hash.replace(/^#/, ''));
   if (!boot) { try { boot = decodeState(localStorage.getItem(STORE_KEY) || ''); } catch (e) { boot = null; } }
+  // 清单链接：带 c= 打开时以链接里的清单为准——对方点开要看到同一份短名单，
+  // 而不是和自己本地那份混在一起
+  if (boot && boot.c) {
+    compare.clear();
+    boot.c.split('~').forEach(addCompareSig);
+    saveCompare();
+  }
   if (boot) applyState(boot);
   else { view = defaultView(); syncRegionChrome(); syncControlsChrome(); buildIndex(); renderManual(); renderChips(); apply(); }
   updateCompareBar();

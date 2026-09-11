@@ -3,14 +3,14 @@
 // 注意：港八均无需 DSE；test 字段在港八指"面试/附加甄选"（''=无特殊要求）
 
 const HKSCHOOLS = [
-  { key: 'hku',    zh: '港大',   en: 'University of Hong Kong',        group: '港八', mark: '港大', color: '#25603c' },
-  { key: 'cuhk',   zh: '港中文', en: 'Chinese University of Hong Kong', group: '港八', mark: '中大', color: '#6c3a74' },
-  { key: 'hkust',  zh: '港科大', en: 'Hong Kong University of Science & Tech', group: '港八', mark: '科大', color: '#1f5aa8' },
-  { key: 'cityu',  zh: '城大',   en: 'City University of Hong Kong',    group: '港八', mark: '城大', color: '#b02a30' },
-  { key: 'polyu',  zh: '理大',   en: 'Hong Kong Polytechnic University', group: '港八', mark: '理大', color: '#9b2f5f' },
-  { key: 'hkbu',   zh: '浸会',   en: 'Hong Kong Baptist University',   group: '港八', mark: '浸会', color: '#a15c11' },
-  { key: 'eduhk',  zh: '教育',   en: 'Education University of Hong Kong', group: '港八', mark: '教大', color: '#0f7a6c' },
-  { key: 'lingnan', zh: '岭南',  en: 'Lingnan University',             group: '港八', mark: '岭南', color: '#8c1d40' }
+  { key: 'hku',    zh: '港大',   en: 'University of Hong Kong',        group: '港八', mark: '港大', color: '#25603c', checked: '2026-09' },
+  { key: 'cuhk',   zh: '港中文', en: 'Chinese University of Hong Kong', group: '港八', mark: '中大', color: '#6c3a74', checked: '2026-09' },
+  { key: 'hkust',  zh: '港科大', en: 'Hong Kong University of Science & Tech', group: '港八', mark: '科大', color: '#1f5aa8', checked: '2026-09' },
+  { key: 'cityu',  zh: '城大',   en: 'City University of Hong Kong',    group: '港八', mark: '城大', color: '#b02a30', checked: '2026-09' },
+  { key: 'polyu',  zh: '理大',   en: 'Hong Kong Polytechnic University', group: '港八', mark: '理大', color: '#9b2f5f', checked: '2026-09' },
+  { key: 'hkbu',   zh: '浸会',   en: 'Hong Kong Baptist University',   group: '港八', mark: '浸会', color: '#a15c11', checked: '2026-09' },
+  { key: 'eduhk',  zh: '教育',   en: 'Education University of Hong Kong', group: '港八', mark: '教大', color: '#0f7a6c', checked: '2026-09' },
+  { key: 'lingnan', zh: '岭南',  en: 'Lingnan University',             group: '港八', mark: '岭南', color: '#8c1d40', checked: '2026-09' }
 ];
 
 const HKPROGRAMS = [

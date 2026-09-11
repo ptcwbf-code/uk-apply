@@ -9,6 +9,8 @@
   --navy:#16325c;         /* 藏蓝：页眉 / 选中态 / 主按钮 */
   --navy-2:#1e4a80;       /* 藏蓝交互态 */
   --gold:#9c7524;         /* 烫金：只在口径标签与分隔线出现 */
+  --gold-2:#c9a227;       /* 烫金渐变的中段 */
+  --gold-rgb:156,117,36;  /* 同一支金的 RGB，供 rgba() 拼透明度——写死会在深色模式里发脏 */
   --gold-line:#e2d3a8;
   --gold-bg:#fbf6e9;
 
@@ -32,8 +34,10 @@
   --mast-a:#17325c;
   --mast-b:#101f3c;
 
-  /* 字体：拉丁用衬线扛「简章」气质，中文与界面用无衬线保证清晰 */
-  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Songti SC","SimSun",serif;
+  /* 字体：拉丁用衬线扛「简章」气质，中文与界面用无衬线保证清晰。
+     衬线栈里不能再放 Songti SC / SimSun——中英混排处（如 stats 的「英 + 港」）会落到
+     中文衬线最发虚的那一档。换成中文无衬线族即可：拉丁字符在 Georgia 就命中了，走不到后面。 */
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"PingFang SC","Microsoft YaHei","Hiragino Sans GB",serif;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Hiragino Sans GB","Helvetica Neue",Arial,sans-serif;
   --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
 
@@ -44,6 +48,20 @@
   --sh-1:0 1px 2px rgba(16,26,46,.04),0 1px 3px rgba(16,26,46,.06);
   --sh-2:0 6px 16px -6px rgba(16,26,46,.14),0 2px 6px -2px rgba(16,26,46,.06);
   --sh-3:0 24px 60px -24px rgba(16,26,46,.34);
+
+  /* 折叠三角（给 CSS 伪元素用）：与 app.js 里 ICON 的几何完全一致，
+     走 mask 而不是 background-image —— 这样能吃到 currentColor，深浅色不用各写一份 */
+  --ic-right:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 3.4 10.6 8 6 12.6' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --ic-down:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.4 6 8 10.6 12.6 6' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+  /* 对比栏是常驻的底部 fixed 栏，底部还有提示条与「回到顶部」，三者会叠在同一条基线上。
+     高度由脚本按对比栏实际渲染高度写入（窄屏换行后高度不同），这里只给默认值。 */
+  --cmpbar-lift:0px;
+
+  /* 成绩判定三色。饱和度都压低：这三个是「对照结果」，不该比烫金口径更抢眼 */
+  --v-over:#1c6248;      --v-over-bg:#eef7f2;   --v-over-line:rgba(28,98,72,.30);
+  --v-meet:#1e4a80;      --v-meet-bg:#eff4fb;   --v-meet-line:rgba(30,74,128,.28);
+  --v-under:#8f3a2b;     --v-under-bg:#fdf1ee;  --v-under-line:rgba(143,58,43,.28);
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -57,15 +75,24 @@ a{color:inherit}
 .skip:focus{left:0}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:3px}
 [hidden]{display:none !important}
+/* ══ 图标 ══
+   原来是 ▾ ▴ ⇅ ✕ ▸ ↑ × 这些文字符号：换字体就换字重与基线，凑一起很花。
+   现在统一成一套 SVG（16 网格 / 1.7 描边 / 圆头圆角），尺寸按各自上下文给，
+   所以表头的小箭头和「回到顶部」的大箭头风格一致、大小又各自合适。 */
+.ic{display:inline-block;vertical-align:-.14em;flex:none}
+.th-sort .ar .ic{width:12px;height:12px}
+.sort-chip .ar .ic{width:11px;height:11px}
+.overlay-close .ic{width:15px;height:15px}
+.to-top .ic{width:19px;height:19px}
 .wrap{max-width:1280px;margin:0 auto;padding:0 22px}
 
 /* ══ 页眉：深藏蓝，底部烫金细线，像一本简章的封面切口 ══ */
 .masthead{position:relative;background:
     radial-gradient(120% 160% at 12% -20%,rgba(255,255,255,.10),transparent 62%),
     linear-gradient(180deg,var(--mast-a),var(--mast-b) 78%);
-  color:#fff;padding:34px 0 22px}
+  color:#fff;padding:26px 0 17px}
 .masthead::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
-  background:linear-gradient(90deg,var(--gold) 0%,#c9a227 16%,rgba(156,117,36,.40) 58%,rgba(156,117,36,.12) 100%)}
+  background:linear-gradient(90deg,var(--gold) 0%,var(--gold-2) 16%,rgba(var(--gold-rgb),.40) 58%,rgba(var(--gold-rgb),.12) 100%)}
 .masthead-grid{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between}
 .eyebrow{margin:0 0 10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#9fb0cd}
 h1{margin:0;font-size:clamp(26px,3.4vw,38px);line-height:1.18;letter-spacing:-.01em;font-weight:700}
@@ -77,7 +104,18 @@ h1{margin:0;font-size:clamp(26px,3.4vw,38px);line-height:1.18;letter-spacing:-.0
 .stats dt{font-size:10.5px;letter-spacing:.1em;color:#a7b6d2;margin:0;text-transform:uppercase}
 .stats dd{margin:4px 0 0;font-family:var(--serif);font-size:23px;font-weight:700;color:#fff;line-height:1.1}
 
-/* ══ 术语说明（跟随板块，位于切换键下方；浅色卡片） ══ */
+/* ══ 无脚本提示（<noscript>）——只在脚本不可用时出现，承接页眉之下 ══ */
+.noscript{margin:20px 0 0;padding:16px 18px;background:var(--card);border:1px solid var(--line-2);
+  border-left:3px solid var(--gold);border-radius:var(--r);box-shadow:var(--sh-1)}
+.noscript h2{margin:0 0 9px;font-size:17px;line-height:1.35}
+.noscript p{margin:0 0 9px;font-size:13px;line-height:1.8;color:var(--ink-2)}
+.noscript p:last-child{margin-bottom:0}
+.noscript ul{margin:0 0 9px;padding-left:18px}
+.noscript li{font-size:13px;line-height:1.85;color:var(--ink-2)}
+.noscript a{color:var(--navy-2);text-decoration:underline;text-underline-offset:2px}
+.noscript a:hover{color:var(--navy)}
+
+/* ══ 术语说明（跟随板块整体替换；已移到结果之后，不再占首屏） ══ */
 .manual{margin:0 0 14px;border:1px solid var(--line);background:var(--card);border-radius:var(--r);box-shadow:var(--sh-1)}
 .manual summary{cursor:pointer;list-style:none;padding:12px 16px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;user-select:none}
 .manual summary::-webkit-details-marker{display:none}
@@ -96,8 +134,50 @@ h1{margin:0;font-size:clamp(26px,3.4vw,38px);line-height:1.18;letter-spacing:-.0
 .manual-body li::marker{color:var(--line-2)}
 .manual-body b{color:var(--ink);font-weight:650}
 
+/* ══ 申请时间线 ══
+   折叠状态下 summary 里就写着下一个截止日与剩余天数——最要紧的信息不必展开才看得到。
+   倒计时由脚本按打开页面时的日期现算，所以静态页也不会「过期」。 */
+.timeline .tl-next{font-size:12px;font-weight:650;color:var(--navy-2)}
+.timeline .tl-next.urgent{color:var(--v-under);background:var(--v-under-bg);
+  border:1px solid var(--v-under-line);border-radius:5px;padding:1px 8px}
+.tl-body{padding:14px 18px}
+.tl-list{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.tl-list li{display:flex;gap:14px;align-items:baseline;padding:7px 11px;border-radius:var(--r);
+  background:var(--panel);border:1px solid var(--line)}
+.tl-list li.past{opacity:.5}
+.tl-list li.soon{background:var(--gold-bg);border-color:var(--gold-line)}
+.tl-d{flex:none;width:72px;font-family:var(--mono);font-size:12px;font-weight:650;color:var(--ink-2)}
+.tl-c{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tl-t{font-size:13px;line-height:1.6;color:var(--ink)}
+.tl-m{font-size:11.5px;color:var(--mut);line-height:1.6}
+.tl-m a{color:var(--navy-2);text-decoration:underline;text-underline-offset:2px}
+.tl-notes{margin:13px 0 0;padding-left:18px}
+.tl-notes li{font-size:13px;line-height:1.78;color:var(--ink-2);margin-bottom:5px}
+.tl-notes b{color:var(--ink);font-weight:650}
+.tl-pending{margin-top:15px;padding-top:12px;border-top:1px solid var(--line)}
+.tl-pending h3{margin:0 0 8px;font-size:13px;font-weight:650;color:var(--navy);
+  border-bottom:1px solid var(--line);padding-bottom:6px}
+.tl-pending ul{margin:0;padding-left:18px}
+.tl-pending li{font-size:12.5px;line-height:1.72;color:var(--mut);margin-bottom:6px}
+.tl-pending b{color:var(--ink-2);font-weight:650}
+.tl-pending a{color:var(--navy-2);text-decoration:underline;text-underline-offset:2px}
+.tl-src{margin:13px 0 0;font-size:11.5px;line-height:1.7;color:var(--mut)}
+@media (max-width:600px){
+  .tl-list li{flex-direction:column;gap:3px}
+  .tl-d{width:auto}
+}
+
 /* ══ 板块切换 ══ */
-.regionbar{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:20px 0 12px}
+.regionbar{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:16px 0 10px}
+.region-tabs{display:inline-flex;gap:8px;align-items:baseline}
+/* 入学年份徽章：同一屏里英国是 2027 年入学、香港是 2026 入学轮次，
+   跨板块混选时最容易读错，所以用烫金——它本来就是「口径」这一层的颜色 */
+.cycle-badge{font-size:12.5px;font-weight:650;color:#6b4e10;background:var(--gold-bg);
+  border:1px solid var(--gold-line);border-radius:6px;padding:3px 10px;white-space:nowrap}
+/* 「无需 DSE」：与入学年份同为「这条路径成立的前提」，但两枚都做成烫金会互相抢，
+   所以年份走烫金（口径），这枚走中性描边 */
+.dse-badge{font-size:12.5px;font-weight:650;color:var(--ink-2);background:var(--panel);
+  border:1px solid var(--line-2);border-radius:6px;padding:3px 10px;white-space:nowrap}
 .region-tab{border:1px solid var(--line-2);background:var(--card);color:var(--ink-2);border-radius:var(--r);
   padding:8px 20px;font:inherit;font-size:14.5px;font-weight:650;cursor:pointer;box-shadow:var(--sh-1);
   transition:background .15s ease,color .15s ease,border-color .15s ease}
@@ -108,7 +188,7 @@ h1{margin:0;font-size:clamp(26px,3.4vw,38px);line-height:1.18;letter-spacing:-.0
 body.region-hk .testblock{display:none}
 
 /* ══ 检索与筛选 ══ */
-.controls{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px;margin:0 0 12px;box-shadow:var(--sh-1)}
+.controls{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 18px;margin:0 0 12px;box-shadow:var(--sh-1)}
 .ctl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .search{flex:1 1 300px;min-width:220px;position:relative}
 .search input{width:100%;padding:9px 13px;border:1px solid var(--line-2);border-radius:var(--r);font:inherit;background:var(--card);color:var(--ink);transition:border-color .15s ease,box-shadow .15s ease}
@@ -127,7 +207,7 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 .btn-primary:hover{background:linear-gradient(180deg,#25589a,var(--navy-2))}
 .btn-ghost{background:var(--card);border-color:var(--line-2);color:var(--ink-2)}
 .btn-ghost:hover{border-color:var(--navy-2);color:var(--navy);background:var(--panel)}
-.ctl-filters{margin-top:14px;display:grid;gap:11px}
+.ctl-filters{margin-top:11px;display:grid;gap:9px}
 .ctl-block{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
 .ctl-label{font-size:12px;color:var(--mut);font-weight:650;min-width:86px;letter-spacing:.03em}
 .mini-acts{margin-left:6px}
@@ -145,18 +225,78 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 .chip[aria-pressed="true"] .cnt{color:#bccbe4}
 .chip[aria-pressed="true"] .dot{background:#fff;box-shadow:none}
 
+/* ══ 我的成绩：一行输入，全表跟着出现判定 ══ */
+.myrow{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line-2);gap:9px}
+.myg{display:flex;align-items:center;gap:8px;flex:0 1 auto}
+.myg-k{font-size:12px;color:var(--mut);font-weight:650;letter-spacing:.03em;white-space:nowrap}
+.myg input{width:min(230px,42vw);padding:8px 11px;border:1px solid var(--line-2);border-radius:var(--r);
+  font:inherit;font-size:13.5px;background:var(--card);color:var(--ink);
+  transition:border-color .15s ease,box-shadow .15s ease}
+.myg input::placeholder{color:#9aa4b5;font-size:12.5px}
+.myg input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px rgba(30,74,128,.12)}
+.onlyreach{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink-2);cursor:pointer}
+.onlyreach input{margin:0;accent-color:var(--navy)}
+.onlyreach.off{color:var(--mut);opacity:.5;cursor:not-allowed}
+.myg-sum{font-size:12.5px;color:var(--mut);line-height:1.6}
+.myg-sum.on{color:var(--ink-2)}
+.myg-hint{font-size:11.5px;color:#9aa4b5;margin-left:auto}
+/* 判定的可见限制：悬停说明在手机上等于不存在，这行必须看得见 */
+.myg-warn{margin:10px 0 0;padding-left:10px;border-left:2px solid var(--line-2);
+  font-size:12px;line-height:1.75;color:var(--ink-2)}
+@media (max-width:760px){
+  .myg{flex:1 1 100%}
+  .myg input{width:100%;padding:11px 12px}
+  .myg-hint{margin-left:0}
+  /* 触控目标凑到 44px：复选框本身只有 21px 高，手指点不准 */
+  .onlyreach{padding:11px 0;min-height:44px}
+}
+
+/* ══ 成绩判定徽章：高于 / 达到 / 低于 ══
+   只对照各校公布的分数口径，不是录取概率——措辞与悬停说明都按这个来写。 */
+.verdict{display:block;width:fit-content;margin-top:4px;padding:0 6px;border-radius:4px;
+  font-size:11px;line-height:1.65;font-weight:650;white-space:nowrap;border:1px solid transparent}
+.verdict.over{color:var(--v-over);background:var(--v-over-bg);border-color:var(--v-over-line)}
+.verdict.meet{color:var(--v-meet);background:var(--v-meet-bg);border-color:var(--v-meet-line)}
+.verdict.under{color:var(--v-under);background:var(--v-under-bg);border-color:var(--v-under-line)}
+.rating .verdict{margin-top:6px}
+
 /* ══ 结果行 / 提示 ══ */
 .resultline{margin:10px 2px 4px;color:var(--mut);font-size:13.5px}
 .resultline strong{font-family:var(--serif);font-size:18px;color:var(--ink)}
 .resultline #result-context{color:var(--ink-2);margin-left:8px}
 .quickstart{margin:14px 0 0;font-size:12.5px;color:var(--mut);line-height:1.75;padding-top:10px;border-top:1px dashed var(--line-2)}
+/* 使用步骤：原来是一整段 ①②③④ 灰字，没人读还占首屏一行半。折叠成一行，标题写明几步 */
+.howto{margin:13px 0 0;padding-top:10px;border-top:1px dashed var(--line-2)}
+.howto summary{cursor:pointer;list-style:none;display:inline-block;font-size:12.5px;font-weight:650;
+  color:var(--navy-2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2)}
+.howto summary::-webkit-details-marker{display:none}
+.howto summary::before{content:"";display:inline-block;width:8px;height:8px;margin-right:5px;
+  vertical-align:-.02em;background:currentColor;
+  -webkit-mask:var(--ic-right) center/contain no-repeat;mask:var(--ic-right) center/contain no-repeat}
+.howto[open] summary::before{-webkit-mask-image:var(--ic-down);mask-image:var(--ic-down)}
+.howto summary:hover{color:var(--navy)}
+.howto ol{margin:9px 0 0;padding-left:20px}
+.howto li{font-size:12.5px;line-height:1.8;color:var(--ink-2);margin-bottom:3px}
+/* 只在打印时出现的一行上下文：纸上单独一张表格，得能自己说清是哪一批结果 */
+.print-meta{display:none}
 .scope-row{min-height:0}
 .linklike{background:none;border:0;padding:0;font:inherit;font-size:12.5px;color:var(--navy-2);text-decoration:underline;text-underline-offset:3px;cursor:pointer;margin:2px}
 .linklike:hover{color:var(--navy)}
-.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,8px);width:max-content;background:var(--toast-bg);color:var(--toast-fg);font-size:13px;
+/* 提示条与对比栏都是「底部居中 fixed」：对比栏 z-index 更高，加过对比项之后
+   它就会把「已加入对比 / 已达上限 / 导出完成」这类提示整个盖住。
+   这里让提示条随对比栏高度整体上移（--cmpbar-lift 由脚本写入），并把它抬到对比栏
+   与「回到顶部」之上——窄屏下三者必然重叠，瞬时的提示条压住它们比被裁掉更可读。
+   （仍低于 .overlay 的 90，不会浮到弹层上面。） */
+.toast{position:fixed;left:50%;bottom:calc(22px + var(--cmpbar-lift,0px));transform:translate(-50%,8px);width:max-content;background:var(--toast-bg);color:var(--toast-fg);font-size:13px;
   padding:10px 20px;border-radius:var(--r);opacity:0;pointer-events:none;box-shadow:var(--sh-3);
-  transition:opacity .18s ease,transform .18s ease;z-index:70;max-width:min(90vw,560px);text-align:center}
+  transition:opacity .18s ease,transform .18s ease,bottom .2s ease;z-index:84;max-width:min(90vw,560px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+/* 提示条里的操作按钮（如「撤销」）。提示条整体是 pointer-events:none，
+   按钮必须单独把指针事件打开，否则点不到。用灰底而不是白底：提示条在深色模式下会反过来。 */
+.toast-act{margin-left:10px;pointer-events:auto;font:inherit;font-size:12.5px;font-weight:650;
+  background:transparent;color:inherit;border:1px solid currentColor;border-radius:5px;
+  padding:2px 10px;cursor:pointer;opacity:.9;vertical-align:1px}
+.toast-act:hover{opacity:1;background:rgba(128,128,128,.3)}
 
 /* ══ 分组头：每所大学像简章里的一「册」，滚动时吸顶 ══ */
 .group{margin-bottom:26px}
@@ -173,6 +313,10 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 .group-head h2{margin:0;font-size:20px;line-height:1.25;font-weight:700;letter-spacing:-.01em}
 .group-head .en{color:var(--mut);font-size:12.5px;font-family:var(--serif);font-style:italic}
 .group-head .cnt{margin-left:auto;color:var(--mut);font-size:12px;white-space:nowrap;font-family:var(--mono);letter-spacing:.02em}
+/* 核对日期：逐条可追溯的那一半（另一半是每行的「官网」链接）。
+   放在计数左边，接管 margin-left:auto，所以计数要收掉自己的那一份 */
+.group-head .gd-checked{margin-left:auto;color:var(--mut);font-size:11.5px;white-space:nowrap;font-family:var(--mono);letter-spacing:.02em}
+.group-head .gd-checked + .cnt{margin-left:12px}
 
 /* ══ 卡片视图 ══ */
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
@@ -204,6 +348,8 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 .card .go:hover{border-color:var(--navy-2);background:var(--panel);color:var(--navy)}
 @media (max-width:560px){.rating{grid-template-columns:1fr}}
 
+
+
 /* ══ 表格视图 ══ */
 /* 默认 overflow:clip —— 裁剪但不创建滚动容器，表头才能像学校头一样相对「页面」吸顶。
    真的放不下时才加 .hscroll（此时它是滚动容器，表头吸不住，但页面仍是统一滚动）。 */
@@ -232,6 +378,10 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;mi
   padding:5px 11px;font-size:12.5px;font-weight:650;text-decoration:none;white-space:nowrap;
   transition:background .15s ease,border-color .15s ease,color .15s ease}
 .tbl a.go2:hover{border-color:var(--navy-2);background:var(--panel);color:var(--navy)}
+/* 「报告错误」：安静地待在官网按钮下面，不跟主操作抢 */
+.tbl a.report{display:block;margin-top:5px;font-size:11.5px;color:var(--mut);text-decoration:underline;
+  text-underline-offset:3px;text-decoration-color:var(--line-2)}
+.tbl a.report:hover{color:var(--navy)}
 
 /* ══ 可排序表头 ══ */
 .tbl .th-sortable{padding:0}
@@ -239,7 +389,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;mi
   font:inherit;font-size:11px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);
   cursor:pointer;text-align:left;transition:background .15s ease,color .15s ease}
 .tbl .th-sort:hover{background:rgba(16,26,46,.05);color:var(--navy)}
-.tbl .th-sort .ar{font-size:10px;opacity:0;transition:opacity .15s ease}
+.tbl .th-sort .ar{display:inline-flex;align-items:center;opacity:0;transition:opacity .15s ease}
 .tbl .th-sort:hover .ar{opacity:.55}
 .tbl .th-sort.on{color:var(--navy)}
 .tbl .th-sort.on .ar{opacity:1}
@@ -247,6 +397,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;mi
 /* ══ 排序状态提示（表头滚出视野后仍可见、可点） ══ */
 .sort-chip{font:inherit;font-size:12px;border:1px solid var(--line-2);background:var(--card);color:var(--navy);
   border-radius:6px;padding:3px 10px;cursor:pointer;margin:2px 8px 2px 2px;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;
   transition:background .15s ease,border-color .15s ease}
 .sort-chip:hover{border-color:var(--navy-2);background:var(--panel)}
 
@@ -266,6 +417,39 @@ button.cmp-sib:hover{border-color:var(--navy-2);color:var(--navy);background:var
 .tbl tbody tr:is(:nth-child(odd),:nth-child(even)) td.diff{background:var(--diff-bg)}
 .cmp-diff-note{margin:0;padding:9px 20px;font-size:12px;line-height:1.6;color:#6b4e10;background:var(--gold-bg);
   border-bottom:1px solid var(--gold-line)}
+
+/* ══ 冲 / 稳 / 保 ══
+   把成绩判定翻成选校语言。配色沿用判定三色，不另起一套。 */.pos{display:inline-block;padding:0 6px;border-radius:4px;font-size:11px;font-weight:650;line-height:1.7;
+  white-space:nowrap;border:1px solid transparent}
+.pos.under{color:var(--v-under);background:var(--v-under-bg);border-color:var(--v-under-line)}
+.pos.meet{color:var(--v-meet);background:var(--v-meet-bg);border-color:var(--v-meet-line)}
+.pos.over{color:var(--v-over);background:var(--v-over-bg);border-color:var(--v-over-line)}
+.tbl .pos{margin-left:6px;vertical-align:1px}
+.cmp-pos-sum{margin:0;padding:9px 20px;font-size:12.5px;line-height:1.7;color:var(--ink-2);
+  background:var(--panel);border-bottom:1px solid var(--line)}
+.cmp-pos-sum .pss-k{font-weight:650;margin-right:9px}
+.cmp-pos-sum .pos{margin-right:7px}
+.cmp-pos-sum .pss-na{color:var(--mut);margin-right:7px}
+.cmp-pos-sum .pss-tip{display:block;margin-top:3px;font-size:12px;color:var(--mut)}
+#cmp-group.on{background:var(--navy);border-color:var(--navy);color:#fff}
+/* 清单里每一行的上移 / 下移 / 移出。用按钮而不是拖动：触屏也能点、键盘也能走 */
+.tbl .cmp-ops .ops{display:inline-flex;gap:4px;align-items:center}
+.tbl .cmp-ops .op{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;
+  border:1px solid var(--line-2);border-radius:6px;background:var(--card);color:var(--ink-2);cursor:pointer;
+  transition:background .15s ease,border-color .15s ease,color .15s ease}
+.tbl .cmp-ops .op .ic{width:13px;height:13px}
+.tbl .cmp-ops .op:hover:not([disabled]){border-color:var(--navy-2);color:var(--navy);background:var(--panel)}
+.tbl .cmp-ops .op.rm:hover{border-color:var(--v-under-line);color:var(--v-under);background:var(--v-under-bg)}
+.tbl .cmp-ops .op[disabled]{opacity:.35;cursor:not-allowed}
+@media (max-width:760px){.tbl .cmp-ops .op{width:32px;height:32px}}
+/* 分组标题行（按冲 / 稳 / 保分段时插在清单里） */
+.tbl tbody tr.cmp-group td{background:var(--panel) !important;border-bottom:1px solid var(--line-2);
+  padding-top:8px;padding-bottom:8px;font-size:12.5px;font-weight:650;color:var(--navy)}
+.tbl tbody tr.cmp-group td .cg-n{float:right;font-family:var(--mono);font-size:11.5px;font-weight:400;color:var(--mut)}
+/* 入学年份列：跨板块混选时逐行说明，别让人把 2027 入学和 2026 入学轮次看成同一件事 */
+.tbl .cycle-cell{white-space:nowrap}
+.tbl .cycle-cell .cy{display:block;font-size:12.5px;font-weight:650;color:var(--ink-2)}
+.tbl .cycle-cell .cy-sub{display:block;font-size:11px;color:var(--mut)}
 .btn-sm{padding:5px 11px;font-size:12.5px}
 
 
@@ -303,6 +487,14 @@ button.cmp-sib:hover{border-color:var(--navy-2);color:var(--navy);background:var
 /* ══ 搜索命中高亮 ══ */
 mark.hl{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px;box-shadow:inset 0 -1px 0 var(--gold-line)}
 
+/* ══ 搜索命中说明 ══
+   hi() 只高亮专业名与校名，而检索其实覆盖笔试 / 英语要求 / 备注等十来个字段：
+   搜「ESAT」时整行没有一处高亮，用户不知道这行为什么被搜出来。
+   这里点明命中的是哪个字段。刻意走中性色——金只留给「成绩口径」和「差异」。 */
+.hit{display:block;width:fit-content;max-width:100%;margin-top:4px;padding:1px 6px;border-radius:4px;
+  font-size:11px;line-height:1.6;color:var(--mut);background:var(--panel);border:1px solid var(--line-2);
+  font-family:var(--sans);font-style:normal;font-weight:400;letter-spacing:0}
+
 /* ══ 结果构成小结（筛完只剩几校时列出构成） ══ */
 .breakdown{color:var(--mut);font-size:12.5px;margin-left:6px}
 
@@ -323,8 +515,9 @@ mark.hl{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px;box-s
 .jb .dot{width:8px;height:8px;border-radius:3px;background:var(--c,#cbd2e0);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 
 /* ══ 回到顶部 ══ */
-.to-top{position:fixed;right:20px;bottom:20px;width:44px;height:44px;border-radius:50%;z-index:75;
-  border:1px solid var(--line-2);background:var(--card);color:var(--navy);font-size:18px;line-height:1;cursor:pointer;
+.to-top{position:fixed;right:20px;bottom:calc(20px + var(--cmpbar-lift,0px));width:44px;height:44px;border-radius:50%;z-index:75;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line-2);background:var(--card);color:var(--navy);cursor:pointer;
   box-shadow:var(--sh-2);opacity:0;transform:translateY(10px);pointer-events:none;
   transition:opacity .2s ease,transform .2s ease,background .15s ease}
 .to-top.show{opacity:1;transform:none;pointer-events:auto}
@@ -335,17 +528,13 @@ mark.hl{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px;box-s
 .tbl .t-qs{font-size:12px;line-height:1.55;color:var(--ink-2)}
 .tbl .t-qs .qn{font-weight:700;color:#2b3f8f;font-family:var(--mono);font-size:11.5px}
 .tbl .t-qs .qz{color:var(--mut);margin-left:5px;font-size:11.5px}
+/* 并列的「=」收缩成小标记：读数仍是名次本身，等号只是脚注 */
+.tbl .t-qs .tie{color:var(--mut);font-size:10px;font-weight:400;margin-right:1px}
+.badge.qs .tie{opacity:.6;font-weight:400;margin-right:1px}
 .tbl .t-qs.no{color:var(--mut);font-weight:400}
-/* 未展开的剩余学科：可点开的展开器（触屏可点、鼠标可点，不依赖悬停） */
-.tbl .qs-more{margin-top:2px}
-.tbl .qs-more>summary{cursor:pointer;list-style:none;display:inline-block;color:var(--navy-2);font-size:11.5px;
   text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2)}
-.tbl .qs-more>summary:hover{color:var(--navy)}
-.tbl .qs-more>summary::-webkit-details-marker{display:none}
-.tbl .qs-more>summary::before{content:"▸ ";font-size:9px;display:inline-block}
-.tbl .qs-more[open]>summary::before{content:"▾ "}
-.tbl .qs-more[open]>summary{color:var(--mut);text-decoration:none}
-.tbl .qs-more .t-qs{white-space:normal}
+  vertical-align:-.02em;background:currentColor;
+  -webkit-mask:var(--ic-right) center/contain no-repeat;mask:var(--ic-right) center/contain no-repeat}
 
 /* ══ 加入对比 ══ */
 button.cmp{font:inherit;font-size:11.5px;border:1px solid var(--line-2);background:var(--card);color:var(--ink-2);border-radius:6px;
@@ -358,6 +547,16 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 /* ══ 空结果 ══ */
 .empty{background:var(--card);border:1px dashed var(--line-2);border-radius:var(--r-lg);padding:30px;text-align:center;color:var(--mut)}
 .empty h2{margin:0 0 6px;font-size:18px;color:var(--ink)}
+/* 空结果里的「放宽哪一条能剩几项」——逐个可点，比一句「请放宽条件」有用 */
+.empty-help{margin:14px auto 0;max-width:70ch;text-align:left}
+.eh-k{margin:0 0 8px;font-size:13px;color:var(--ink-2)}
+.eh-list{display:flex;flex-wrap:wrap;gap:7px}
+.eh-b{font:inherit;font-size:12.5px;display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--line-2);background:var(--card);color:var(--navy-2);border-radius:7px;
+  padding:7px 12px;cursor:pointer;transition:background .15s ease,border-color .15s ease}
+.eh-b:hover:not([disabled]){border-color:var(--navy-2);background:var(--panel)}
+.eh-b[disabled]{opacity:.45;cursor:not-allowed}
+.eh-b .eh-n{font-family:var(--mono);font-size:11.5px;color:var(--mut)}
 .gaps{font-size:13px;color:var(--ink-2);max-width:70ch;margin:12px auto 0;line-height:1.8;text-align:left}
 
 /* ══ 对比栏与弹层 ══ */
@@ -378,7 +577,8 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .overlay.show .overlay-box{transform:none}
 .overlay-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line)}
 .overlay-head h2{margin:0;font-size:18px;letter-spacing:-.01em}
-.overlay-close{border:1px solid var(--line-2);background:var(--card);border-radius:7px;width:32px;height:32px;font-size:18px;line-height:1;cursor:pointer;color:var(--ink-2);
+.overlay-close{display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line-2);background:var(--card);border-radius:7px;width:32px;height:32px;cursor:pointer;color:var(--ink-2);
   transition:background .15s ease,border-color .15s ease,color .15s ease}
 .overlay-close:hover{background:var(--panel);border-color:var(--navy-2);color:var(--navy)}
 /* 对比表排序（与表头同一套键） */
@@ -417,7 +617,6 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 /* 4. 切板块时口径说明的板块徽章脉冲一次：把视线引向该板块专属说明，避免漏看 */
 .man-region.pulse{animation:ua-badge-pulse 1.1s ease-out}
 /* 5. 展开「另 N 项」时新出现的学科淡入 */
-.tbl .qs-more[open] .t-qs{animation:ua-fade-in .18s ease-out}
 /* 6. 按钮按下的位移反馈（瞬时，不加过渡，保持干脆的触感） */
 .chip:active,.btn:active,.seg-btn:active,.region-tab:active,button.cmp:active{transform:translateY(1px)}
 
@@ -440,8 +639,6 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .group-head h2{font-size:18px}
   /* 窄屏下把「另 N 项」的点击区域放大到可触控 */
   .tbl .t-qs{font-size:12.5px}
-  .tbl .qs-more>summary{display:block;padding:9px 0;font-size:12.5px}
-  .tbl .qs-more>summary::before{font-size:10px}
   /* 抽屉：窄屏贴底、满宽、圆角只在顶部 */
   .eng-sheet{align-items:flex-end;padding:0}
   .eng-sheet .overlay-box{width:100%;max-width:100%;max-height:82vh;border-radius:var(--r-lg) var(--r-lg) 0 0}
@@ -455,7 +652,6 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 
 @media (prefers-reduced-motion:reduce){
   .toast,.overlay,.overlay-box,.comparebar,.card,.chip,.btn,.seg-btn,.region-tab,button.cmp,.to-top{transition:none}
-  .groups.anim,#manual-body section,.tbl tbody tr.flash td,.card.flash,.man-region.pulse,.tbl .qs-more[open] .t-qs{animation:none}
   .chip:active,.btn:active,.seg-btn:active,.region-tab:active,button.cmp:active{transform:none}
   .card:hover{transform:none}
 }
@@ -483,7 +679,7 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   :root{
     --ink:#e7ecf4; --ink-2:#c2cbd9; --mut:#8f9cb0;
     --navy:#2f66b8; --navy-2:#3d7ad6;
-    --gold:#d9b566; --gold-line:rgba(217,181,102,.36); --gold-bg:rgba(217,181,102,.13);
+    --gold:#d9b566; --gold-2:#e8cf8e; --gold-rgb:217,181,102; --gold-line:rgba(217,181,102,.36); --gold-bg:rgba(217,181,102,.13);
     --bg:#0e131b; --card:#151c26; --panel:#1b2431;
     --line:rgba(255,255,255,.10); --line-2:rgba(255,255,255,.20);
     --focus:#d9b566;
@@ -493,6 +689,10 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
     --flash:rgba(217,181,102,.30);
     --toast-bg:#e7ecf4; --toast-fg:#0e131b;   /* 深色底上把提示条反过来，才跳得出来 */
     --mast-a:#1a2942; --mast-b:#0d1524;
+    /* 判定三色在深底上要整体提亮，否则绿和砖红都会糊进背景 */
+    --v-over:#7ecfa8;      --v-over-bg:rgba(80,180,140,.14);  --v-over-line:rgba(126,207,168,.34);
+    --v-meet:#a9c6ea;      --v-meet-bg:rgba(80,130,200,.16);  --v-meet-line:rgba(120,170,230,.34);
+    --v-under:#eda393;     --v-under-bg:rgba(226,120,100,.14); --v-under-line:rgba(226,120,100,.34);
     --sh-1:0 1px 2px rgba(0,0,0,.30),0 1px 3px rgba(0,0,0,.36);
     --sh-2:0 6px 16px -6px rgba(0,0,0,.55),0 2px 6px -2px rgba(0,0,0,.40);
     --sh-3:0 24px 60px -24px rgba(0,0,0,.75);
@@ -512,14 +712,17 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .eng-esl{border-color:rgba(217,181,102,.38);background:rgba(217,181,102,.14);color:#dcbe7c}
   .eng-esl.no{border-color:rgba(226,120,100,.38);background:rgba(226,120,100,.14);color:#eda393}
   .eng-esl.efl{border-color:rgba(120,200,160,.34);background:rgba(80,180,140,.14);color:#9fd8bb}
-  .man-region,.tbl .t-offer,.badge.offer,.cmp-diff-note,.legend .lg-i b,.legend .lg-k{color:#dcbe7c}
+  .man-region,.cycle-badge,.tbl .t-offer,.badge.offer,.cmp-diff-note,.legend .lg-i b,.legend .lg-k{color:#dcbe7c}
   .foot .meta-line{color:#6f7b8d}
 }
 
 @media print{
   /* 打印：留标题与口径说明，去掉一切交互件；表格能自动分页并重复表头 */
   .controls,.resultline,.scope-row,.toast,.comparebar,.overlay,.jumpbar,.legend,
-  .to-top,.export-panel,.quickstart,.sort-chip,.skip{display:none !important}
+  .to-top,.export-panel,.quickstart,.howto,.sort-chip,.skip,.regionbar{display:none !important}
+  /* 板块切换键在纸上毫无用处；但入学年份不能丢，改由下面这行上下文承担 */
+  .print-meta{display:block;margin:0 0 9px;padding-bottom:6px;font-size:9.5pt;color:#000;
+    border-bottom:1px solid #999;line-height:1.6}
   body{background:#fff;font-size:10.5pt}
   .wrap{max-width:none;padding:0}
   .masthead{background:#fff !important;color:#000 !important;padding:0 0 8px;border-bottom:2px solid #000}
@@ -531,6 +734,7 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .manual{border:1px solid #999;box-shadow:none;page-break-inside:avoid}
   .manual summary::after{content:""}
   .manual-body{display:grid !important}
+  .tl-body{display:block !important}
   .manual-body section h3{color:#000;border-bottom-color:#bbb}
   .group{page-break-inside:auto}
   .group-head{position:static;background:#fff !important;border-bottom:1px solid #999;box-shadow:none;page-break-after:avoid}
@@ -571,8 +775,11 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .eng-more>summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:4px;color:var(--navy-2,#1e4a80);
   border-bottom:1px dotted currentColor;padding:1px 0;min-height:22px}
 .eng-more>summary::-webkit-details-marker{display:none}
-.eng-more>summary::after{content:"▾";font-size:10px;opacity:.75}
-.eng-more[open]>summary::after{content:"▴"}
+.eng-more>summary::after{content:"";display:inline-block;width:9px;height:9px;opacity:.75;
+  background:currentColor;
+  -webkit-mask:var(--ic-down) center/contain no-repeat;mask:var(--ic-down) center/contain no-repeat}
+.eng-more[open]>summary::after{-webkit-mask-image:var(--ic-right);mask-image:var(--ic-right);
+  transform:rotate(-90deg)}
 .eng-more[open]>summary{color:var(--ink)}
 .eng-more>ul{margin:6px 0 2px;padding:0;list-style:none;border-left:2px solid var(--line-2,rgba(16,26,46,.12));padding-left:9px}
 .eng-more li{display:flex;gap:8px;font-size:11.5px;line-height:1.65;color:var(--mut,#5b6577)}
@@ -584,7 +791,6 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 /* 闭合状态下必须隐藏明细（作者样式对 <details> 子元素的 display 声明会盖过浏览器默认隐藏） */
 .eng-more:not([open]) > ul{display:none}
 .eng-more:not([open]) > *:not(summary){display:none}
-.qs-more:not([open]) > *:not(summary){display:none}
 .eng-cell .eng-1,.eng-cell .eng-2{display:block;height:auto}
 /* QS 列表更紧凑（取消折叠后条目变多，控制高度） */
 .tbl .t-qs{line-height:1.35}
@@ -595,3 +801,46 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .eng-more li>b{min-width:96px;max-width:132px;word-break:keep-all;overflow-wrap:normal;line-height:1.5}
 @media (max-width:520px){.eng-more li>b{min-width:84px;max-width:40%}}
 .foot .disclaimer{border-left:3px solid var(--gold-line,#e2d3a8);background:var(--gold-bg,#fbf6e9);padding:7px 10px;border-radius:4px;color:var(--ink-2,#33405a)}
+
+/* ══ 窄屏的紧凑卡片（放在文件末尾：媒体查询不加优先级，
+   必须排在它要覆盖的 .card / .eng-line 等基础规则之后，否则会被后者盖掉）══
+   卡片原先竖着摞：校名行 / 中英名 / 学制 / 两格分数盒 / 英语盒 / 徽章行 / 备注 / 官网，
+   一屏放不下两张——8.0 因此把窄屏默认改回了表格（横着拖）。
+   这里把能收的都收掉：分数盒的灰底去掉、两个分数并排、英语块压成一行、
+   徽章行不再把人挤到第二行。实测中位高 431px → 328px，一屏从 1 张变成 2 张，
+   并且不用横向拖。再往下压就得藏信息了，所以到此为止。 */
+/* ══ 窄屏的紧凑卡片 ══
+   卡片原先竖着摞：校名行 / 中英名 / 学制 / 两格分数盒 / 英语盒 / 徽章行 / 备注 / 官网，
+   一屏放不下两张——8.0 因此把窄屏默认改回了表格（横着拖）。
+   这里压成「名字 · 一行分数 · 一行徽章」：分数盒的灰底去掉、标签当前缀、
+   两个分数并排，于是窄屏又能默认卡片了（见 app.js 的 defaultView）。 */
+@media (max-width:700px){
+  .cards{gap:9px}
+  .card{padding:11px 13px 11px 16px;gap:7px;border-radius:10px}
+  .card h3{font-size:14.5px;line-height:1.32}
+  .card h3 .en{font-size:11px;margin-top:1px}
+  .card-meta{font-size:12px}
+  /* 分数：去掉那层灰底盒子（它自己就吃掉约 20px），标签缩成前缀，两个分数并排 */
+  .rating{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;
+    padding:0;background:none;border:0;border-radius:0}
+  .rating>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;min-width:0}
+  .rating .k{font-size:10.5px;letter-spacing:.04em;white-space:nowrap}
+  .rating .v{font-size:17px}
+  .rating .v .score-sub{display:inline;font-size:11px;margin:0 0 0 4px}
+  /* 科目要求独占一行，字号收小——但不能藏起来，它是「这门专业到底要什么」的关键 */
+  .rating .score-note{flex:1 1 100%;font-size:11px;margin-top:1px;line-height:1.5}
+  /* 英语块是窄屏卡片里最高的一块（实测 131px）。压成一行：
+     口径角标与 band 在「英语要求详情」里都有；摘要文字超宽就省略号，全文也在详情里。
+     EFL / ESL 标签保留——它是各校差异最大、最影响可申性的一项，设计上特意露在摘要上 */
+  .eng-line{flex-wrap:nowrap;overflow:hidden;padding:5px 9px;gap:4px 8px}
+  .eng-line .eng-band,.eng-line .eng-tag{display:none}
+  .eng-v{font-size:12px;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .eng-block .eng-more{margin-top:2px}
+  /* 徽章行：窄屏不再把「加入对比」推到最右；「同方向 N 项」是桌面上的批量操作，先收起来 */
+  .badges{gap:5px}
+  .badges button.cmp{margin-left:0}
+  .badges button.cmp-sib{display:none}
+  .badge{font-size:11px;padding:1px 7px}
+  .card-note{font-size:12px}
+  .card .go{margin-top:6px;padding:6px 10px;font-size:12px}
+}
