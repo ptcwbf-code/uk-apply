@@ -298,6 +298,13 @@ button.cmp-sib:hover{border-color:var(--navy-2);color:var(--navy);background:var
 .ed-v{font-size:12.5px;line-height:1.65;color:var(--ink);word-break:break-word}
 .ed-v a{color:var(--navy-2);text-decoration:underline;text-underline-offset:2px}
 
+/* ══ 窄屏的英语详情抽屉 ══
+   表格横向滚动时，行内展开的内容会落在视口外（td 跨全表，宽度等于表宽，
+   position:sticky 没有可偏移的余量），所以窄屏改为底部抽屉，与横向滚动彻底解耦。 */
+.eng-sheet .overlay-box{max-width:min(560px,94vw)}
+.eng-sheet-body{padding:14px 18px;overflow:auto;max-height:calc(88vh - 62px)}
+.eng-sheet-body .eng-detail-grid{grid-template-columns:1fr;max-width:none;padding:0;gap:12px}
+
 /* ══ 搜索命中高亮 ══ */
 mark.hl{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px;box-shadow:inset 0 -1px 0 var(--gold-line)}
 
@@ -436,9 +443,12 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .tbl .t-qs{font-size:12.5px}
   .tbl .qs-more>summary{display:block;padding:9px 0;font-size:12.5px}
   .tbl .qs-more>summary::before{font-size:10px}
-  /* 英语详情行：贴住滚动容器左缘 + 按视口收窄，横向滚动时也读得到 */
-  .tbl tbody tr.eng-detail>td{position:sticky;left:0}
+  /* 行内展开行（窄屏基本用不到，用抽屉）仍按视口收窄，避免内容超出 */
   .eng-detail-grid{grid-template-columns:1fr;max-width:calc(100vw - 34px);padding:12px 14px}
+  /* 抽屉：贴底、满宽、圆角只在顶部 */
+  .eng-sheet{align-items:flex-end;padding:0}
+  .eng-sheet .overlay-box{width:100%;max-width:100%;max-height:82vh;border-radius:var(--r-lg) var(--r-lg) 0 0}
+  .eng-sheet-body{max-height:calc(82vh - 62px);padding:14px 16px}
   /* 对比弹层标题栏：窄屏下排序键换行，别把关闭按钮挤出去 */
   .overlay-head{flex-wrap:wrap;gap:8px;padding:12px 14px}
   .overlay-tools{margin-left:0;width:100%;justify-content:space-between}

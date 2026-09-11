@@ -268,6 +268,8 @@
     }).join('');
   }
   function prefersReduced() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  // 窄屏：表格横向滚动时行内展开会落在视口外，改用抽屉
+  function isNarrow() { return window.matchMedia('(max-width:760px)').matches; }
 
   // ── 术语说明（分板块） ──
   var MANUAL = {
@@ -535,7 +537,7 @@
       return '<li><b>' + esc(kv[0]) + '</b><span>' + engValHTML(kv[0], kv[1]) + '</span></li>';
     }).join('') + '</ul></details>';
   }
-  function engCellHTML(e, rowId) {
+  function engCellHTML(e, rowId, label) {
     if (!e) return '<td class="eng-cell">—</td>';
     var esl = engESLTag(e);
     return '<td class="eng-cell">' +
@@ -544,7 +546,8 @@
       (esl ? '<span class="eng-esl' + (esl === 'ESL 不接受' ? ' no' : '') + '">' + esc(esl) + '</span>' : '') +
       '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' +
       (rowId && engDetailItems(e).length ? '<button type="button" class="eng-open" data-eng="' + esc(rowId) +
-        '" aria-expanded="false" title="在下方整行展开全部英语要求">详情 ▾</button>' : '') +
+        '" data-eng-label="' + esc(label || '') + '" aria-expanded="false"' +
+        ' title="展开全部英语要求（IELTS / TOEFL / GCSE / ESL / IB / GCE）">详情 ▾</button>' : '') +
       '</td>';
   }
 
@@ -769,8 +772,8 @@
       var e = engFor(idxMap[i]);
       // 行标识要带分组 key：按方向分组时同一专业会在多个组里各出现一次
       var rid = 'eng-' + (groupKey || 'g') + '-' + idxMap[i];
-      var engCol = engCellHTML(e, rid);
-      var engDetailRow = (e && engDetailItems(e).length)
+      var engCol = engCellHTML(e, rid, (showSchool ? '' : s.zh + ' · ') + p.zh);
+      var engDetailRow = (e && engDetailItems(e).length && !isNarrow())
         ? '<tr class="eng-detail" data-eng-row="' + esc(rid) + '" hidden><td colspan="' + (showSchool ? 11 : 10) + '">' +
           engDetailGrid(e) + '</td></tr>'
         : '';
@@ -990,9 +993,44 @@
     updateCompareBar();
     saveCompare();
   });
-  // 英语详情：整行展开（放进 53px 宽的单元格里读不了，所以放到整行宽度上铺开）
+  // 英语详情
+  // 宽屏：整行展开（放进约 90px 宽的单元格里读不了，所以放到整行宽度上铺开）
+  // 窄屏：表格本身要横向滚动，行内展开的内容会落在视口外，改用底部抽屉
+  var engSheetBack = '';
+  // 按钮的 id 形如 eng-<分组key>-<专业索引>，末段就是 cur.programs 的下标
+  function engForRowId(id) {
+    var idx = +String(id).split('-').pop();
+    return cur.programs[idx] ? engFor(idx) : null;
+  }
+  function openEngSheet(id, label) {
+    var html = engDetailGrid(engForRowId(id));
+    if (!html) return;
+    $('#eng-sheet-title').textContent = label ? '英语要求 · ' + label : '英语要求';
+    $('#eng-sheet-body').innerHTML = html;
+    engSheetBack = id;
+    var ov = $('#eng-sheet');
+    ov.hidden = false;
+    void ov.offsetWidth;
+    ov.classList.add('show');
+    $('#eng-sheet-close').focus();
+  }
+  function closeEngSheet() {
+    var ov = $('#eng-sheet');
+    if (ov.hidden) return;
+    ov.classList.remove('show');
+    clearTimeout(closeEngSheet._t);
+    closeEngSheet._t = setTimeout(function () {
+      ov.hidden = true;
+      var back = document.querySelector('button.eng-open[data-eng="' + engSheetBack + '"]');
+      if (back && document.contains(back)) back.focus();
+    }, 200);
+  }
+  $('#eng-sheet-close').addEventListener('click', closeEngSheet);
+  $('#eng-sheet').addEventListener('click', function (e) { if (e.target === $('#eng-sheet')) closeEngSheet(); });
+
   $('#groups').addEventListener('click', function (e) {
     var b = e.target.closest('button.eng-open'); if (!b) return;
+    if (isNarrow()) { openEngSheet(b.dataset.eng, b.dataset.engLabel); return; }
     var row = document.querySelector('tr.eng-detail[data-eng-row="' + b.dataset.eng + '"]');
     if (!row) return;
     var open = row.hidden;
@@ -1000,6 +1038,7 @@
     b.setAttribute('aria-expanded', String(open));
     b.textContent = open ? '详情 ▴' : '详情 ▾';
   });
+
   // 一键把本校同方向的全部专业加入对比
   $('#groups').addEventListener('click', function (e) {
     var b = e.target.closest('button.cmp-sib'); if (!b) return;
@@ -1030,9 +1069,10 @@
   $('#compare-close').addEventListener('click', closeCompare);
   $('#compare-overlay').addEventListener('click', function (e) { if (e.target === $('#compare-overlay')) closeCompare(); });
   document.addEventListener('keydown', function (e) {
-    var ov = $('#compare-overlay');
-    if (ov.hidden) return;
-    if (e.key === 'Escape') { closeCompare(); return; }
+    // 谁在最上层就管谁：英语抽屉优先于对比弹层
+    var ov = !$('#eng-sheet').hidden ? $('#eng-sheet') : (!$('#compare-overlay').hidden ? $('#compare-overlay') : null);
+    if (!ov) return;
+    if (e.key === 'Escape') { (ov.id === 'eng-sheet' ? closeEngSheet : closeCompare)(); return; }
     if (e.key !== 'Tab') return;
     // 焦点陷阱：Tab 只在弹层内循环，否则键盘用户会跑到被遮住的页面上
     var f = ov.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])');
