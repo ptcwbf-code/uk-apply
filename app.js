@@ -690,6 +690,77 @@
 
   // ── QS 2026 学科排名标签 ──
   function rankNum(r) { var m = String(r).replace('=', '').match(/\d+/); return m ? +m[0] : 9999; }
+  // ══ 专业名 → QS 学科家族 ══
+  // 方向（dir）是粗桶：bio 里同时装着医学/药学/护理/化学/生物，
+  // 直接取「桶内最佳名次」会把「化学」显示成「医学 #2」、把「航空工程」显示成「化学工程 #4」。
+  // 这里按专业名收敛到它自己的学科家族，只保留真正相关的榜；越具体的规则排越前。
+  var ENG4 = ['mechanical-aeronautical-manufacturing-engineering', 'electrical-electronic-engineering',
+    'civil-structural-engineering', 'chemical-engineering'];
+  var ARTS5 = ['english-language-literature', 'modern-languages', 'linguistics', 'history', 'philosophy'];
+  var SOC6 = ['sociology', 'social-policy-administration', 'psychology', 'geography', 'anthropology', 'politics'];
+  var SCI4 = ['chemistry', 'biological-sciences', 'physics-astronomy', 'mathematics'];
+  var QS_NAME_RULES = [
+    // 宽口径大类（本身横跨多个学科）：必须最先判定。
+    // 带括号的细分不算大类（如「社会科学学士（心理学）」按心理走），故用 (?![（(]) 排除
+    [/理学大类|理学院[\s（]|science \(group|bachelor of science\s*$|应用生物\/计算机|自然科学|natural science/i, SCI4],
+    [/文学士（文学院）|文学院统一/i, ARTS5],
+    [/社会科学学士(?![（(])|社会科学学院统一/i, SOC6],
+    // 工程必须排在生物／医学之前，否则「生物医学工程」「化学工程与生物技术」会被判成医学
+    [/人工智能|artificial intelligence|AI/i, ['data-science-artificial-intelligence', 'computer-science-information-systems']],
+    [/数据科学|data science/i, ['data-science-artificial-intelligence', 'computer-science-information-systems']],
+    [/计算机|计算|computing|computer|软件|网络安全|cybersecurity|资讯|information/i, ['computer-science-information-systems']],
+    [/化学工程|chemical engineering/i, ['chemical-engineering']],
+    [/土木|结构工程|civil/i, ['civil-structural-engineering']],
+    [/电子|电气|电机|electronic|electrical/i, ['electrical-electronic-engineering']],
+    [/机械|航空|航天|制造|机器人|mechanical|aeronautical|aerospace|manufacturing|设计工程|design engineering/i,
+      ['mechanical-aeronautical-manufacturing-engineering']],
+    [/生物医学工程|biomedical engineering/i, ['mechanical-aeronautical-manufacturing-engineering', 'electrical-electronic-engineering']],
+    // 计算机与数据（排在通用「工程」之前，「计算机工程」才不会被当成通用工程）
+    [/工程|engineering/i, ENG4],
+    // 医学与健康
+    [/生物医学|biomedical|医学生物|medical bioscience/i, ['biological-sciences']],
+    [/物理|physics/i, ['physics-astronomy']],
+        [/内外全科|医学士|MBBS|MBChB|medicine|医学/i, ['medicine']],
+    [/牙医|dental|BDS/i, ['dentistry']],
+    [/护理|nursing|BNurs/i, ['nursing']],
+    [/药剂|药学|药理|中药|中医|pharmacy|pharmacolog/i, ['pharmacy-pharmacology']],
+    [/物理治疗|放射|医疗化验|言语病理|复康|physiotherap|radiograph|medical laboratory|speech pathology|rehabilit/i, ['nursing']],
+    // 理学生命
+    [/生物化学|biochemistry/i, ['biological-sciences', 'chemistry']],
+    [/生物科技|生物技术|biotechnology/i, ['biological-sciences', 'chemistry']],
+    [/环境|environmental/i, ['environmental-sciences']],
+    [/生物|biology|biological/i, ['biological-sciences']],
+    [/化学|chemistry/i, ['chemistry']],
+    [/精算|actuarial|统计|statistic|运筹|风险|量化|quantitative/i, ['statistics-operational-research', 'mathematics']],
+    [/数学|mathematics|maths/i, ['mathematics', 'statistics-operational-research']],
+    // 经管（公共事务／社会政策要排在「管理」之前，否则「公共事务与管理」会被当成商科）
+    [/社会政策|社会工作|social policy|social work|公共行政|公共事务|public affairs|public policy/i,
+      ['social-policy-administration', 'sociology']],
+    [/经济|econom/i, ['economics-econometrics']],
+    [/会计|金融|财务|accounting|finance/i, ['accounting-finance']],
+    [/管理|商务|商业|市场|business|management|marketing|BBA/i, ['business-management-studies']],
+    // 人文社科
+    [/法|law|LLB/i, ['law-legal-studies']],
+    [/心理|psycholog/i, ['psychology']],
+    [/政治|政府|government|politic|国际事务|international affairs/i, ['politics', 'social-policy-administration']],
+    [/社会学|社会科学|social science|sociolog/i, ['sociology']],
+    [/地理|geograph/i, ['geography']],
+    [/人类学|anthropolog/i, ['anthropology']],
+    [/传媒|传播|媒体|新闻|communication|media|journalism|广告|advertis|电影|film/i, ['communication-media-studies']],
+    [/教育|education/i, ['education-training']],
+    [/翻译|translation/i, ['linguistics', 'modern-languages']],
+    [/语言学|语言科学|linguistic|language science/i, ['linguistics']],
+    [/中文|中国语言|汉语|chinese/i, ['modern-languages', 'linguistics']],
+    [/英文|英语|english/i, ['english-language-literature']],
+    [/现代语言|语言|language/i, ['modern-languages']],
+    [/历史|history/i, ['history']],
+    [/哲学|philosoph/i, ['philosophy']],
+    [/音乐|music|表演艺术|performing/i, ['performing-arts']],
+    [/艺术|设计|视觉|visual art|fine art|art history|design/i, ['art-design']],
+    [/酒店|旅游|tourism|hotel|hospitality/i, ['hospitality-leisure-management']],
+    [/体育|运动|sport/i, ['sports-related-subjects']]
+  ];
+
   function qsListFor(p) {
     var sch = (typeof QS_RANKS !== 'undefined' ? QS_RANKS[p.school] : null) || {};
     var subs = [];
@@ -697,9 +768,16 @@
       // 显式指定该专业对应的学科榜；qs: [] 表示本站收录的学科里没有对应榜，不显示
       subs = p.qs;
     } else {
-      p.dirs.forEach(function (d) {
-        ((typeof QS_DIR_SUBJECTS !== 'undefined' ? QS_DIR_SUBJECTS[d] : null) || []).forEach(function (s) { subs.push(s); });
-      });
+      // 先按专业名收敛到本学科家族，避免粗方向桶里的「医学/药学」挤掉「化学」
+      var name = p.zh + ' ' + p.en;
+      for (var r = 0; r < QS_NAME_RULES.length; r++) {
+        if (QS_NAME_RULES[r][0].test(name)) { subs = QS_NAME_RULES[r][1]; break; }
+      }
+      if (!subs.length) {   // 没能从名字认出学科，才退回方向桶
+        p.dirs.forEach(function (d) {
+          ((typeof QS_DIR_SUBJECTS !== 'undefined' ? QS_DIR_SUBJECTS[d] : null) || []).forEach(function (s) { subs.push(s); });
+        });
+      }
     }
     var out = [], seen = {};
     subs.forEach(function (sub) {
@@ -711,7 +789,10 @@
     var list = qsListFor(p);
     if (!list.length) return '';
     var title = list.map(function (x) { return (QS_SUBJECT_ZH[x.sub] || x.sub) + ' #' + x.rank; }).join(' · ');
-    return '<span class="badge qs" title="QS 2026 学科排名（' + esc(title) + '）">QS2026 #' + esc(list[0].rank) + '</span>';
+    // 徽章带上学科名：只写「#24」看不出是哪个学科的排名，容易误读
+    var top = list[0];
+    return '<span class="badge qs" title="QS 2026 学科排名（' + esc(title) + '）">' +
+      esc(QS_SUBJECT_ZH[top.sub] || top.sub) + ' #' + esc(top.rank) + '</span>';
   }
   function qsCell(p) {
     var list = qsListFor(p);
@@ -1165,7 +1246,12 @@
       { i: 3, get: function (it) { return it.p.alevel || ''; } },
       { i: 4, get: function (it) { return it.p.ib || ''; } },
       { i: 5, get: function (it) { return it.p.test || ''; } },
-      { i: 6, get: function (it) { return it.p.offer || ''; } }
+      { i: 6, get: function (it) { return it.p.offer || ''; } },
+      // 英语按「取值」比较而不是整格 HTML，否则几乎永远算作有差异
+      { i: 7, get: function (it) {
+        var e = engFor(it.idx, it.rc) || {};
+        return [e.ielts, e.toeflOld, e.toeflNew, e.band, igcseValue(e, 'efl'), igcseValue(e, 'esl')].join('|');
+      } }
     ];
     var varies = {};
     if (items.length > 1) {
@@ -1188,7 +1274,7 @@
         td(4, scoreHTML(p.ib, 'g g-ib')) +
         td(5, test) +
         td(6, '<span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(offer) + '</span>') +
-        engCellHTML(engFor(it.idx, isHK ? 'hk' : 'uk')) +
+        td(7, engCellHTML(engFor(it.idx, isHK ? 'hk' : 'uk'))) +
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
         '<td><a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a></td></tr>';
@@ -1205,7 +1291,7 @@
     if (note) {
       if (items.length > 1 && anyDiff) {
         var names = CMP_COLS.filter(function (c) { return varies[c.i]; })
-          .map(function (c) { return ['', '', '', 'A-Level', 'IB', '笔试 / 面试', '成绩口径'][c.i]; });
+          .map(function (c) { return ['', '', '', 'A-Level', 'IB', '笔试 / 面试', '成绩口径', '英语要求'][c.i]; });
         note.hidden = false;
         note.textContent = '底色标出的是各专业有差异的列：' + names.join('、') + '；其余列所有专业一致。';
       } else note.hidden = true;
