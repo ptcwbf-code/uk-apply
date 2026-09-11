@@ -364,9 +364,10 @@
   function syncControlsChrome() {
     $('#q').value = q;
     $('#groupby').value = groupBy;
-    $('#my').value = myGrades;
-    $('#my-ielts').value = myIelts;
-    $('#my-ielts-band').value = myIeltsBand;
+    $('#g-al').value = gAl; $('#g-ib').value = gIb;
+    $('#g-ielts').value = gIelts; $('#g-l').value = gL; $('#g-r').value = gR;
+    $('#g-w').value = gW; $('#g-s').value = gS;
+    $('#g-toefl').value = gToefl; $('#g-toefl-scale').value = gToeflScale;
     $('#only-reach').checked = onlyReach;
     Array.prototype.forEach.call($('#view-toggle').children, function (x) {
       x.setAttribute('aria-pressed', String(x.getAttribute('data-v') === view));
@@ -551,7 +552,7 @@
     if (activeSchools.length) bits.push('大学：' + activeSchools.map(function (k) { return schoolByKey[k].zh; }).join('、'));
     if (testSel !== 'ALL') bits.push(cur.testHead + '：' + (testSel === 'NONE' ? '无' : testSel === 'YES' ? '需笔试' : testSel));
     if (q) bits.push('搜索：' + q);
-    if (myMode()) bits.push('我的成绩：' + myGrades + '（按 ' + (myMode() === 'alevel' ? 'A-Level' : 'IB 总分') + ' 判定）');
+    if (hasProfile()) bits.push('学生成绩：' + gradeBrief());
     bits.push('共 ' + n + ' 项');
     el.textContent = bits.join(' ｜ ');
   }
@@ -872,7 +873,7 @@
   // （之前自带 <td>，对比表里再包一层就变成嵌套 td，浏览器会拆成两格，整行右移一位）
   function engCellInner(e, rowId, label) {
     if (!e) return '—';
-    return '<span class="eng-1">IELTS ' + esc(engIeltsShort(e)) + ieltsChip(e) + '</span>' +
+    return '<span class="eng-1">IELTS ' + esc(engIeltsShort(e)) + engChip(e) + '</span>' +
       '<span class="eng-2">TOEFL ' + esc(engPair(e)) + (e.band ? ' · ' + esc(e.band) : '') + '</span>' +
       engChipTags(e) +
       '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' +
@@ -1042,37 +1043,71 @@
     if (!why.length) return '';
     return '<span class="hit">命中：' + esc(why.slice(0, 2).join('；') + (why.length > 2 ? ' 等' : '')) + '</span>';
   }
-  // ── 我的成绩 → 哪些能申 ──
-  // 站上回答的一直是「要求是多少」，而学生问的是「我这样够不够」。
+  // ── 学生成绩 → 哪些能申 ──
+  // 站上回答的一直是「要求是多少」，而学生问的是「我这样够不够」。老师也会拿它查
+  // 「这个分数能申哪儿」，所以叫「学生成绩」而不是「我的成绩」。
   // 判定只在这台机器上算：不联网、不外传，也刻意不写进 URL——分享链接里不该带着别人的成绩。
-  var myGrades = '';       // 一行输入，自动判断是 A-Level 还是 IB
-  var myIelts = '';        // 雅思总分（选填）
-  var myIeltsBand = '';    // 雅思单项最低分（选填）
-  var onlyReach = false;   // 只看达得到的（滤掉「低于要求」）
-  var MY_STORE = 'ukapply.mygrades.v1';
+  var gAl = '', gIb = '';                                 // 学业成绩
+  var gIelts = '', gL = '', gR = '', gW = '', gS = '';    // 雅思：总分 + 听 / 读 / 写 / 说
+  var gToefl = '', gToeflScale = 'old';                   // 托福：总分 + 制式
+  var onlyReach = false;                                  // 只看达得到的（滤掉「低于要求」）
+  var MY_STORE = 'ukapply.grades.v2';
 
-  function myTrim() { return String(myGrades || '').trim().replace(/^IB\s*/i, ''); }
-  // 含 A–E 字母按 A-Level 读，纯数字按 IB 总分读（"IB 43" 里的 B 不算）
-  function myMode() {
-    var t = myTrim();
-    if (!t) return null;
-    if (/[A-Ea-e]/.test(t)) return 'alevel';
-    return /\d/.test(t) ? 'ib' : null;
+  // 取值：只认落在合理范围内的数字，越界一律当没填
+  //（否则把入学年份之类的数字敲进来会被当成分数）
+  function numOf(s, lo, hi) {
+    var m = String(s == null ? '' : s).match(/(\d+(?:\.\d+)?)/);
+    if (!m) return null;
+    var v = +m[1];
+    return (v >= lo && v <= hi) ? v : null;
   }
-  function myIbValue() { var m = myTrim().match(/(\d{1,2})/); return m ? +m[1] : null; }
-  function myGradeValues() { return parseGrades(myTrim().replace(/[^A-E*\d\s+]/gi, ' ')); }
-  // 判定：拿「你最好的 N 门」对要求的 N 门求和比较（N = 要求的门数）。
+  function myAlGrades() { return parseGrades(String(gAl).replace(/[^A-E*\d\s+]/gi, ' ')); }
+  function myIbTotal() { return numOf(gIb, 20, 45); }
+  function ieltsOverall() { return numOf(gIelts, 4, 9); }
+  // 雅思单项：听 / 读 / 写 / 说，填了几项就比几项
+  function ieltsParts() {
+    return [['听力', gL], ['阅读', gR], ['写作', gW], ['口语', gS]]
+      .map(function (x) { return { k: x[0], v: numOf(x[1], 4, 9) }; })
+      .filter(function (x) { return x.v != null; });
+  }
+  function toeflTotal() {
+    return gToeflScale === 'old' ? numOf(gToefl, 20, 120) : numOf(gToefl, 1, 6);
+  }
+  // 学业成绩按「A-Level 优先、IB 回落」判：两项都填时，
+  // 遇到只给 IB 分数、A-Level 只写门槛的专业，就自动改用 IB
+  function gradeTracks() {
+    var t = [];
+    if (myAlGrades().length) t.push('alevel');
+    if (myIbTotal() != null) t.push('ib');
+    return t;
+  }
+  function hasGrades() { return gradeTracks().length > 0; }
+  function primaryTrack() { var t = gradeTracks(); return t.length ? t[0] : null; }
+  function hasEnglish() {
+    return ieltsOverall() != null || ieltsParts().length > 0 || toeflTotal() != null;
+  }
+  function hasProfile() { return hasGrades() || hasEnglish(); }
+  // 成绩的简写，用在按钮、打印行与悬停说明里
+  function gradeBrief() {
+    var bits = [];
+    if (myAlGrades().length) bits.push('A-Level ' + String(gAl).trim());
+    if (myIbTotal() != null) bits.push('IB ' + myIbTotal());
+    if (ieltsOverall() != null) bits.push('雅思 ' + ieltsOverall().toFixed(1));
+    var tp = ieltsParts();
+    if (tp.length) bits.push('单项最低 ' + Math.min.apply(null, tp.map(function (x) { return x.v; })).toFixed(1));
+    if (toeflTotal() != null) bits.push('托福 ' + toeflTotal() + (gToeflScale === 'old' ? '' : '（新制）'));
+    return bits.join(' · ');
+  }
+  // 单条赛道的判定。A-Level 用「你最好的 N 门」对要求的 N 门求和比较（N = 要求门数）：
   // 用求和而不是平均——考四门拿到 A*AAA 的人应当按最好的三门算，不该被第四门拉低。
-  function verdictFor(p) {
-    var mode = myMode();
-    if (!mode) return null;
-    if (mode === 'alevel') {
+  function verdictByTrack(p, track) {
+    if (track === 'alevel') {
       var req = gradeProfile(p.alevel);
-      if (!req.length) return null;                    // 只写「≥3 AL / 3 AL 合格」的，没有档可比
-      var mine = myGradeValues();
+      if (!req.length) return null;              // 只写「≥3 AL / 3 AL 合格」的，没有档可比
+      var mine = myAlGrades();
       if (!mine.length) return null;
-      // 填的科目数不到要求的门数时，拿现有的门数去对「要求里最高的那几门」做部分比对。
-      // 原先是一律判「低于要求」——满屏红字，看着就像功能坏了。
+      // 门数不到要求时，拿现有的门数去对「要求里最高的那几门」做部分比对。
+      // 原先一律判「低于要求」，满屏红字看着就像功能坏了；
       // partial 会一路带到徽章、摘要与对比清单，别让人把部分比对当成完整对照。
       var n = Math.min(mine.length, req.length);
       var gap = gradeSum(mine.slice(0, n)) - gradeSum(req.slice(0, n));
@@ -1082,11 +1117,18 @@
         partial: mine.length < req.length, have: mine.length, need: req.length
       };
     }
-    var reqIb = ibScore(p.ib);
-    var v = myIbValue();
+    var reqIb = ibScore(p.ib), v = myIbTotal();
     if (reqIb == null || v == null) return null;
     var g = v - reqIb;
     return { kind: g > 0 ? 'over' : g === 0 ? 'meet' : 'under', by: 'ib', gap: g };
+  }
+  function verdictFor(p) {
+    var tracks = gradeTracks();
+    for (var i = 0; i < tracks.length; i++) {
+      var v = verdictByTrack(p, tracks[i]);
+      if (v) return v;
+    }
+    return null;
   }
   // 「门槛」是大学通用最低要求，不是该专业的录取条件，措辞必须分开
   function barWord(p) { return p.offer === 'ger' ? '门槛' : '要求'; }
@@ -1095,7 +1137,7 @@
     var v = verdictFor(p);
     if (!v) return '';
     var label = VERDICT_ZH[v.kind] + barWord(p);
-    var mine = v.by === 'alevel' ? 'A-Level ' + myTrim() : 'IB ' + myIbValue();
+    var mine = v.by === 'alevel' ? 'A-Level ' + String(gAl).trim() : 'IB ' + myIbTotal();
     var req = v.by === 'alevel' ? 'A-Level ' + p.alevel : 'IB ' + p.ib;
     var tip = '按你输入的 ' + mine + ' 对照 ' + req + '：' + label + '。' +
       (v.partial ? '注意：你只填了 ' + v.have + ' 门，该专业要求 ' + v.need +
@@ -1116,143 +1158,191 @@
     });
     return c;
   }
-  function ieltsCounts() {
-    var c = { ok: 0, under: 0, none: 0 };
-    var rc = curRc(), toks = qTokens();
-    cur.programs.forEach(function (p, i) {
-      if (!matches(p, i, toks)) return;
-      var v = ieltsVerdict(engFor(i, rc));
-      if (!v) c.none++; else c[v.kind]++;
-    });
-    return c;
-  }
+  // 主页面不再摆输入框，但状态要看得见：按钮上直接写清「填了什么、结果如何」
   function updateMyChrome() {
-    var mode = myMode();
-    var clear = $('#my-clear'), only = $('#only-reach'), sum = $('#my-sum');
-    if (clear) clear.hidden = !myGrades;
-    if (sum) {
-      if (!mode) { sum.textContent = ''; sum.className = 'myg-sum'; }
+    var g = hasGrades(), en = hasEnglish();
+    var btn = $('#grade-open'), brief = $('#grade-brief');
+    if (btn) btn.classList.toggle('filled', hasProfile());
+    if (brief) {
+      if (!hasProfile()) brief.textContent = '未填';
       else {
-        var c = myCounts(), n = c.over + c.meet + c.under;
-        sum.className = 'myg-sum on';
-        sum.textContent = '当前条件下 ' + n + ' 项可比对：够得着 ' + (c.over + c.meet) +
-          '（高于 ' + c.over + ' · 达到 ' + c.meet + '）· 够不着 ' + c.under +
-          (c.na ? ' · 无分数可比 ' + c.na : '');
+        var bits = [];
+        if (g) {
+          var c = myCounts(), n = c.over + c.meet + c.under;
+          if (n) bits.push('够得着 ' + (c.over + c.meet) + '/' + n);
+        }
+        if (en) {
+          var e2 = engCounts(), m = e2.ok + e2.under;
+          if (m) bits.push('英语达标 ' + e2.ok + '/' + m);
+        }
+        brief.textContent = gradeBrief() + (bits.length ? '｜' + bits.join(' · ') : '');
       }
     }
+    var only = $('#only-reach');
     if (only) {
-      var usable = !!mode;
-      only.disabled = !usable;
+      only.disabled = !g;                       // 没填学业成绩时，「只看达得到」无从谈起
       var box = only.closest('.onlyreach');
-      if (box) box.classList.toggle('off', !usable);
-      if (!usable && only.checked) { only.checked = false; onlyReach = false; }
+      if (box) box.classList.toggle('off', !g);
+      if (!g && only.checked) { only.checked = false; onlyReach = false; }
     }
-    // 雅思摘要（与分数判定分开说，两者比的是不同的线）
-    var ic = $('#ielts-clear'), isum = $('#ielts-sum');
-    if (ic) ic.hidden = !(myIelts || myIeltsBand);
-    if (isum) {
-      if (myIeltsVal() == null && myIeltsBandVal() == null) {
-        isum.textContent = ''; isum.className = 'myg-sum';
-      } else {
-        var ic2 = ieltsCounts();
-        isum.className = 'myg-sum on';
-        isum.textContent = '雅思 ' + fmtIeltsMine() + '：可比对 ' + (ic2.ok + ic2.under) +
-          ' 项，达标 ' + ic2.ok + (ic2.under ? ' · 不够 ' + ic2.under : '') +
-          (ic2.none ? ' · 未列 IELTS ' + ic2.none : '');
+    // 面板里的实时小结：在面板里改一个数字，立刻能看到判定怎么变
+    var gb = $('#gb-sum');
+    if (gb) {
+      var parts = [];
+      if (g) {
+        var c3 = myCounts(), n3 = c3.over + c3.meet + c3.under;
+        parts.push('分数：可比对 ' + n3 + ' 项 · 够得着 ' + (c3.over + c3.meet) +
+          '（高于 ' + c3.over + ' · 达到 ' + c3.meet + '）· 够不着 ' + c3.under +
+          (c3.na ? ' · 无分数可比 ' + c3.na : ''));
       }
+      if (en) {
+        var e3 = engCounts();
+        parts.push('英语：可比对 ' + (e3.ok + e3.under) + ' 项 · 达标 ' + e3.ok +
+          (e3.under ? ' · 不够 ' + e3.under : '') +
+          (e3.none ? ' · 未列 IELTS / TOEFL ' + e3.none : ''));
+      }
+      gb.textContent = parts.join('；');
     }
-    // 判定那三个词各是什么意思，就在色块旁边写一遍
+    // 判定那三个词各是什么意思，就在色块旁边写一遍（悬停说明手机上等于不存在）
     var vl = $('#vlegend');
     if (vl) {
-      vl.hidden = !mode;
-      vl.innerHTML = mode
+      vl.hidden = !g;
+      vl.innerHTML = g
         ? '<span class="vl-k">判定怎么读</span>' +
           '<span class="vl-i"><b class="verdict over">高于要求</b>你的成绩超出该校公布的分数口径</span>' +
           '<span class="vl-i"><b class="verdict meet">达到要求</b>正好持平；热门专业实收常更高</span>' +
           '<span class="vl-i"><b class="verdict under">低于要求</b>还差一些</span>'
         : '';
     }
-    // 「达到 / 高于」最容易被读成「稳了」。徽章上的悬停说明在手机上根本看不到，
-    // 所以把口径限制写成可见的一行；科目数不够时也要先说清楚，否则部分比对会被当成完整对照
+    // 面板里的口径提醒（主页面另有一行可见的同款说明）
+    var gw = $('#gb-warn');
+    if (gw) {
+      gw.textContent = hasProfile()
+        ? '判定只对照各校公布的分数口径，不等于录取概率：热门专业实际录取普遍高于公布数字，「达到 / 高于」也应当冲刺看。'
+        : '';
+    }
     var warn = $('#my-warn');
     if (warn) {
-      warn.hidden = !mode;
-      if (!mode) warn.textContent = '';
+      warn.hidden = !hasProfile();
+      if (!hasProfile()) warn.textContent = '';
       else {
-        var bits = [];
-        var c = myCounts();
-        if (c.partial) {
-          bits.push('你填了 ' + myGradeValues().length + ' 门 A-Level，少于 ' + c.partial +
-            ' 个专业要求的门数——它们带「部分」标记，只比对了要求里最高的那几门。');
+        var bits2 = [];
+        if (g) {
+          var c4 = myCounts();
+          if (c4.partial) {
+            bits2.push('你填了 ' + myAlGrades().length + ' 门 A-Level，少于 ' + c4.partial +
+              ' 个专业要求的门数——它们带「部分」标记，只比对了要求里最高的那几门。');
+          }
         }
-        bits.push('判定只对照各校公布的分数口径，不等于录取概率：热门专业实际录取普遍高于公布数字，「达到 / 高于」也应当冲刺看。');
-        warn.textContent = bits.join(' ');
+        bits2.push('判定只对照各校公布的分数口径，不等于录取概率：热门专业实际录取普遍高于公布数字，「达到 / 高于」也应当冲刺看。');
+        warn.textContent = bits2.join(' ');
       }
     }
   }
-  // ── 雅思：另一条线 ──
-  // 表里的写法有「7.0（各项6.5）」「6.5（各项≥5.5）」「7.5（各项不低于 7.0）」
+
+  // ── 英语成绩的判定 ──
+  // 表里的写法有「7.0（各项6.5）」「6.5（各项≥5.5）」「7.5（各项不低于 7.0）」，
   // 也有「6.5（同一次考试、两年内）」这种纯说明；只有跟着
-  // 各项 / 单项 / 不低于 / 其余 的数字才是单项线，别把说明里的数字当要求。
+  // 各项 / 单项 / 不低于 / 其余 的数字才是单项线，别把说明里的数字当成要求。
   function ieltsReqOf(e) {
     if (!e || !e.ielts) return null;
     var t = String(e.ielts);
-    var om = t.match(/(\d(?:\.\d)?)/);
+    var om = t.match(/(\d+(?:\.\d+)?)/);
     if (!om) return null;
     var out = { over: +om[1], band: null, writing: null, raw: t };
     var par = (t.match(/（([^）]*)）/) || [])[1] || '';
     if (!par) return out;
-    var w = par.match(/写作[^0-9]{0,4}(\d(?:\.\d)?)/);
+    var w = par.match(/写作[^0-9]{0,4}(\d+(?:\.\d+)?)/);
     if (w) out.writing = +w[1];
-    var g = par.match(/(?:其余|各项|单项|不低于)[^0-9]{0,4}(\d(?:\.\d)?)/);
+    var g = par.match(/(?:其余|各项|单项|不低于)[^0-9]{0,4}(\d+(?:\.\d+)?)/);
     if (g) out.band = +g[1];
     return out;
   }
-  function myIeltsVal() { var m = String(myIelts).match(/(\d(?:\.\d)?)/); return m ? +m[1] : null; }
-  function myIeltsBandVal() { var m = String(myIeltsBand).match(/(\d(?:\.\d)?)/); return m ? +m[1] : null; }
-  function fmtIeltsMine() {
-    var o = myIeltsVal(), b = myIeltsBandVal();
-    if (o == null && b == null) return '';
-    // 雅思一律一位小数（6.0 而不是 6）——表里和数据里都是这个写法，别在这里变样
-    function f(v) { return v.toFixed(1); }
-    return (o != null ? f(o) : '—') + (b != null ? '（单项 ' + f(b) + '）' : '');
+  function toeflReqOf(e) {
+    if (!e) return null;
+    function lead(v) {                            // 「未列」之类取不到数，返回 null
+      var m = String(v == null ? '' : v).match(/^\s*(\d+(?:\.\d+)?)/);
+      return m ? +m[1] : null;
+    }
+    var o = lead(e.toeflOld), n = lead(e.toeflNew);
+    if (o == null && n == null) return null;
+    return { old: o, 'new': n, raw: e.toeflOld || e.toeflNew };
   }
-  // 只拿「总分」和「通用单项线」比。写作之类的专项线写在悬停说明里让学生自己看——
-  // 拿一个笼统的「单项最低」去比具体的写作线会误报。
-  function ieltsVerdict(e) {
+  // 雅思：总分先要够；填了单项就逐项对「各项不低于 X」；官网另写写作线的，写作单独对
+  function ieltsVerdictOf(e) {
     var req = ieltsReqOf(e);
-    var o = myIeltsVal(), b = myIeltsBandVal();
-    if (!req || (o == null && b == null)) return null;
-    if (o != null && o < req.over) return { kind: 'under', why: '总分' };
-    if (b != null && req.band != null && b < req.band) return { kind: 'under', why: '单项' };
+    if (!req) return null;
+    var o = ieltsOverall(), parts = ieltsParts();
+    if (o == null && !parts.length) return null;
+    if (o != null && o < req.over) return { kind: 'under', why: '雅思总分' };
+    if (req.band != null) {
+      var low = parts.filter(function (x) { return x.v < req.band; });
+      if (low.length) return { kind: 'under', why: '雅思' + low[0].k };
+    }
+    if (req.writing != null) {
+      var w = parts.filter(function (x) { return x.k === '写作'; })[0];
+      if (w && w.v < req.writing) return { kind: 'under', why: '雅思写作' };
+    }
     return { kind: 'ok' };
   }
-  function ieltsChip(e) {
-    var v = ieltsVerdict(e);
+  function toeflVerdictOf(e) {
+    var req = toeflReqOf(e), t = toeflTotal();
+    if (!req || t == null) return null;
+    var line = gToeflScale === 'old' ? req.old : req['new'];
+    if (line == null) return null;                // 该校没给这个制式的线，就不硬比
+    return { kind: t < line ? 'under' : 'ok', why: '托福' };
+  }
+  // 各校基本是雅思 / 托福二选一，所以「任一达标即算达标」；
+  // 两个都填就都算一遍，全不达标时才报最接近的那条的原因。
+  function engVerdict(e) {
+    var tries = [];
+    var i1 = ieltsVerdictOf(e); if (i1) tries.push(i1);
+    var t1 = toeflVerdictOf(e); if (t1) tries.push(t1);
+    if (!tries.length) return null;
+    for (var i = 0; i < tries.length; i++) if (tries[i].kind === 'ok') return { kind: 'ok' };
+    return tries[0];
+  }
+  function engChip(e) {
+    var v = engVerdict(e);
     if (!v) return '';
-    var label = v.kind === 'ok' ? '英语达标' : (v.why === '总分' ? '雅思总分不够' : '雅思单项不够');
-    var req = ieltsReqOf(e);
-    var extra = req.writing ? '（该校另要求写作 ' + req.writing + '）' : '';
-    var tip = '按你填的雅思 ' + fmtIeltsMine() + ' 对照 ' + (e.ielts || '—') + '：' + label + extra +
-      '。只比总分与通用单项线；写作等专项线请对照原文。';
+    var label = v.kind === 'ok' ? '英语达标' : v.why + '不够';
+    var tip = '按你填的 ' + gradeBrief() + ' 对照 ' + (e.ielts || e.toeflOld || '—') + '：' + label +
+      '。雅思 / 托福任一达标即算达标；只填总分时只比总分。';
     return '<span class="everdict ' + v.kind + '" title="' + esc(tip) + '">' + esc(label) + '</span>';
   }
+  function engCounts() {
+    var c = { ok: 0, under: 0, none: 0 };
+    var rc = curRc(), toks = qTokens();
+    cur.programs.forEach(function (p, i) {
+      if (!matches(p, i, toks)) return;
+      var v = engVerdict(engFor(i, rc));
+      if (!v) c.none++; else c[v.kind]++;
+    });
+    return c;
+  }
 
-  function loadMyGrades() {
+  function loadGrades() {
     try {
       var raw = JSON.parse(localStorage.getItem(MY_STORE) || 'null');
       if (raw && typeof raw === 'object') {
-        myGrades = String(raw.g || '').slice(0, 24);
-        myIelts = String(raw.ielts || '').slice(0, 6);
-        myIeltsBand = String(raw.band || '').slice(0, 6);
+        gAl = String(raw.al || '').slice(0, 24);
+        gIb = String(raw.ib || '').slice(0, 6);
+        gIelts = String(raw.ie || '').slice(0, 6);
+        gL = String(raw.l || '').slice(0, 6);
+        gR = String(raw.r || '').slice(0, 6);
+        gW = String(raw.w || '').slice(0, 6);
+        gS = String(raw.s || '').slice(0, 6);
+        gToefl = String(raw.tf || '').slice(0, 6);
+        gToeflScale = raw.tfs === 'new' ? 'new' : 'old';
         onlyReach = !!raw.only;
       }
     } catch (e) { /* 隐私模式忽略 */ }
   }
-  function saveMyGrades() {
+  function saveGrades() {
     try {
       localStorage.setItem(MY_STORE, JSON.stringify({
-        g: myGrades, ielts: myIelts, band: myIeltsBand, only: onlyReach
+        al: gAl, ib: gIb, ie: gIelts, l: gL, r: gR, w: gW, s: gS,
+        tf: gToefl, tfs: gToeflScale, only: onlyReach
       }));
     } catch (e) {}
   }
@@ -1354,7 +1444,7 @@
     var b = e.target.closest('button[data-relax]'); if (!b) return;
     var r = RELAX.filter(function (x) { return x.k === b.dataset.relax; })[0];
     if (!r) return;
-    r.fn(); saveMyGrades(); syncControlsChrome(); renderChips(); apply();
+    r.fn(); saveGrades(); syncControlsChrome(); renderChips(); apply();
   });
   function filtered() {
     var toks = qTokens();
@@ -1576,7 +1666,7 @@
     var s = schoolByKey[p.school];
     var key = cur === REGIONS.hk ? 'hk:' : 'uk:';
     var e = engFor(idx);
-    var mode = myMode();
+    var mode = primaryTrack();
     var vb = verdictBadge(p);
     return '<article class="card" style="--school:' + s.color + '">' +
       (showSchool ? '<div class="school-line">' + sealHTML(s, false) + hi(s.zh) + ' · ' + hi(s.en) + '</div>' : '') +
@@ -1639,7 +1729,7 @@
     var extra = showSchool ? '<colgroup><col style="width:104px"></colgroup>' : '<colgroup><col style="width:0px"></colgroup>';
     var schoolTh = showSchool ? '<th scope="col">大学</th>' : '';
     var testHead = esc(cur.testHead);
-    var mode = myMode();   // 判定徽章贴在它对照的那一列下面：A-Level 模式贴 A-Level，IB 模式贴 IB
+    var mode = primaryTrack();   // 判定徽章贴在它对照的那一列下面：A-Level 贴 A-Level，IB 贴 IB
     var rows = items.map(function (p, i) {
       var s = schoolByKey[p.school];
       var key = (cur === REGIONS.hk ? 'hk:' : 'uk:') + idxMap[i];
@@ -1801,27 +1891,60 @@
     }
   });
   // 我的成绩：每次输入都要重算全表判定
-  $('#my').addEventListener('input', function (e) {
-    myGrades = e.target.value.trim(); saveMyGrades(); animate = false; apply();
+  // 面板里的每个字段：改一下就重算全表判定
+  var GRADE_FIELDS = [
+    ['#g-al', function (v) { gAl = v; }],
+    ['#g-ib', function (v) { gIb = v; }],
+    ['#g-ielts', function (v) { gIelts = v; }],
+    ['#g-l', function (v) { gL = v; }],
+    ['#g-r', function (v) { gR = v; }],
+    ['#g-w', function (v) { gW = v; }],
+    ['#g-s', function (v) { gS = v; }],
+    ['#g-toefl', function (v) { gToefl = v; }]
+  ];
+  GRADE_FIELDS.forEach(function (f) {
+    $(f[0]).addEventListener('input', function (e) {
+      f[1](e.target.value.trim()); saveGrades(); animate = false; apply();
+    });
   });
-  $('#my-ielts').addEventListener('input', function (e) {
-    myIelts = e.target.value.trim(); saveMyGrades(); animate = false; apply();
+  $('#g-toefl-scale').addEventListener('change', function (e) {
+    gToeflScale = e.target.value === 'new' ? 'new' : 'old'; saveGrades(); apply();
   });
-  $('#my-ielts-band').addEventListener('input', function (e) {
-    myIeltsBand = e.target.value.trim(); saveMyGrades(); animate = false; apply();
+  $('#g-clear').addEventListener('click', function () {
+    gAl = gIb = gIelts = gL = gR = gW = gS = gToefl = '';
+    gToeflScale = 'old'; onlyReach = false;
+    syncControlsChrome(); saveGrades(); apply();
+    showToast('已清空学生成绩');
   });
-  $('#ielts-clear').addEventListener('click', function () {
-    myIelts = ''; myIeltsBand = '';
-    $('#my-ielts').value = ''; $('#my-ielts-band').value = '';
-    saveMyGrades(); apply();
+  // 学生成绩面板：与英语抽屉同一套开合手感（关闭时把焦点还给触发按钮）
+  var gradeBack = null;
+  function openGradeSheet() {
+    gradeBack = document.activeElement;
+    var ov = $('#grade-sheet');
+    ov.hidden = false;
+    void ov.offsetWidth;        // 先确立初始样式，再上 show 才能触发过渡
+    ov.classList.add('show');
+    $('#g-al').focus();
+  }
+  function closeGradeSheet() {
+    var ov = $('#grade-sheet');
+    if (ov.hidden) return;
+    ov.classList.remove('show');
+    clearTimeout(closeGradeSheet._t);
+    closeGradeSheet._t = setTimeout(function () {
+      ov.hidden = true;
+      if (gradeBack && gradeBack.focus && document.contains(gradeBack)) gradeBack.focus();
+    }, 200);
+  }
+  $('#grade-open').addEventListener('click', openGradeSheet);
+  $('#grade-close').addEventListener('click', closeGradeSheet);
+  $('#g-done').addEventListener('click', closeGradeSheet);
+  $('#grade-sheet').addEventListener('click', function (e) {
+    if (e.target === $('#grade-sheet')) closeGradeSheet();
   });
-  $('#my-clear').addEventListener('click', function () {
-    myGrades = ''; onlyReach = false;
-    $('#my').value = ''; $('#only-reach').checked = false;
-    saveMyGrades(); apply();
-  });
+
   $('#only-reach').addEventListener('change', function (e) {
-    onlyReach = e.target.checked; saveMyGrades(); apply();
+    onlyReach = e.target.checked; saveGrades(); apply();
   });
   // 视图切换单独成函数：点击、键盘快捷键、状态回填三处共用
   function setView(v) {
@@ -2086,11 +2209,24 @@
   $('#compare-open').addEventListener('click', openCompare);
   $('#compare-close').addEventListener('click', closeCompare);
   $('#compare-overlay').addEventListener('click', function (e) { if (e.target === $('#compare-overlay')) closeCompare(); });
+  // 三个弹层：谁在最上层就管谁。顺序即层级（后开的在上）
+  var OVERLAYS = [
+    { id: 'grade-sheet', close: function () { closeGradeSheet(); } },
+    { id: 'eng-sheet', close: function () { closeEngSheet(); } },
+    { id: 'compare-overlay', close: function () { closeCompare(); } }
+  ];
+  function topOverlay() {
+    for (var i = 0; i < OVERLAYS.length; i++) {
+      var el = $('#' + OVERLAYS[i].id);
+      if (el && !el.hidden) return OVERLAYS[i];
+    }
+    return null;
+  }
   document.addEventListener('keydown', function (e) {
-    // 谁在最上层就管谁：英语抽屉优先于对比弹层
-    var ov = !$('#eng-sheet').hidden ? $('#eng-sheet') : (!$('#compare-overlay').hidden ? $('#compare-overlay') : null);
-    if (!ov) return;
-    if (e.key === 'Escape') { (ov.id === 'eng-sheet' ? closeEngSheet : closeCompare)(); return; }
+    var top = topOverlay();
+    if (!top) return;
+    var ov = $('#' + top.id);
+    if (e.key === 'Escape') { top.close(); return; }
     if (e.key !== 'Tab') return;
     // 焦点陷阱：Tab 只在弹层内循环，否则键盘用户会跑到被遮住的页面上
     var f = ov.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])');
@@ -2104,7 +2240,7 @@
   // 全部限定在「没有弹层打开、且焦点不在输入框里」时才生效——否则打字打到一半就被劫持
   document.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (!$('#eng-sheet').hidden || !$('#compare-overlay').hidden) return;   // 弹层开着时归上面那个处理
+    if (topOverlay()) return;   // 弹层开着时归上面那个处理
     var el = document.activeElement;
     var typing = !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
     if (e.key === '/' && !typing) {
@@ -2291,7 +2427,7 @@
         '<td class="cmp-ops">' + cmpOps(key) + '</td></tr>';
     }
     var rows;
-    if (cmpGroupPos && myMode()) {
+    if (cmpGroupPos && hasGrades()) {
       var buckets = { under: [], meet: [], over: [], none: [] };
       items.forEach(function (it) { var v = verdictFor(it.p); buckets[v ? v.kind : 'none'].push(it); });
       rows = ['under', 'meet', 'over', 'none'].map(function (k) {
@@ -2701,7 +2837,7 @@
   });
   // 按冲 / 稳 / 保分段：先把清单分好段，导出与复制清单也就自然带上了这个层次
   $('#cmp-group').addEventListener('click', function () {
-    if (!myMode()) { showToast('先在「我的成绩」里填上成绩，才能按冲 / 稳 / 保分组', 4000); return; }
+    if (!hasGrades()) { showToast('先在「学生成绩」里填上 A-Level / IB，才能按冲 / 稳 / 保分组', 4200); return; }
     cmpGroupPos = !cmpGroupPos;
     this.setAttribute('aria-pressed', String(cmpGroupPos));
     this.classList.toggle('on', cmpGroupPos);
@@ -2718,7 +2854,7 @@
   // 对比上限仍只在 CMP_MAX 一处定义；分母不再挂条上（学生只关心手上的 5 个），改放悬停说明
   $('#comparebar').title = '清单最多 ' + CMP_MAX + ' 项。UCAS 本科一般只能填 5 个志愿，建议先留 5–8 项当短名单。';
   loadCompare();                             // 对比清单也要跨会话保留；渲染前恢复，按钮状态直接就对
-  loadMyGrades();                            // 成绩也只存本机：分享链接里不带别人的分数
+  loadGrades();                            // 成绩也只存本机：分享链接里不带别人的分数
   loadHistory();                             // 最近搜索（同样只在本机）
   buildSibCount();                           // 「同方向 +N」的数量（数据静态，构建一次）
   var boot = decodeState(location.hash.replace(/^#/, ''));

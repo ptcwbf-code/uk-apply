@@ -256,6 +256,40 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 .hist-x{font:inherit;font-size:11.5px;border:0;background:none;color:var(--mut);cursor:pointer;padding:2px 4px;
   text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2)}
 .hist-x:hover{color:var(--navy)}
+/* ══ 学生成绩：一个触发按钮 + 一块独立面板 ══
+   字段从「一行自由文本」拆成具体项（A-Level / IB / 雅思四项 / 托福），
+   主页面只剩按钮与摘要——十几个输入摆在首屏会把第一行数据压到两屏之外。 */
+.gradeline{gap:10px}
+.gradebtn{display:inline-flex;align-items:center;gap:9px;max-width:100%}
+.gradebtn .gb-k{font-weight:650}
+.gradebtn .gb-v{font-size:12.5px;font-weight:400;color:var(--mut);
+  max-width:min(44ch,56vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gradebtn.filled{border-color:var(--navy-2)}
+.gradebtn.filled .gb-v{color:var(--navy-2);font-weight:650}
+
+.grade-sheet .overlay-box{max-width:min(780px,94vw)}
+.grade-body{padding:16px 20px;overflow:auto;max-height:calc(88vh - 132px)}
+.gb-sec{margin:0 0 18px}
+.gb-sec h3{margin:0 0 7px;font-size:14px;font-weight:650;color:var(--navy);
+  border-bottom:1px solid var(--line);padding-bottom:6px}
+.gb-note{margin:0 0 10px;font-size:12px;line-height:1.7;color:var(--mut)}
+.gb-note b{color:var(--ink-2)}
+.gb-row{display:flex;flex-wrap:wrap;gap:10px 14px;margin-bottom:10px}
+.gb-row:last-child{margin-bottom:0}
+.gb-f{display:flex;flex-direction:column;gap:5px;flex:1 1 118px;min-width:0}
+.gb-l{font-size:12px;color:var(--mut)}
+.gb-f input,.gb-f select{width:100%;padding:9px 11px;border:1px solid var(--line-2);border-radius:var(--r);
+  font:inherit;font-size:14px;background:var(--card);color:var(--ink);transition:border-color .15s ease,box-shadow .15s ease}
+.gb-f input:focus,.gb-f select:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px rgba(30,74,128,.12)}
+.gb-f input::placeholder{color:#9aa4b5;font-size:13px}
+.gb-warn{margin:14px 0 0;font-size:12px;line-height:1.75;color:var(--ink-2);
+  padding-left:10px;border-left:2px solid var(--line-2)}
+.gb-warn:empty{display:none}
+.gb-foot{display:flex;gap:10px;align-items:center;padding:12px 20px;
+  border-top:1px solid var(--line);background:var(--panel)}
+/* 页脚左半边放实时小结（在面板里改一个数字就能看到判定怎么变），按钮靠右 */
+.gb-foot .gb-sum{flex:1 1 auto;min-width:0;font-size:12px;line-height:1.6;color:var(--ink-2)}
+.gb-foot .btn:first-of-type{margin-left:auto}
 /* 雅思：两个窄输入，与「我的成绩」同处一行——分开两行会把首行数据再推下去约 50px */
 .myg-sm{gap:6px}
 .myg-sm input{width:min(104px,26vw)}
@@ -678,6 +712,13 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .group-head h2{font-size:18px}
   /* 窄屏下把「另 N 项」的点击区域放大到可触控 */
   .tbl .t-qs{font-size:12.5px}
+  /* 学生成绩面板：与英语抽屉同一套「贴底满宽」的手感。
+     注意必须放在 .overlay 基础规则之后——媒体查询不加优先级，放前面会被盖掉 */
+  .grade-sheet{align-items:flex-end;padding:0}
+  .grade-sheet .overlay-box{width:100%;max-width:100%;max-height:90vh;border-radius:var(--r-lg) var(--r-lg) 0 0}
+  .grade-body{padding:14px 16px;max-height:calc(90vh - 136px)}
+  .gb-f{flex:1 1 calc(50% - 7px)}
+  .gb-foot{padding:11px 16px}
   /* 抽屉：窄屏贴底、满宽、圆角只在顶部 */
   .eng-sheet{align-items:flex-end;padding:0}
   .eng-sheet .overlay-box{width:100%;max-width:100%;max-height:82vh;border-radius:var(--r-lg) var(--r-lg) 0 0}
