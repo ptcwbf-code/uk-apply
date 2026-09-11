@@ -1,5 +1,6 @@
 # 临时核对/自检文件（不进版本库）
 _verify/
+_ucl/
 urls.txt
 codes.txt
 check-report.txt
