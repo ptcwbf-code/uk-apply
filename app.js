@@ -496,33 +496,56 @@
     if (note) return prefix + note;
     return '官网未列';
   }
-  function engDetailHTML(e, rule) {
-    if (!e) return '';
-    function li(k, v) { return v ? '<li><b>' + k + '</b><span>' + esc(v) + '</span></li>' : ''; }
-    var url = (rule && rule.url) || (e.rule && e.rule.url) || '';
-    return '<details class="eng-more"><summary>英语要求详情</summary><ul>' +
-      li('口径', e.tag + (e.band ? '（' + e.band + '）' : '')) +
-      li('IELTS', e.ielts || '—') +
-      li('TOEFL 旧制', e.toeflOld || '—') +
-      li('TOEFL 新制', e.toeflNew || '—') +
-      li('EFL（第一语言）', igcseValue(e, 'efl')) +
-      li('ESL（第二语言）', igcseValue(e, 'esl')) +
-      li('其他等效考试', [e.ibEnglish ? 'IB ' + e.ibEnglish : '', e.gceEnglish ? 'GCE ' + e.gceEnglish : ''].filter(Boolean).join('；') || '—') +
-      li('IB English', e.ibEnglish || '—') +
-      li('GCE English', e.gceEnglish || '—') +
-      (e.note ? li('备注', e.note) : '') +
-      (url ? '<li><b>来源</b><span><a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">学校英语要求官方页 ↗</a></span></li>' : '') +
-      '</ul></details>';
+  // 英语详情的字段只在这里定义一次：表格的展开行与卡片的折叠列表共用同一份
+  function engDetailItems(e) {
+    if (!e) return [];
+    var rule = e.rule || {};
+    return [
+      ['口径', e.tag + (e.band ? '（' + e.band + '）' : '')],
+      ['IELTS', e.ielts || '—'],
+      ['TOEFL 旧制', e.toeflOld || '—'],
+      ['TOEFL 新制', e.toeflNew || '—'],
+      ['EFL（第一语言）', igcseValue(e, 'efl')],
+      ['ESL（第二语言）', igcseValue(e, 'esl')],
+      ['GCSE / IGCSE 英语', e.gcse || ''],
+      ['IB English', e.ibEnglish || '—'],
+      ['GCE English', e.gceEnglish || '—'],
+      ['备注', e.note || ''],
+      ['来源', rule.url || '']
+    ].filter(function (kv) { return kv[1]; });   // 与原实现一致：值为空则不占一行
   }
-  function engCellHTML(e) {
-    if (!e) return '<td>—</td>';
+  function engValHTML(k, v) {
+    return (k === '来源' && /^https?:/.test(v))
+      ? '<a href="' + esc(v) + '" target="_blank" rel="noopener noreferrer">学校英语要求官方页 ↗</a>'
+      : esc(v);
+  }
+  // 表格：整行展开用网格铺开
+  function engDetailGrid(e) {
+    var items = engDetailItems(e);
+    if (!items.length) return '';
+    return '<div class="eng-detail-grid">' + items.map(function (kv) {
+      return '<div class="ed-i"><span class="ed-k">' + esc(kv[0]) + '</span><span class="ed-v">' + engValHTML(kv[0], kv[1]) + '</span></div>';
+    }).join('') + '</div>';
+  }
+  // 卡片：宽度够，仍用折叠列表
+  function engDetailHTML(e) {
+    var items = engDetailItems(e);
+    if (!items.length) return '';
+    return '<details class="eng-more"><summary>英语要求详情</summary><ul>' + items.map(function (kv) {
+      return '<li><b>' + esc(kv[0]) + '</b><span>' + engValHTML(kv[0], kv[1]) + '</span></li>';
+    }).join('') + '</ul></details>';
+  }
+  function engCellHTML(e, rowId) {
+    if (!e) return '<td class="eng-cell">—</td>';
     var esl = engESLTag(e);
     return '<td class="eng-cell">' +
       '<span class="eng-1">IELTS ' + esc(engIeltsShort(e)) + '</span>' +
       '<span class="eng-2">TOEFL ' + esc(engPair(e)) + (e.band ? ' · ' + esc(e.band) : '') + '</span>' +
       (esl ? '<span class="eng-esl' + (esl === 'ESL 不接受' ? ' no' : '') + '">' + esc(esl) + '</span>' : '') +
       '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' +
-      engDetailHTML(e) + '</td>';
+      (rowId && engDetailItems(e).length ? '<button type="button" class="eng-open" data-eng="' + esc(rowId) +
+        '" aria-expanded="false" title="在下方整行展开全部英语要求">详情 ▾</button>' : '') +
+      '</td>';
   }
 
   var manualRendered = false;
@@ -722,6 +745,14 @@
       (meta.en ? '<span class="en">' + esc(meta.en) + '</span>' : '') +
       '<span class="cnt">' + items.length + ' 项</span></div>';
   }
+  // colgroup 必须与表头同列数——原来按大学分组时表头 11 列、colgroup 只有 10 个 col，
+  // 浏览器会把宽度整体错位一格，英语列因此被压到 97px
+  function colgroupHTML(showSchool) {
+    return '<colgroup>' + (showSchool ? '<col style="width:104px">' : '') +
+      '<col style="width:196px"><col style="width:106px"><col style="width:116px"><col style="width:124px">' +
+      '<col style="width:92px"><col style="width:82px"><col style="width:186px"><col style="width:128px">' +
+      '<col style="width:210px"><col style="width:126px"></colgroup>';
+  }
   function tableGroupHTML(items, idxMap, meta, showSchool, groupKey) {
     var extra = showSchool ? '<colgroup><col style="width:104px"></colgroup>' : '<colgroup><col style="width:0px"></colgroup>';
     var schoolTh = showSchool ? '<th scope="col">大学</th>' : '';
@@ -736,7 +767,13 @@
         ? '<span class="t-test" title="' + (TEST_TITLE[p.test] || '') + '">' + esc(p.test) + '</span>'
         : '<span class="t-test no">—</span>';
       var e = engFor(idxMap[i]);
-      var engCol = engCellHTML(e);
+      // 行标识要带分组 key：按方向分组时同一专业会在多个组里各出现一次
+      var rid = 'eng-' + (groupKey || 'g') + '-' + idxMap[i];
+      var engCol = engCellHTML(e, rid);
+      var engDetailRow = (e && engDetailItems(e).length)
+        ? '<tr class="eng-detail" data-eng-row="' + esc(rid) + '" hidden><td colspan="' + (showSchool ? 11 : 10) + '">' +
+          engDetailGrid(e) + '</td></tr>'
+        : '';
       return '<tr>' + lead +
         (showSchool ? '<td><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span></td>' : '') +
         '<td>' + esc(p.degree) + '</td>' +
@@ -748,10 +785,10 @@
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
         '<td>' + cmpButton(key) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a></td>' +
-      '</tr>';
+      '</tr>' + engDetailRow;
     }).join('');
     return '<section class="group" data-key="' + esc(groupKey || '') + '" style="--school:' + (meta.color || '#9aa3b8') + '">' + headHTML(items, meta) +
-      '<div class="tblwrap"><table class="tbl"><colgroup><col style="width:230px"><col style="width:120px"><col style="width:150px"><col style="width:150px"><col style="width:90px"><col style="width:90px"><col style="width:160px"><col style="width:150px"><col><col style="width:150px"></colgroup>' +
+      '<div class="tblwrap"><table class="tbl">' + colgroupHTML(showSchool) +
       '<thead><tr>' + schoolTh + thSort('专业', 'name') + '<th scope="col">代码/学制</th>' + thSort('A-Level', 'alevel') + thSort('IB（45 分制）', 'ib') + '<th scope="col">' + testHead + '</th><th scope="col">成绩口径</th><th scope="col">英语要求</th>' + thSort('QS2026 学科', 'qs') + '<th scope="col">备注</th><th scope="col">操作</th></tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div></section>';
   }
@@ -952,6 +989,16 @@
     }
     updateCompareBar();
     saveCompare();
+  });
+  // 英语详情：整行展开（放进 53px 宽的单元格里读不了，所以放到整行宽度上铺开）
+  $('#groups').addEventListener('click', function (e) {
+    var b = e.target.closest('button.eng-open'); if (!b) return;
+    var row = document.querySelector('tr.eng-detail[data-eng-row="' + b.dataset.eng + '"]');
+    if (!row) return;
+    var open = row.hidden;
+    row.hidden = !open;
+    b.setAttribute('aria-expanded', String(open));
+    b.textContent = open ? '详情 ▴' : '详情 ▾';
   });
   // 一键把本校同方向的全部专业加入对比
   $('#groups').addEventListener('click', function (e) {
