@@ -785,9 +785,9 @@
   // 浏览器会把宽度整体错位一格，英语列因此被压到 97px
   function colgroupHTML(showSchool) {
     return '<colgroup>' + (showSchool ? '<col style="width:104px">' : '') +
-      '<col style="width:196px"><col style="width:106px"><col style="width:116px"><col style="width:124px">' +
-      '<col style="width:92px"><col style="width:82px"><col style="width:186px"><col style="width:128px">' +
-      '<col style="width:210px"><col style="width:126px"></colgroup>';
+      '<col style="width:186px"><col style="width:100px"><col style="width:108px"><col style="width:116px">' +
+      '<col style="width:86px"><col style="width:76px"><col style="width:152px"><col style="width:116px">' +
+      '<col style="width:176px"><col style="width:116px"></colgroup>';
   }
   function tableGroupHTML(items, idxMap, meta, showSchool, groupKey) {
     var extra = showSchool ? '<colgroup><col style="width:104px"></colgroup>' : '<colgroup><col style="width:0px"></colgroup>';
@@ -826,6 +826,22 @@
       '<tbody>' + rows + '</tbody></table></div></section>';
   }
 
+  // 表格能放下就不做滚动容器（overflow:clip）——这样表头才能像学校头一样相对「页面」吸顶；
+  // 放不下时才加 .hscroll 横向滚动（此时它是滚动容器，表头吸不住，但至少页面仍是统一滚动）
+  function syncTableOverflow() {
+    Array.prototype.forEach.call(document.querySelectorAll('#groups .tblwrap'), function (w) {
+      w.classList.toggle('hscroll', w.scrollWidth > w.clientWidth + 1);
+    });
+    // 表头吸顶要停在吸顶的学校头下方，所以偏移取学校头的实际高度
+    var g = document.querySelector('#groups .group-head');
+    if (g) document.documentElement.style.setProperty('--stick-top', g.offsetHeight + 'px');
+  }
+  var _syncT;
+  window.addEventListener('resize', function () {
+    clearTimeout(_syncT);
+    _syncT = setTimeout(syncTableOverflow, 150);
+  }, { passive: true });
+
   // ── 渲染 ──
   function apply() {
     // 取用后立即复位：apply 可能因空结果提前 return，留在 false 会让后续渲染永远不淡入
@@ -839,6 +855,7 @@
     if (!list.length) {
       $('#empty').hidden = false;
       $('#groups').innerHTML = '';
+      syncTableOverflow();
       $('#result-count').textContent = 0;
       $('#result-context').textContent = '';
       return;
@@ -869,6 +886,7 @@
 
     $('#groups').innerHTML = '';
     $('#groups').appendChild(out);
+    syncTableOverflow();
     // 内容整体换过就淡入一次；先移除再加，确保连续两次渲染也能重放
     if (doAnim) {
       var g = $('#groups');

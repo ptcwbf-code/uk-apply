@@ -206,10 +206,14 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 @media (max-width:560px){.rating{grid-template-columns:1fr}}
 
 /* ══ 表格视图 ══ */
-.tblwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);overflow-x:auto;box-shadow:var(--sh-1)}
+/* 默认 overflow:clip —— 裁剪但不创建滚动容器，表头才能像学校头一样相对「页面」吸顶。
+   真的放不下时才加 .hscroll（此时它是滚动容器，表头吸不住，但页面仍是统一滚动）。 */
+.tblwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);overflow:clip;box-shadow:var(--sh-1)}
+.tblwrap.hscroll{overflow-x:auto}
 table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:900px;table-layout:fixed}
 .tbl thead th{background:var(--panel);text-align:left;font-weight:650;font-size:11px;letter-spacing:.07em;color:var(--mut);
-  padding:10px 12px;border-bottom:1px solid var(--line-2);white-space:nowrap;text-transform:uppercase;overflow:hidden}
+  padding:10px 12px;border-bottom:1px solid var(--line-2);white-space:nowrap;text-transform:uppercase;overflow:hidden;
+  position:sticky;top:var(--stick-top,46px);z-index:3}
 .tbl tbody td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
 .tbl tbody tr:last-child td{border-bottom:0}
 .tbl tbody tr:nth-child(even) td{background:var(--row-alt)}
@@ -263,14 +267,6 @@ button.cmp-sib:hover{border-color:var(--navy-2);color:var(--navy);background:var
   border-bottom:1px solid var(--gold-line)}
 .btn-sm{padding:5px 11px;font-size:12.5px}
 
-/* ══ 表头吸顶：只在宽屏启用 ══
-   窄屏让整页滚动（表格横向本来就靠容器滚，再叠一层竖向滚动会很难用）；
-   宽屏把表格变成竖向滚动区，表头才真正钉得住。表格比 max-height 短时不会出现滚动条。 */
-@media (min-width:1024px){
-  .tblwrap{overflow:auto;max-height:calc(100vh - 92px)}
-  .tbl thead th{position:sticky;top:0;z-index:3}
-  .tbl thead th.diff::after{position:static}
-}
 
 /* ══ 校徽字标：一校一印，用于分组头 / 速跳 / 卡片 ══ */
 .seal{display:inline-flex;align-items:center;justify-content:center;flex:none;
