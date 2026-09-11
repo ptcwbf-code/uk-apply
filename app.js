@@ -10,12 +10,35 @@
   }
   function fmtBold(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
   // 搜索命中高亮：只用在专业名与校名上——最需要回答「这一行为什么被搜出来」
+  // 高亮：把查询按词切开，每个词的所有出现位置都标出来。
+  // 原来只标整串、且只标第一处——搜「港大 CS」时两处都该亮，一处都亮不了。
   function hi(s) {
     var str = String(s == null ? '' : s);
     if (!q) return esc(str);
-    var i = str.toLowerCase().indexOf(q);
-    if (i < 0) return esc(str);
-    return esc(str.slice(0, i)) + '<mark class="hl">' + esc(str.slice(i, i + q.length)) + '</mark>' + esc(str.slice(i + q.length));
+    var toks = qTokens();
+    if (!toks.length) return esc(str);
+    var low = str.toLowerCase(), ranges = [], i, k;
+    for (k = 0; k < toks.length; k++) {
+      i = low.indexOf(toks[k]);
+      while (i >= 0) {
+        ranges.push([i, i + toks[k].length]);
+        i = low.indexOf(toks[k], i + toks[k].length);
+      }
+    }
+    if (!ranges.length) return esc(str);
+    ranges.sort(function (a, b) { return a[0] - b[0]; });
+    var merged = [ranges[0]];                    // 合并重叠区间，免得套出嵌套的 mark
+    for (k = 1; k < ranges.length; k++) {
+      var last = merged[merged.length - 1];
+      if (ranges[k][0] <= last[1]) last[1] = Math.max(last[1], ranges[k][1]);
+      else merged.push(ranges[k]);
+    }
+    var out = '', pos = 0;
+    merged.forEach(function (r) {
+      out += esc(str.slice(pos, r[0])) + '<mark class="hl">' + esc(str.slice(r[0], r[1])) + '</mark>';
+      pos = r[1];
+    });
+    return out + esc(str.slice(pos));
   }
   // ── 图标 ──
   // 原来用的是 ▾ ▴ ⇅ ✕ ▸ ↑ × 这些文字符号：不同字体下字重与基线各不相同，凑在一起很花。
@@ -81,6 +104,19 @@
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(onOk, fallback);
     } else fallback();
+  }
+  // 弹层里的动作再给一次就地反馈：按钮自己变一下。
+  // 提示条虽然已经抬到弹层之上，但视线停在按钮上时，按钮自己变化才是最直接的确认。
+  function flashButton(btn, text) {
+    if (!btn || btn._flashT) return;
+    var old = btn.textContent;
+    btn.textContent = text;
+    btn.classList.add('done');
+    btn._flashT = setTimeout(function () {
+      btn.textContent = old;
+      btn.classList.remove('done');
+      btn._flashT = null;
+    }, 1600);
   }
 
   // ── 成绩口径标签（全中文、短词，避免中英混排） ──
@@ -329,6 +365,8 @@
     $('#q').value = q;
     $('#groupby').value = groupBy;
     $('#my').value = myGrades;
+    $('#my-ielts').value = myIelts;
+    $('#my-ielts-band').value = myIeltsBand;
     $('#only-reach').checked = onlyReach;
     Array.prototype.forEach.call($('#view-toggle').children, function (x) {
       x.setAttribute('aria-pressed', String(x.getAttribute('data-v') === view));
@@ -834,7 +872,7 @@
   // （之前自带 <td>，对比表里再包一层就变成嵌套 td，浏览器会拆成两格，整行右移一位）
   function engCellInner(e, rowId, label) {
     if (!e) return '—';
-    return '<span class="eng-1">IELTS ' + esc(engIeltsShort(e)) + '</span>' +
+    return '<span class="eng-1">IELTS ' + esc(engIeltsShort(e)) + ieltsChip(e) + '</span>' +
       '<span class="eng-2">TOEFL ' + esc(engPair(e)) + (e.band ? ' · ' + esc(e.band) : '') + '</span>' +
       engChipTags(e) +
       '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' +
@@ -958,27 +996,48 @@
     return out;
   }
   // 索引串与字段表都预先算好：每敲一个字都重算 238 条会明显卡手
-  var qBlob = { uk: [], hk: [] }, qFields = { uk: [], hk: [] };
+  var qBlob = { uk: [], hk: [] }, qCompact = { uk: [], hk: [] }, qFields = { uk: [], hk: [] };
   function buildSearchBlobs() {
     ['uk', 'hk'].forEach(function (rc) {
-      qBlob[rc] = []; qFields[rc] = [];
+      qBlob[rc] = []; qCompact[rc] = []; qFields[rc] = [];
       REGIONS[rc].programs.forEach(function (p, i) {
         var f = searchFields(p, i, rc);
         qFields[rc].push(f);
-        qBlob[rc].push(f.map(function (x) { return x[1]; }).join(' ').toLowerCase());
+        var blob = f.map(function (x) { return x[1]; }).join(' ').toLowerCase();
+        qBlob[rc].push(blob);
+        // 再去掉空白的第二份：表里写「雅思 6.5」，用户常打成「雅思6.5」，只做子串匹配就搜不到
+        qCompact[rc].push(blob.replace(/\s+/g, ''));
       });
     });
+  }
+  function qTokens() { return q ? q.split(/\s+/).filter(Boolean) : []; }
+  // 每个词都要命中（AND）。多词查询按整串做子串匹配本来就几乎搜不到东西——
+  // 「港大 CS」在索引串里根本不是连在一起的，中间隔着英文校名。
+  // 单词级的第二份去空白索引串，兜住「雅思6.5」这种不写空格的输入。
+  function blobHit(rc, i, tokens) {
+    var blob = qBlob[rc][i], compact = qCompact[rc][i];
+    for (var k = 0; k < tokens.length; k++) {
+      if (blob.indexOf(tokens[k]) < 0 && compact.indexOf(tokens[k]) < 0) return false;
+    }
+    return true;
   }
   // 命中说明：名字已经高亮过就不必再解释，其余字段被搜到时在行内点明是哪个字段
   function hitChip(p, idx) {
     if (!q) return '';
+    var toks = qTokens();
+    if (!toks.length) return '';
     var fields = qFields[curRc()][idx] || [];
+    // 这个词命中这个字段了吗（去掉空白的写法也算）
+    function hit(v) {
+      var t = String(v).toLowerCase(), tc = t.replace(/\s+/g, '');
+      return toks.some(function (k) { return t.indexOf(k) >= 0 || tc.indexOf(k) >= 0; });
+    }
     // 标签为空的就是校名 / 专业名那几条——名字所在格已经有 hi() 的高亮，不必再解释
-    if (fields.some(function (f) { return !f[0] && f[1].toLowerCase().indexOf(q) >= 0; })) return '';
+    if (fields.some(function (f) { return !f[0] && hit(f[1]); })) return '';
     var why = [];
     fields.forEach(function (f) {
       if (!f[0] || why.indexOf(f[0]) >= 0) return;
-      if (f[1].toLowerCase().indexOf(q) >= 0) why.push(f[0]);
+      if (hit(f[1])) why.push(f[0]);
     });
     if (!why.length) return '';
     return '<span class="hit">命中：' + esc(why.slice(0, 2).join('；') + (why.length > 2 ? ' 等' : '')) + '</span>';
@@ -987,6 +1046,8 @@
   // 站上回答的一直是「要求是多少」，而学生问的是「我这样够不够」。
   // 判定只在这台机器上算：不联网、不外传，也刻意不写进 URL——分享链接里不该带着别人的成绩。
   var myGrades = '';       // 一行输入，自动判断是 A-Level 还是 IB
+  var myIelts = '';        // 雅思总分（选填）
+  var myIeltsBand = '';    // 雅思单项最低分（选填）
   var onlyReach = false;   // 只看达得到的（滤掉「低于要求」）
   var MY_STORE = 'ukapply.mygrades.v1';
 
@@ -1045,12 +1106,23 @@
   }
   function myCounts() {
     var c = { over: 0, meet: 0, under: 0, na: 0, partial: 0 };
+    var toks = qTokens();
     cur.programs.forEach(function (p, i) {
-      if (!matches(p, i)) return;
+      if (!matches(p, i, toks)) return;
       var v = verdictFor(p);
       if (!v) { c.na++; return; }
       c[v.kind]++;
       if (v.partial) c.partial++;
+    });
+    return c;
+  }
+  function ieltsCounts() {
+    var c = { ok: 0, under: 0, none: 0 };
+    var rc = curRc(), toks = qTokens();
+    cur.programs.forEach(function (p, i) {
+      if (!matches(p, i, toks)) return;
+      var v = ieltsVerdict(engFor(i, rc));
+      if (!v) c.none++; else c[v.kind]++;
     });
     return c;
   }
@@ -1075,6 +1147,31 @@
       if (box) box.classList.toggle('off', !usable);
       if (!usable && only.checked) { only.checked = false; onlyReach = false; }
     }
+    // 雅思摘要（与分数判定分开说，两者比的是不同的线）
+    var ic = $('#ielts-clear'), isum = $('#ielts-sum');
+    if (ic) ic.hidden = !(myIelts || myIeltsBand);
+    if (isum) {
+      if (myIeltsVal() == null && myIeltsBandVal() == null) {
+        isum.textContent = ''; isum.className = 'myg-sum';
+      } else {
+        var ic2 = ieltsCounts();
+        isum.className = 'myg-sum on';
+        isum.textContent = '雅思 ' + fmtIeltsMine() + '：可比对 ' + (ic2.ok + ic2.under) +
+          ' 项，达标 ' + ic2.ok + (ic2.under ? ' · 不够 ' + ic2.under : '') +
+          (ic2.none ? ' · 未列 IELTS ' + ic2.none : '');
+      }
+    }
+    // 判定那三个词各是什么意思，就在色块旁边写一遍
+    var vl = $('#vlegend');
+    if (vl) {
+      vl.hidden = !mode;
+      vl.innerHTML = mode
+        ? '<span class="vl-k">判定怎么读</span>' +
+          '<span class="vl-i"><b class="verdict over">高于要求</b>你的成绩超出该校公布的分数口径</span>' +
+          '<span class="vl-i"><b class="verdict meet">达到要求</b>正好持平；热门专业实收常更高</span>' +
+          '<span class="vl-i"><b class="verdict under">低于要求</b>还差一些</span>'
+        : '';
+    }
     // 「达到 / 高于」最容易被读成「稳了」。徽章上的悬停说明在手机上根本看不到，
     // 所以把口径限制写成可见的一行；科目数不够时也要先说清楚，否则部分比对会被当成完整对照
     var warn = $('#my-warn');
@@ -1093,17 +1190,71 @@
       }
     }
   }
+  // ── 雅思：另一条线 ──
+  // 表里的写法有「7.0（各项6.5）」「6.5（各项≥5.5）」「7.5（各项不低于 7.0）」
+  // 也有「6.5（同一次考试、两年内）」这种纯说明；只有跟着
+  // 各项 / 单项 / 不低于 / 其余 的数字才是单项线，别把说明里的数字当要求。
+  function ieltsReqOf(e) {
+    if (!e || !e.ielts) return null;
+    var t = String(e.ielts);
+    var om = t.match(/(\d(?:\.\d)?)/);
+    if (!om) return null;
+    var out = { over: +om[1], band: null, writing: null, raw: t };
+    var par = (t.match(/（([^）]*)）/) || [])[1] || '';
+    if (!par) return out;
+    var w = par.match(/写作[^0-9]{0,4}(\d(?:\.\d)?)/);
+    if (w) out.writing = +w[1];
+    var g = par.match(/(?:其余|各项|单项|不低于)[^0-9]{0,4}(\d(?:\.\d)?)/);
+    if (g) out.band = +g[1];
+    return out;
+  }
+  function myIeltsVal() { var m = String(myIelts).match(/(\d(?:\.\d)?)/); return m ? +m[1] : null; }
+  function myIeltsBandVal() { var m = String(myIeltsBand).match(/(\d(?:\.\d)?)/); return m ? +m[1] : null; }
+  function fmtIeltsMine() {
+    var o = myIeltsVal(), b = myIeltsBandVal();
+    if (o == null && b == null) return '';
+    // 雅思一律一位小数（6.0 而不是 6）——表里和数据里都是这个写法，别在这里变样
+    function f(v) { return v.toFixed(1); }
+    return (o != null ? f(o) : '—') + (b != null ? '（单项 ' + f(b) + '）' : '');
+  }
+  // 只拿「总分」和「通用单项线」比。写作之类的专项线写在悬停说明里让学生自己看——
+  // 拿一个笼统的「单项最低」去比具体的写作线会误报。
+  function ieltsVerdict(e) {
+    var req = ieltsReqOf(e);
+    var o = myIeltsVal(), b = myIeltsBandVal();
+    if (!req || (o == null && b == null)) return null;
+    if (o != null && o < req.over) return { kind: 'under', why: '总分' };
+    if (b != null && req.band != null && b < req.band) return { kind: 'under', why: '单项' };
+    return { kind: 'ok' };
+  }
+  function ieltsChip(e) {
+    var v = ieltsVerdict(e);
+    if (!v) return '';
+    var label = v.kind === 'ok' ? '英语达标' : (v.why === '总分' ? '雅思总分不够' : '雅思单项不够');
+    var req = ieltsReqOf(e);
+    var extra = req.writing ? '（该校另要求写作 ' + req.writing + '）' : '';
+    var tip = '按你填的雅思 ' + fmtIeltsMine() + ' 对照 ' + (e.ielts || '—') + '：' + label + extra +
+      '。只比总分与通用单项线；写作等专项线请对照原文。';
+    return '<span class="everdict ' + v.kind + '" title="' + esc(tip) + '">' + esc(label) + '</span>';
+  }
+
   function loadMyGrades() {
     try {
       var raw = JSON.parse(localStorage.getItem(MY_STORE) || 'null');
       if (raw && typeof raw === 'object') {
         myGrades = String(raw.g || '').slice(0, 24);
+        myIelts = String(raw.ielts || '').slice(0, 6);
+        myIeltsBand = String(raw.band || '').slice(0, 6);
         onlyReach = !!raw.only;
       }
     } catch (e) { /* 隐私模式忽略 */ }
   }
   function saveMyGrades() {
-    try { localStorage.setItem(MY_STORE, JSON.stringify({ g: myGrades, only: onlyReach })); } catch (e) {}
+    try {
+      localStorage.setItem(MY_STORE, JSON.stringify({
+        g: myGrades, ielts: myIelts, band: myIeltsBand, only: onlyReach
+      }));
+    } catch (e) {}
   }
 
   // ── 最近搜索 ──
@@ -1146,22 +1297,26 @@
   }
 
   // 除「只看达得到」之外的全部筛选——摘要要能回答「我正看的这批里能上几个」
-  function matches(p, i) {
+  function matches(p, i, toks) {
     if (activeSchools.length && activeSchools.indexOf(p.school) === -1) return false;
     if (activeDirs.length && !p.dirs.some(function (d) { return activeDirs.indexOf(d) !== -1; })) return false;
     if (!testOK(p)) return false;
-    if (q && qBlob[curRc()][i].indexOf(q) === -1) return false;
+    if (q) {
+      if (!toks) toks = qTokens();
+      if (!blobHit(curRc(), i, toks)) return false;
+    }
     return true;
   }
   // 空结果时逐条给出「放宽哪一项还剩几项」——是能直接点的解法，比一句「请放宽条件」管用
   // o 里写了哪个键就表示「这一项不参与过滤」，用来试算放宽后的数量
   function countWithout(o) {
     o = o || {};
+    var toks = qTokens();
     return cur.programs.filter(function (p, i) {
       if (!o.school && activeSchools.length && activeSchools.indexOf(p.school) === -1) return false;
       if (!o.dir && activeDirs.length && !p.dirs.some(function (d) { return activeDirs.indexOf(d) !== -1; })) return false;
       if (!o.test && !testOK(p)) return false;
-      if (!o.q && q && qBlob[curRc()][i].indexOf(q) === -1) return false;
+      if (!o.q && q && !blobHit(curRc(), i, toks)) return false;
       if (!o.only && onlyReach) { var v = verdictFor(p); if (!v || v.kind === 'under') return false; }
       return true;
     }).length;
@@ -1202,8 +1357,9 @@
     r.fn(); saveMyGrades(); syncControlsChrome(); renderChips(); apply();
   });
   function filtered() {
+    var toks = qTokens();
     return cur.programs.filter(function (p, i) {
-      if (!matches(p, i)) return false;
+      if (!matches(p, i, toks)) return false;
       if (onlyReach) { var v = verdictFor(p); if (!v || v.kind === 'under') return false; }
       return true;
     });
@@ -1647,6 +1803,17 @@
   // 我的成绩：每次输入都要重算全表判定
   $('#my').addEventListener('input', function (e) {
     myGrades = e.target.value.trim(); saveMyGrades(); animate = false; apply();
+  });
+  $('#my-ielts').addEventListener('input', function (e) {
+    myIelts = e.target.value.trim(); saveMyGrades(); animate = false; apply();
+  });
+  $('#my-ielts-band').addEventListener('input', function (e) {
+    myIeltsBand = e.target.value.trim(); saveMyGrades(); animate = false; apply();
+  });
+  $('#ielts-clear').addEventListener('click', function () {
+    myIelts = ''; myIeltsBand = '';
+    $('#my-ielts').value = ''; $('#my-ielts-band').value = '';
+    saveMyGrades(); apply();
   });
   $('#my-clear').addEventListener('click', function () {
     myGrades = ''; onlyReach = false;
@@ -2188,6 +2355,143 @@
     }, 200);
   }
 
+  // ── 对比清单长图 ──
+  // 自己拼 SVG、再画进 canvas 导出 PNG。不引第三方库（本站要能离线用），
+  // 也就不必把「把 DOM 截成图」的那套依赖带进来。SVG 里不放任何外部资源，
+  // 所以 canvas 不会被污染，toDataURL 拿得到数据。
+  var SHARE_W = 720, SHARE_MAX = 12;
+
+  function svgEsc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  // SVG 的 <text> 不会自动折行，只能按字宽估：中日韩全角约等于字号，拉丁约 0.55 字号
+  function textW(s, size) {
+    var w = 0;
+    for (var i = 0; i < s.length; i++) w += s.charCodeAt(i) > 0x2e80 ? size : size * 0.55;
+    return w;
+  }
+  function wrapText(s, maxW, size, maxLines) {
+    s = String(s || '');
+    var lines = [], cur = '';
+    for (var i = 0; i < s.length; i++) {
+      if (textW(cur + s[i], size) > maxW && cur) {
+        lines.push(cur);
+        cur = '';
+        if (lines.length === maxLines) { cur = s.slice(i); break; }
+      }
+      cur += s[i];
+    }
+    if (cur) lines.push(cur);
+    if (lines.length > maxLines) {
+      lines = lines.slice(0, maxLines);
+      lines[maxLines - 1] = lines[maxLines - 1].slice(0, -1) + '…';
+    }
+    return lines.length ? lines : [''];
+  }
+  function svgText(x, y, s, size, fill, weight) {
+    return '<text x="' + x + '" y="' + y + '" font-size="' + size + '" fill="' + fill + '"' +
+      (weight ? ' font-weight="' + weight + '"' : '') + '>' + svgEsc(s) + '</text>';
+  }
+  function cmpImageSVG(items) {
+    var PAD = 32, INNER = SHARE_W - PAD * 2, HEAD = 104, GAP = 13, FOOT = 58;
+    var shown = items.slice(0, SHARE_MAX);
+    var dropped = items.length - shown.length;
+
+    var FIELDS = ['alevel', 'ib', 'ielts', 'cycle', 'test', 'offer', 'pos'];
+    var cards = shown.map(function (it) {
+      var p = it.p, s = allSchoolByKey[p.school] || {}, e = engFor(it.idx, it.rc) || {};
+      var v = verdictFor(p);
+      var zh = wrapText(p.zh, INNER - 54, 24, 2);
+      var en = wrapText(p.en, INNER - 54, 14, 2);
+      var rows = [
+        ['A-Level', p.alevel || '—'],
+        ['IB', p.ib || '—'],
+        ['雅思', e.ielts ? ('IELTS ' + String(e.ielts).split('（')[0].trim()) : '—'],
+        ['入学', cycleShort(it.rc)],
+        ['笔试 / 面试', p.test || '—'],
+        ['成绩口径', OFFER_ZH[p.offer] || p.offer],
+        ['你的位置', v ? (POS_ZH[v.kind] + (v.partial ? '（部分比对）' : '') + ' · ' + POS_LONG[v.kind].split(' · ')[1]) : '—']
+      ];
+      var h = 20 + zh.length * 30 + en.length * 19 + 10 + rows.length * 24 + 16;
+      return { it: it, p: p, s: s, zh: zh, en: en, rows: rows, h: h };
+    });
+
+    var totalH = HEAD + cards.reduce(function (a, c) { return a + c.h + GAP; }, 0) + FOOT;
+    var o = [];
+    o.push('<svg xmlns="http://www.w3.org/2000/svg" width="' + SHARE_W + '" height="' + totalH + '" viewBox="0 0 ' + SHARE_W + ' ' + totalH + '">');
+    o.push('<defs><linearGradient id="h" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#1a3a68"/><stop offset="1" stop-color="#0d1524"/></linearGradient></defs>');
+    o.push('<rect width="' + SHARE_W + '" height="' + totalH + '" fill="#f6f7fa"/>');
+
+    // 页眉
+    o.push('<rect width="' + SHARE_W + '" height="' + HEAD + '" fill="url(#h)"/>');
+    o.push('<rect y="' + (HEAD - 4) + '" width="' + SHARE_W + '" height="4" fill="#c9a227"/>');
+    o.push('<g font-family="Microsoft YaHei,PingFang SC,sans-serif">');
+    o.push(svgText(PAD, 44, '英港本科录取要求 · 对比清单', 25, '#ffffff', 700));
+    o.push(svgText(PAD, 74, items.length + ' 项 · 生成于 ' + todayStr() +
+      (dropped ? '（图内只放前 ' + SHARE_MAX + ' 项）' : ''), 15, '#b9c7dd'));
+    o.push('</g>');
+
+    // 每一条：各自一个 <g>。SVG 是 XML，标签必须严格配对——
+    // 少一个闭合就会直接在 <img> 那步 onerror，什么都看不到。
+    var y = HEAD + GAP;
+    cards.forEach(function (c) {
+      o.push('<g font-family="Microsoft YaHei,PingFang SC,sans-serif">');
+      o.push('<rect x="' + PAD + '" y="' + y + '" width="' + INNER + '" height="' + c.h + '" rx="12" fill="#ffffff" stroke="#e6e9f0"/>');
+      o.push('<rect x="' + PAD + '" y="' + y + '" width="5" height="' + c.h + '" rx="2.5" fill="' + svgEsc(c.s.color || '#9aa3b8') + '"/>');
+      var ty = y + 38;
+      c.zh.forEach(function (ln) { o.push(svgText(PAD + 22, ty, ln, 24, '#0f1a2e', 700)); ty += 30; });
+      c.en.forEach(function (ln) { o.push(svgText(PAD + 22, ty, ln, 14, '#5b6577')); ty += 19; });
+      ty += 10;
+      c.rows.forEach(function (kv) {
+        o.push(svgText(PAD + 22, ty, kv[0], 14, '#5b6577'));
+        o.push(svgText(PAD + 130, ty, wrapText(kv[1], INNER - 150, 15, 1)[0], 15, '#0f1a2e', 600));
+        ty += 24;
+      });
+      o.push('</g>');
+      y += c.h + GAP;
+    });
+
+    // 页脚
+    o.push('<g font-family="Microsoft YaHei,PingFang SC,sans-serif">');
+    o.push(svgText(PAD, y + 24, '数据来源：各大学官网公开信息（核对 2026-09），仅供参考，以官网为准', 13, '#8f9cb0'));
+    o.push(svgText(PAD, y + 44, 'mtennnn.cn · 本科录取要求速查', 13, '#16325c', 700));
+    o.push('</g></svg>');
+    return o.join('');
+  }
+  function todayStr() {
+    var d = new Date();
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+  // SVG → PNG：先 base64 成 data URI 喂给 Image，再按 2 倍画到 canvas（手机上不糊）
+  function downloadSVGImage(svg, fname) {
+    var url = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+    var img = new Image();
+    img.onload = function () {
+      var SCALE = 2;
+      var cv = document.createElement('canvas');
+      cv.width = img.width * SCALE;
+      cv.height = img.height * SCALE;
+      var g = cv.getContext('2d');
+      g.fillStyle = '#ffffff';
+      g.fillRect(0, 0, cv.width, cv.height);
+      g.drawImage(img, 0, 0, cv.width, cv.height);
+      cv.toBlob(function (blob) {
+        if (!blob) { showToast('导出长图失败，请换个浏览器试试', 4000); return; }
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fname;
+        document.body.appendChild(a); a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+        showToast('已导出对比长图：' + fname, 4200);
+      }, 'image/png');
+    };
+    img.onerror = function () { showToast('导出长图失败，请换个浏览器试试', 4000); };
+    img.src = url;
+  }
   // ── 导出 CSV：范围（当前筛选 / 本板块全部 / 对比清单）+ 列 可选 ──
   function curRc() { return cur === REGIONS.hk ? 'hk' : 'uk'; }
   // 先把每条记录摊平成字段对象，列定义只负责挑字段——加列/减列不用改渲染
@@ -2352,6 +2656,14 @@
     downloadCSV(csvText(items), fname);
     showToast('已导出对比清单 ' + items.length + ' 行：' + fname);
   });
+  // 对比清单导出长图（微信传播场景：图片比链接好发）
+  $('#cmp-image').addEventListener('click', function () {
+    var items = cmpItems();
+    if (!items.length) { showToast('对比清单是空的'); return; }
+    var btn = this;
+    downloadSVGImage(cmpImageSVG(items), '对比_' + items.length + '项.png');
+    flashButton(btn, '已生成 ✓');
+  });
   // 清单分享：把短名单编进链接（c=校|英文名，~ 分隔），顾问点开就是同一份。
   // 刻意不做成常驻 URL——筛选条件该进 URL，30 项清单不该每次都拖着。
   var CMP_SEP = '~';
@@ -2364,8 +2676,10 @@
     return base + '#' + encodeState(snapshot()) + (sigs.length ? '&c=' + sigs.join(CMP_SEP) : '');
   }
   $('#cmp-share').addEventListener('click', function () {
+    var btn = this;
     if (!compare.size) { showToast('对比清单是空的'); return; }
     copyText(shortlistURL(), function () {
+      flashButton(btn, '已复制 ✓');
       showToast('已复制清单链接：' + compare.size + ' 项，对方打开会看到同一份短名单');
     });
   });
