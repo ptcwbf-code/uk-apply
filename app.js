@@ -268,8 +268,6 @@
     }).join('');
   }
   function prefersReduced() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-  // 窄屏：表格横向滚动时行内展开会落在视口外，改用抽屉
-  function isNarrow() { return window.matchMedia('(max-width:760px)').matches; }
 
   // ── 术语说明（分板块） ──
   var MANUAL = {
@@ -450,8 +448,29 @@
     return brief(e.toeflOld) + ' / ' + brief(e.toeflNew);
   }
   // IGCSE-ESL 是否接受——各校差异最大、最影响可申性，摘要行直接显示，不藏在悬停里
-  var ESL_LABEL = { no: 'ESL 不接受', cond: 'ESL 有条件', yes: 'ESL 接受', unknown: 'ESL 未列' };
-  function engESLTag(e) { return (e && ESL_LABEL[e.eslFlag]) || ''; }
+  // 把详情里的取值压成短标签：去掉「IGCSE First/Second Language 」前缀与括注
+  function engShortTag(prefix, v) {
+    v = String(v || '').trim();
+    if (!v || v === '—') return '';
+    if (/^官网未列$/.test(v) || /^未列$/.test(v)) return prefix + ' 未列';
+    if (/^官网未区分$/.test(v)) return prefix + ' 未区分';
+    if (/^不接受$/.test(v)) return prefix + ' 不接受';
+    if (/^有条件接受$/.test(v)) return prefix + ' 有条件';
+    // 只丢掉「（口语 Merit）」这类说明性括注；「（5）」「（4）」是等效等级，要留着
+    v = v.replace(/^IGCSE (?:First|Second) Language\s*/, '').replace(/（(?![0-9A-D]）)[^）]*）/g, '')
+         .replace(/Distinction/g, 'Dist').replace(/\s*\+\s*/g, '+').replace(/\s+/g, '');
+    return prefix + ' ' + v;
+  }
+  // 四大体系在粗略展示里都露出：IELTS / TOEFL 各自成行，EFL 与 ESL 各给一枚标签
+  function engChipTags(e) {
+    if (!e) return '';
+    function chip(prefix, txt) {
+      if (!txt) return '';
+      return '<span class="eng-esl' + (prefix === 'EFL' ? ' efl' : '') + (/不接受/.test(txt) ? ' no' : '') + '">' + esc(txt) + '</span>';
+    }
+    return chip('EFL', engShortTag('EFL', igcseValue(e, 'efl'))) +
+           chip('ESL', engShortTag('ESL', igcseValue(e, 'esl')));
+  }
   // ── IGCSE 英语（EFL 第一语言 / ESL 第二语言）──
   // 从该校的 GCSE/IGCSE 档位文字里解析出等级（各校写法不同，按优先级匹配）
   function parseIgcseGrade(e) {
@@ -539,11 +558,10 @@
   }
   function engCellHTML(e, rowId, label) {
     if (!e) return '<td class="eng-cell">—</td>';
-    var esl = engESLTag(e);
     return '<td class="eng-cell">' +
       '<span class="eng-1">IELTS ' + esc(engIeltsShort(e)) + '</span>' +
       '<span class="eng-2">TOEFL ' + esc(engPair(e)) + (e.band ? ' · ' + esc(e.band) : '') + '</span>' +
-      (esl ? '<span class="eng-esl' + (esl === 'ESL 不接受' ? ' no' : '') + '">' + esc(esl) + '</span>' : '') +
+      engChipTags(e) +
       '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' +
       (rowId && engDetailItems(e).length ? '<button type="button" class="eng-open" data-eng="' + esc(rowId) +
         '" data-eng-label="' + esc(label || '') + '" aria-expanded="false"' +
@@ -716,7 +734,7 @@
         '<div class="eng-line"><span class="eng-k">英语</span>' +
         '<span class="eng-v">IELTS ' + esc(engIeltsShort(e)) + ' ｜ TOEFL ' + esc(engPair(e)) + '</span>' +
         (e.band ? '<span class="eng-band">' + esc(e.band) + '</span>' : '') +
-        (engESLTag(e) ? '<span class="eng-esl' + (engESLTag(e) === 'ESL 不接受' ? ' no' : '') + '">' + esc(engESLTag(e)) + '</span>' : '') +
+        engChipTags(e) +
         '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span></div>' +
         engDetailHTML(e) + '</div>' : '') +
       '<div class="badges">' + offerBadge(p) + testBadge(p) + qsBadge(p) + cmpButton(key + idx) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key + idx) + '</div>' +
@@ -773,10 +791,7 @@
       // 行标识要带分组 key：按方向分组时同一专业会在多个组里各出现一次
       var rid = 'eng-' + (groupKey || 'g') + '-' + idxMap[i];
       var engCol = engCellHTML(e, rid, (showSchool ? '' : s.zh + ' · ') + p.zh);
-      var engDetailRow = (e && engDetailItems(e).length && !isNarrow())
-        ? '<tr class="eng-detail" data-eng-row="' + esc(rid) + '" hidden><td colspan="' + (showSchool ? 11 : 10) + '">' +
-          engDetailGrid(e) + '</td></tr>'
-        : '';
+      // 详情统一走抽屉（竖排更好读，且不受表格横向滚动影响），不再渲染行内展开行
       return '<tr>' + lead +
         (showSchool ? '<td><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span></td>' : '') +
         '<td>' + esc(p.degree) + '</td>' +
@@ -788,7 +803,7 @@
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
         '<td>' + cmpButton(key) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a></td>' +
-      '</tr>' + engDetailRow;
+      '</tr>';
     }).join('');
     return '<section class="group" data-key="' + esc(groupKey || '') + '" style="--school:' + (meta.color || '#9aa3b8') + '">' + headHTML(items, meta) +
       '<div class="tblwrap"><table class="tbl">' + colgroupHTML(showSchool) +
@@ -993,9 +1008,8 @@
     updateCompareBar();
     saveCompare();
   });
-  // 英语详情
-  // 宽屏：整行展开（放进约 90px 宽的单元格里读不了，所以放到整行宽度上铺开）
-  // 窄屏：表格本身要横向滚动，行内展开的内容会落在视口外，改用底部抽屉
+  // 英语详情：统一用抽屉竖排展示
+  // （表格单元格只有约 90px 宽、且要横向滚动，无论如何都不适合直接铺开）
   var engSheetBack = '';
   // 按钮的 id 形如 eng-<分组key>-<专业索引>，末段就是 cur.programs 的下标
   function engForRowId(id) {
@@ -1030,13 +1044,7 @@
 
   $('#groups').addEventListener('click', function (e) {
     var b = e.target.closest('button.eng-open'); if (!b) return;
-    if (isNarrow()) { openEngSheet(b.dataset.eng, b.dataset.engLabel); return; }
-    var row = document.querySelector('tr.eng-detail[data-eng-row="' + b.dataset.eng + '"]');
-    if (!row) return;
-    var open = row.hidden;
-    row.hidden = !open;
-    b.setAttribute('aria-expanded', String(open));
-    b.textContent = open ? '详情 ▴' : '详情 ▾';
+    openEngSheet(b.dataset.eng, b.dataset.engLabel);
   });
 
   // 一键把本校同方向的全部专业加入对比

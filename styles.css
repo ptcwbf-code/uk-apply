@@ -283,15 +283,14 @@ button.cmp-sib:hover{border-color:var(--navy-2);color:var(--navy);background:var
 .jb .seal{width:auto;min-width:18px;height:18px;padding:0 4px;border-radius:5px;font-size:10px}
 /* 有校印时不再画通用色条（一校一印就够，两个色标太吵） */
 .group-head.has-seal::before{display:none}
-/* ══ 英语详情：整行展开 ══
-   原来详情折在约 90px 宽的单元格里，左边 66px 被标签占掉后值只剩 53px，
-   「其他等效考试」被拆成 14 行，基本读不了。改成整行铺开。 */
+/* ══ 英语详情抽屉 ══
+   详情原先折在约 90px 宽的单元格里（标签再占 66px，值只剩 53px，一行一个字），
+   行内整行展开又会被表格的横向滚动带出视口 —— 统一改成抽屉竖排展示。 */
 .eng-open{display:inline-block;margin-top:4px;font:inherit;font-size:11.5px;line-height:1.5;padding:2px 9px;
   border:1px solid var(--line-2);border-radius:5px;background:var(--card);color:var(--navy-2);cursor:pointer;
   transition:background .15s ease,border-color .15s ease,color .15s ease}
 .eng-open:hover{border-color:var(--navy-2);background:var(--panel)}
 .eng-open[aria-expanded="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
-.tbl tbody tr.eng-detail>td{padding:0;background:var(--panel);border-bottom:1px solid var(--line)}
 .eng-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 24px;padding:14px 18px}
 .ed-i{display:flex;flex-direction:column;gap:2px;min-width:0}
 .ed-k{font-size:11px;color:var(--mut);letter-spacing:.04em}
@@ -301,7 +300,7 @@ button.cmp-sib:hover{border-color:var(--navy-2);color:var(--navy);background:var
 /* ══ 窄屏的英语详情抽屉 ══
    表格横向滚动时，行内展开的内容会落在视口外（td 跨全表，宽度等于表宽，
    position:sticky 没有可偏移的余量），所以窄屏改为底部抽屉，与横向滚动彻底解耦。 */
-.eng-sheet .overlay-box{max-width:min(560px,94vw)}
+.eng-sheet .overlay-box{max-width:min(680px,94vw)}
 .eng-sheet-body{padding:14px 18px;overflow:auto;max-height:calc(88vh - 62px)}
 .eng-sheet-body .eng-detail-grid{grid-template-columns:1fr;max-width:none;padding:0;gap:12px}
 
@@ -443,9 +442,7 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .tbl .t-qs{font-size:12.5px}
   .tbl .qs-more>summary{display:block;padding:9px 0;font-size:12.5px}
   .tbl .qs-more>summary::before{font-size:10px}
-  /* 行内展开行（窄屏基本用不到，用抽屉）仍按视口收窄，避免内容超出 */
-  .eng-detail-grid{grid-template-columns:1fr;max-width:calc(100vw - 34px);padding:12px 14px}
-  /* 抽屉：贴底、满宽、圆角只在顶部 */
+  /* 抽屉：窄屏贴底、满宽、圆角只在顶部 */
   .eng-sheet{align-items:flex-end;padding:0}
   .eng-sheet .overlay-box{width:100%;max-width:100%;max-height:82vh;border-radius:var(--r-lg) var(--r-lg) 0 0}
   .eng-sheet-body{max-height:calc(82vh - 62px);padding:14px 16px}
@@ -514,6 +511,7 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .eng-band{color:#a9c6ea}
   .eng-esl{border-color:rgba(217,181,102,.38);background:rgba(217,181,102,.14);color:#dcbe7c}
   .eng-esl.no{border-color:rgba(226,120,100,.38);background:rgba(226,120,100,.14);color:#eda393}
+  .eng-esl.efl{border-color:rgba(120,200,160,.34);background:rgba(80,180,140,.14);color:#9fd8bb}
   .man-region,.tbl .t-offer,.badge.offer,.cmp-diff-note,.legend .lg-i b,.legend .lg-k{color:#dcbe7c}
   .foot .meta-line{color:#6f7b8d}
 }
@@ -567,6 +565,8 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .eng-block{display:block}
 .eng-esl{font-size:10.5px;line-height:1.6;padding:0 5px;border-radius:4px;border:1px solid #e6d6ae;background:#fdf8ea;color:#8a5a12;white-space:nowrap}
 .eng-esl.no{border-color:#eccfc9;background:#fdf1ef;color:#8f3a2e}
+.eng-esl.efl{border-color:#cfe3d8;background:#f2f8f4;color:#2f6b4f}
+.eng-esl.efl.no{border-color:#eccfc9;background:#fdf1ef;color:#8f3a2e}
 .eng-more{margin-top:4px;font-size:12px}
 .eng-more>summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:4px;color:var(--navy-2,#1e4a80);
   border-bottom:1px dotted currentColor;padding:1px 0;min-height:22px}
