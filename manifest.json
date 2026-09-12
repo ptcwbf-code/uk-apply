@@ -1,0 +1,17 @@
+{
+  "name": "英国九校 · 香港八校 本科录取要求速查",
+  "short_name": "英港录取速查",
+  "description": "英国九校与香港八校的本科公开录取条件：A-Level / IB 要求、入学笔试、英语要求与 QS 学科排名，可检索、排序、对比、导出。纯静态，可离线使用。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7fa",
+  "theme_color": "#16325c",
+  "categories": ["education", "reference"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

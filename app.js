@@ -322,13 +322,28 @@
       c: p.get('c') || ''
     };
   }
+  // 历史记录：原先一律 replaceState，于是按后退直接离开站点而不是回到上一个筛选。
+  // 改成节流 pushState——连续改动（打字、连点筛选）只留一条历史，
+  // 否则按一次后退要退十几步才回到有意义的状态。
+  var PUSH_GAP = 700;
+  var _lastPushAt = Date.now();   // 首屏那一次落盘只 replace，不额外占一条历史
+  var _lastEnc = '';
   function persistState() {
     var enc = encodeState(snapshot());
+    _lastEnc = enc;
     try { localStorage.setItem(STORE_KEY, enc); } catch (e) { /* 隐私模式 / 沙箱下忽略 */ }
     try {
       var now = location.hash.replace(/^#/, '');
-      if (now !== enc) history.replaceState(null, '', enc ? '#' + enc : location.href.split('#')[0]);
-    } catch (e) { /* file:// 下 replaceState 可能被拒；地址栏不更新，但 localStorage 已记住 */ }
+      if (now === enc) return;
+      var url = enc ? '#' + enc : location.href.split('#')[0];
+      var t = Date.now();
+      if (t - _lastPushAt > PUSH_GAP) {
+        _lastPushAt = t;
+        history.pushState(null, '', url);
+      } else {
+        history.replaceState(null, '', url);
+      }
+    } catch (e) { /* file:// 下可能被拒；地址栏不更新，但 localStorage 已记住 */ }
   }
   // 板块相关的界面（页签 / 说明 / 统计）——切换板块与从状态恢复共用
   // tabs 按 APG 补齐：aria-selected 之外还要管 roving tabindex 与面板的 aria-labelledby，
@@ -3035,11 +3050,30 @@
     renderCompareTable();
   });
 
-  // 地址栏被手改 / 粘贴新链接时跟随（落盘走 replaceState，不产生历史，因此不会回环）
-  window.addEventListener('hashchange', function () {
-    var st = decodeState(location.hash.replace(/^#/, ''));
-    if (st && encodeState(st) !== encodeState(snapshot())) applyState(st);
-  });
+  // ── PWA：注册 service worker，让站离线可用 ──
+  // 版本号从自己的 <script src> 上取（app.js?v=9.3），只此一处维护；
+  // sw.js 再从它自己的脚本地址上读出同一个版本号当缓存名。
+  // 只在 https 下注册：file:// 与 http 本来就不允许 service worker。
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', function () {
+      var el = document.querySelector('script[src*="app.js"]');
+      var m = el && el.getAttribute('src').match(/[?&]v=([\w.]+)/);
+      navigator.serviceWorker.register('sw.js?v=' + (m ? m[1] : '0')).catch(function () {});
+    });
+  }
+
+  // 后退 / 前进，以及手改地址栏：都把 URL 里的状态还原回界面。
+  // 两个事件在「后退到另一个 hash」时会同时触发，用一个记号挡掉重复应用。
+  function applyFromURL() {
+    var enc = location.hash.replace(/^#/, '');
+    if (enc === _lastEnc) return;
+    var st = decodeState(enc);
+    if (!st) return;
+    _lastEnc = encodeState(st);
+    applyState(st);
+  }
+  window.addEventListener('popstate', applyFromURL);
+  window.addEventListener('hashchange', applyFromURL);
 
   // ── 初始化：URL 优先，其次上次的状态，最后默认 ──
   // 对比上限仍只在 CMP_MAX 一处定义；分母不再挂条上（学生只关心手上的 5 个），改放悬停说明
