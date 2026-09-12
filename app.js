@@ -431,11 +431,29 @@
         return out;
       }
     }
-    // 截到第一个非等级字符为止：剩下的中文说明（「合格」「或…」）不该再往下读
+    // 「3 AL 合格」这类：中文里「合格」就是 E。学生填了成绩就该能对上，
+    // 否则岭南那 18 条永远没有判定，还会被「只看达得到」误筛掉。
+    if (/合格/.test(head)) {
+      var cn = +((head.match(/(\d+)\s*AL/) || [])[1] || 3);   // 「3 AL 合格」按 3 门算
+      var es = [];
+      for (var ei = 0; ei < cn; ei++) es.push(GRADE_VAL.E);
+      return es;
+    }
+    // 截到第一个非等级字符为止：剩下的中文说明（「或…」）不该再往下读
     var body = (head.match(/^[A-E*\d\s+–—~\/]*/) || [''])[0];
     var segs = body.split(/[–—~]|\s*\/\s*/).map(parseGrades).filter(function (a) { return a.length; });
     if (!segs.length) return [];
     return segs.reduce(function (best, cur) { return gradeSum(cur) > gradeSum(best) ? cur : best; });
+  }
+  // 「≥3 AL」这种只写了门数、没写等级的要求。它不是一个分数档，
+  // 但也不能因此判不出——那会让「只看达得到」把这些专业整批筛掉，学生会误判成申不了。
+  // 规则：够门数就「达到门槛」，不够才「低于门槛」。
+  function gradeCountReq(s) {
+    if (!s) return null;
+    var head = String(s).split('（')[0].trim();
+    if (/合格/.test(head)) return null;                 // 走上面「合格 = E」那条
+    var m = head.match(/^[≥>=]{0,2}\s*(\d+)\s*AL(?:evel)?s?\s*$/i);
+    return m ? +m[1] : null;
   }
   // 取平均而非求和，避免「要求 4 门」被误判成「更难」；折不出分数的排最后
   var _gsCache = {};
@@ -1116,19 +1134,26 @@
   // 用求和而不是平均——考四门拿到 A*AAA 的人应当按最好的三门算，不该被第四门拉低。
   function verdictByTrack(p, track) {
     if (track === 'alevel') {
+      var mine0 = myAlGrades();
+      if (!mine0.length) return null;
       var req = gradeProfile(p.alevel);
-      if (!req.length) return null;              // 只写「≥3 AL / 3 AL 合格」的，没有档可比
-      var mine = myAlGrades();
-      if (!mine.length) return null;
-      // 门数不到要求时，拿现有的门数去对「要求里最高的那几门」做部分比对。
-      // 原先一律判「低于要求」，满屏红字看着就像功能坏了；
-      // partial 会一路带到徽章、摘要与对比清单，别让人把部分比对当成完整对照。
-      var n = Math.min(mine.length, req.length);
-      var gap = gradeSum(mine.slice(0, n)) - gradeSum(req.slice(0, n));
+      if (!req.length) {
+        // 只写了门数的要求（如港科「≥3 AL」）：够门数算达到门槛
+        var need0 = gradeCountReq(p.alevel);
+        if (need0 == null) return null;
+        var en = mine0.length;
+        return { kind: en >= need0 ? 'meet' : 'under', by: 'count', count: need0, have: en };
+      }
+      // 只填了一两个等级时，其余按 A 补足——用户习惯只填区分度最高的那几门，
+      // 填「A*」的意思就是「另外两门是 A」。补足后是完整比对，不再有「部分比对」这回事；
+      // 但补过这件事要说清楚，所以留下 padded 标记。
+      var mine = mine0.slice(0, req.length);
+      while (mine.length < req.length) mine.push(GRADE_VAL.A);
+      var gap = gradeSum(mine) - gradeSum(req);
       return {
         kind: gap > 0 ? 'over' : gap === 0 ? 'meet' : 'under',
         by: 'alevel', gap: gap,
-        partial: mine.length < req.length, have: mine.length, need: req.length
+        padded: mine0.length < req.length, have: mine0.length, need: req.length
       };
     }
     var reqIb = ibScore(p.ib), v = myIbTotal();
@@ -1173,12 +1198,13 @@
     var req = v.by === 'alevel' ? 'A-Level ' + p.alevel : 'IB ' + p.ib;
     var extra = extraReqs(p), marked = hasExtraReqs(p);
     var tip = '按你输入的 ' + mine + ' 对照 ' + req + '：' + label + '。' +
-      (v.partial ? '注意：你只填了 ' + v.have + ' 门，该专业要求 ' + v.need +
-        ' 门，这里只比对了要求里最高的 ' + v.have + ' 门。' : '') +
+      (v.padded ? '你只填了 ' + v.have + ' 门，该专业要求 ' + v.need +
+        ' 门，未填的 ' + (v.need - v.have) + ' 门按 A 计。' : '') +
+      (v.by === 'count' ? '该专业只公布了需要的科目门数（' + v.count + ' 门），没有公布具体等级，所以只比门数。' : '') +
       (marked ? '另外，这个专业还有下面这些要求，成绩对上了也要逐条确认：' + extra.join('；') + '。' : '') +
       (OFFER_TITLE[p.offer] || '') + '—— 只对照公布口径，不是录取概率。';
-    return '<span class="verdict ' + v.kind + (v.partial ? ' partial' : '') + '" title="' + esc(tip) + '">' +
-      esc(label) + (v.partial ? '<span class="pv">部分</span>' : '') +
+    return '<span class="verdict ' + v.kind + (v.padded ? ' partial' : '') + '" title="' + esc(tip) + '">' +
+      esc(label) + (v.padded ? '<span class="pv">按A补</span>' : '') +
       (marked ? '<span class="pvx" title="' + esc('该专业另有要求：' + extra.join('；')) + '">+</span>' : '') +
       '</span>';
   }
@@ -1190,7 +1216,7 @@
       var v = verdictFor(p);
       if (!v) { c.na++; return; }
       c[v.kind]++;
-      if (v.partial) c.partial++;
+      if (v.padded) c.partial++;
     });
     return c;
   }
@@ -1277,8 +1303,8 @@
         if (g) {
           var c4 = gc;
           if (c4 && c4.partial) {
-            bits2.push('你填了 ' + myAlGrades().length + ' 门 A-Level，少于 ' + c4.partial +
-              ' 个专业要求的门数——它们带「部分」标记，只比对了要求里最高的那几门。');
+            bits2.push('你只填了 ' + myAlGrades().length + ' 门 A-Level，有 ' + c4.partial +
+              ' 个专业要求更多门——它们带「按A补」标记，未填的科目按 A 计。');
           }
         }
         bits2.push('判定只对照各校公布的分数口径，不等于录取概率：热门专业实际录取普遍高于公布数字，「达到 / 高于」也应当冲刺看。');
@@ -1720,7 +1746,7 @@
   }
   // 「这行和官网不一致？」总得有个出口：本站的可信度就等于数据准确度，
   // 用户发现了却无处可说，下一个人还会踩同一处。
-  var REPO_ISSUES = 'https://github.com/ptcwbf-code/uk-apply/issues/new';
+  var REPORT_EMAIL = 'ptcwbf@gmail.com';
   // 报告文本与 GitHub 链接都由这同一份内容生成，保证两边一致
   function reportText(p) {
     var s = allSchoolByKey[p.school] || {};
@@ -1738,9 +1764,11 @@
       '（请贴官网原文或截图）'
     ].join('\n');
   }
-  function reportGithubURL(p) {
+  // 邮件入口：主题带学校与专业，正文就是上面那份报告——用户点一下就能发出去
+  function reportMailto(p) {
     var s = allSchoolByKey[p.school] || {};
-    return REPO_ISSUES + '?title=' + encodeURIComponent('数据核对 · ' + (s.zh || p.school) + ' ' + p.zh) +
+    return 'mailto:' + REPORT_EMAIL +
+      '?subject=' + encodeURIComponent('数据核对 · ' + (s.zh || p.school) + ' ' + p.zh) +
       '&body=' + encodeURIComponent(reportText(p));
   }
   // 真链接留给「去 GitHub」用；行内那处改成按钮，点开面板先给一份可复制的报告
@@ -2358,10 +2386,10 @@
       showToast('已复制报告内容，粘到微信 / 邮件里即可', 3600);
     });
   });
-  $('#report-github').addEventListener('click', function () {
+  $('#report-mail').addEventListener('click', function () {
     var p = cur.programs[reportIdx];
     if (!p) return;
-    window.open(reportGithubURL(p), '_blank', 'noopener');
+    location.href = reportMailto(p);
   });
 
   // 四个弹层：谁在最上层就管谁。顺序即层级（后开的在上）
@@ -2505,10 +2533,11 @@
     if (!v) return '';
     // 部分比对（科目数不够）加个星号，对比表的小结里会解释它的含义
     var extra = extraReqs(it.p), marked = hasExtraReqs(it.p);
-    return '<span class="pos ' + v.kind + (v.partial ? ' partial' : '') + '" title="' +
-      esc(POS_TITLE[v.kind] + (v.partial ? '（你填的科目数不够，这里只做了部分比对）' : '') +
+    return '<span class="pos ' + v.kind + (v.padded ? ' partial' : '') + '" title="' +
+      esc(POS_TITLE[v.kind] + (v.padded ? '（你只填了 ' + v.have + ' 门，未填的按 A 计）' : '') +
+        (v.by === 'count' ? '（该专业只公布门数，未公布等级）' : '') +
         (marked ? '该专业另有要求：' + extra.join('；') : '')) + '">' +
-      POS_ZH[v.kind] + (v.partial ? '*' : '') + (marked ? '+' : '') + '</span>';
+      POS_ZH[v.kind] + (v.padded ? '*' : '') + (marked ? '+' : '') + '</span>';
   }
   // CSV 里只有「冲」两个字太单薄——导出的表常常是直接发给顾问的，要能自己说明白
   function posText(p) {
@@ -2521,7 +2550,7 @@
     var c = { under: 0, meet: 0, over: 0, na: 0, partial: 0 };
     items.forEach(function (it) {
       var v = verdictFor(it.p);
-      if (v) { c[v.kind]++; if (v.partial) c.partial++; } else c.na++;
+      if (v) { c[v.kind]++; if (v.padded) c.partial++; } else c.na++;
     });
     var n = c.under + c.meet + c.over;
     if (!n) {
@@ -2536,7 +2565,7 @@
       '<span class="pos over">' + POS_ZH.over + ' ' + c.over + '</span>' +
       (c.na ? '<span class="pss-na">另有 ' + c.na + ' 项无分数可比</span>' : '') +
       '<span class="pss-tip">UCAS 本科一般只能填 5 个志愿，建议 1–2 冲刺、2–3 匹配、1–2 保底' +
-      (c.partial ? '；带 <b>*</b> 的项你填的科目数不够，只做了部分比对' : '') + '</span>';
+      (c.partial ? '；带 <b>*</b> 的项你只填了部分科目，未填的按 A 计' : '') + '</span>';
   }
   function renderCompareTable() {
     var items = cmpItems();
@@ -2709,7 +2738,8 @@
         ['入学', cycleShort(it.rc)],
         ['笔试 / 面试', p.test || '—'],
         ['成绩口径', OFFER_ZH[p.offer] || p.offer],
-        ['你的位置', v ? (POS_ZH[v.kind] + (v.partial ? '（部分比对）' : '') + ' · ' + POS_LONG[v.kind].split(' · ')[1]) : '—']
+        ['你的位置', v ? (POS_ZH[v.kind] + (v.padded ? '（未填科目按 A 计）' : '') +
+         ' · ' + POS_LONG[v.kind].split(' · ')[1]) : '—']
       ];
       var h = 20 + zh.length * 30 + en.length * 19 + 10 + rows.length * 24 + 16;
       return { it: it, p: p, s: s, zh: zh, en: en, rows: rows, h: h };
