@@ -1340,6 +1340,14 @@ const PROGRAMS = [
     alevelNote: '数学 + 化学或物理', offer: 'typical', note: '',
     url: 'https://www.manchester.ac.uk/study/undergraduate/courses/2027/03848/meng-chemical-engineering/' },
 
+  // qs 钉空：本站收录的 37 个学科里没有「材料科学」，不钉就会退回整块工程方向桶，
+  // 挂上一串化学工程 / 电子电气 / 土木的名次——对这个专业是误导。
+  { school: 'manchester', dirs: ['eng'], qs: [], zh: '材料科学与工程', en: 'Materials Science and Engineering',
+    degree: 'BSc · 3 年', alevel: 'AAB', ib: '35（HL 6,6,5、数学仅 AA）', test: '',
+    alevelNote: '数学 / 物理 / 化学 中须有两门', offer: 'typical',
+    note: '不考 A-level 数学者须 GCSE/IGCSE 数学 7/A；另有 MEng 4 年；UCAS J500',
+    url: 'https://www.manchester.ac.uk/study/undergraduate/courses/2027/09894/bsc-materials-science-and-engineering/' },
+
   { school: 'manchester', dirs: ['econ'], zh: '经济学', en: 'Economics',
     degree: 'BSc · 3 年', alevel: 'AAA', ib: '36（HL 6,6,6）', test: '',
     alevelNote: '数学必修', offer: 'typical', note: 'BAEcon Economics 为 AAA 且数学非强制',

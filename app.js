@@ -759,7 +759,7 @@
         igcseESL: rec.igcseESL || rule.igcseESL,
         eslFlag: rec.eslFlag || rule.eslFlag || 'unknown', eslGrade: rec.eslGrade || '',
         ibEnglish: rec.ibEnglish || rule.ibEnglish, gceEnglish: rule.gceEnglish,
-        note: rec.extra || '', rule: rule
+        note: rec.extra || '', rule: rule, progUrl: p ? p.url : ''
       };
     }
     return {
@@ -767,7 +767,7 @@
       ielts: rule.ielts, toeflOld: rule.toeflOld, toeflNew: rule.toeflNew,
       gcse: rule.gcse, igcseEFL: rule.igcseEFL, igcseESL: rule.igcseESL, ibEnglish: rule.ibEnglish, gceEnglish: rule.gceEnglish,
       eslFlag: rule.eslFlag || 'unknown', eslGrade: '',
-      note: rule.note || '', rule: rule
+      note: rule.note || '', rule: rule, progUrl: p ? p.url : ''
     };
   }
   function engTitle(e) {
@@ -892,12 +892,17 @@
       ['IB English', e.ibEnglish || '—'],
       ['GCE English', e.gceEnglish || '—'],
       ['备注', e.note || ''],
-      ['来源', rule.url || '']
+      // 来源分两条：逐专业记录的出处是该专业自己的课程页；校级要求的出处才是学校英语总页。
+      // 只给学校总页的话，点进去看不到这个专业的线——曼大航空航天工程就是这种情况
+      //（学校总页只给典型档，各专业分数写在各自课程页上）。
+      ['该专业官网', e.progUrl || ''],
+      ['学校英语要求页', rule.url || '']
     ].filter(function (kv) { return kv[1]; });   // 与原实现一致：值为空则不占一行
   }
   function engValHTML(k, v) {
-    return (k === '来源' && /^https?:/.test(v))
-      ? '<a href="' + esc(v) + '" target="_blank" rel="noopener noreferrer">学校英语要求官方页 ↗</a>'
+    // 链接文字就用字段名，免得以后加来源时忘了同步标题、两边对不上
+    return /^https?:/.test(v)
+      ? '<a href="' + esc(v) + '" target="_blank" rel="noopener noreferrer">' + esc(k) + ' ↗</a>'
       : esc(v);
   }
   // 表格：整行展开用网格铺开
@@ -1195,15 +1200,53 @@
     if (p.note) out.push('备注：' + p.note);
     return out;
   }
-  // 触发条件不能是「有 alevelNote」——407 条里 318 条都有科目要求，那样等于每条都标，
-  // 记号就没有信息量了。只标「比分数档多出来的东西」：
-  //   ① 有入学笔试 / 面试 / 作品集（要单独报名或准备）
-  //   ② 科目要求里点名了必修 / 仅限的科目（如「化学必修」「须含高数」）
-  // 泛泛的科目说明不标：它已经写在各行自己的列里，且几乎条条都有。
-  var EXTRA_NOTE_RE = /必修|仅限|必须|须含|须选|须有|指定/;
-  function hasExtraReqs(p) {
-    return !!(p.test || (p.alevelNote && EXTRA_NOTE_RE.test(p.alevelNote)));
+  // 触发条件：只要不是「明说没有要求」或「整句只是建议」，就算另有要求。
+  //   · 早先只用一张硬性措辞表（必修 / 仅限 / 必须…），漏掉了一大批真要求——
+  //     爱丁堡的「数学 B + 化学 B」、曼大的「数学 / 物理 / 化学 中须有两门」都不含那些词。
+  //   · 反过来，通篇只是「建议 / 偏好」的（如「建议修地理」）是建议不是要求，不标。
+  //   · 「无特定科目要求」明说了没有，也不标。
+  // 这两条否定判断都必须按分句来，整串匹配两种错都会犯：
+  //   「…；GCSE：无特定科目要求」整串能匹配上，前一句「必修 English Literature 且达 A」就被一起放过；
+  //   「无必修科目；偏好…」整串也能匹配上「必修」，一句「没有必修」反被当成必修要求标出来。
+  // 这些标记的价值不在「稀有」，而在点开就能看到具体要哪几门、要到什么等级。
+  var ADVICE_RE = /建议|推荐|鼓励|偏好|倾向/;
+  var ADVICE_START_RE = /^(建议|强烈建议|推荐|鼓励|偏好|倾向)/;
+  var HARD_RE = /必修|必须|仅限|须|指定|至少|不接受/;
+  var NO_REQ_RE = /无必修|无特定科目|无科目要求|无任何科目要求|非必须|^不限$|^无$/;
+  // 判断前先摘掉「没有要求」的说法本身，否则「无必修科目」里的「必修」会被 HARD_RE 当成要求
+  var NO_REQ_STRIP_RE = /无必修|无特定科目|无科目要求|无任何科目要求|非必须/g;
+  var GCSE_CLAUSE_RE = /^(GCSE|IGCSE|iGCSE)\b/;
+  // 返回要求的种类，空串表示没有：
+  //   'exam'    —— 要单独报名 / 准备的：入学笔试、面试、作品集
+  //   'subject' —— 只是科目要求（哪几门必修、每门要到什么等级）
+  // 分成两种是因为「科目要求」在英国几乎条条都有（77%），单靠它做记号没有区分度；
+  // 「要另考一门」才是真正需要提前安排的，所以徽章上给两种不同的样式。
+  function extraKind(p) {
+    if (p.test) return 'exam';
+    var n = String(p.alevelNote || '').trim();
+    if (!n) return '';
+    // 逗号也当分句：中文里「无必修科目，偏好至少一门社科科目」正是用逗号把
+    // 「没有要求」和「建议」接在一起，不切开的话「偏好…至少…」会被当成硬要求
+    var clauses = n.split(/[；;。，,]/);
+    for (var i = 0; i < clauses.length; i++) {
+      var c = clauses[i].trim();
+      if (!c) continue;
+      var s = c.replace(NO_REQ_STRIP_RE, '');
+      // 句首就是「建议 / 偏好」的一定是建议；句中带建议词、又没有硬措辞的也算建议。
+      // 反过来「至少两门 UCL 优先科目，建议数学/物理」不该被后半句的「建议」救成建议句——
+      // 它句首没有建议词，且句中有「至少」，所以仍算要求。
+      if (ADVICE_START_RE.test(s)) continue;
+      if (ADVICE_RE.test(s) && !HARD_RE.test(s)) continue;
+      if (NO_REQ_RE.test(c) && !HARD_RE.test(s)) continue;   // 明说没有要求（如「无必修科目」）
+      // 只提 GCSE 英语的分句跳过：英语要求有自己的面板（含 IGCSE-ESL、口语等），
+      // 而记号挂在 A-Level / IB 的判定徽章上。但 GCSE 数学这类门槛是实打实的附加条件
+      //（「GCSE 数学 7/A + 英语 6/B」——不少学生就卡在这一条），要留。
+      if (GCSE_CLAUSE_RE.test(c) && !/数学|Math/.test(c)) continue;
+      return 'subject';
+    }
+    return '';
   }
+  function hasExtraReqs(p) { return !!extraKind(p); }
   var VERDICT_ZH = { over: '高于', meet: '达到', under: '低于' };
   function verdictBadge(p) {
     var v = verdictFor(p);
@@ -1211,7 +1254,7 @@
     var label = VERDICT_ZH[v.kind] + barWord(p);
     var mine = v.by === 'alevel' ? 'A-Level ' + String(gAl).trim() : 'IB ' + myIbTotal();
     var req = v.by === 'alevel' ? 'A-Level ' + p.alevel : 'IB ' + p.ib;
-    var extra = extraReqs(p), marked = hasExtraReqs(p);
+    var extra = extraReqs(p), kind = extraKind(p), marked = !!kind;
     var tip = '按你输入的 ' + mine + ' 对照 ' + req + '：' + label + '。' +
       (v.padded ? '你只填了 ' + v.have + ' 门，该专业要求 ' + v.need +
         ' 门，未填的 ' + (v.need - v.have) + ' 门按 A 计。' : '') +
@@ -1220,7 +1263,7 @@
       (OFFER_TITLE[p.offer] || '') + '—— 只对照公布口径，不是录取概率。';
     return '<span class="verdict ' + v.kind + (v.padded ? ' partial' : '') + '" title="' + esc(tip) + '">' +
       esc(label) + (v.padded ? '<span class="pv">按A补</span>' : '') +
-      (marked ? '<span class="pvx" title="' + esc('该专业另有要求：' + extra.join('；')) + '">+</span>' : '') +
+      (marked ? '<span class="pvx' + (kind === 'exam' ? ' exam' : '') + '" title="' + esc('该专业另有要求：' + extra.join('；')) + '">' + (kind === 'exam' ? '考' : '+') + '</span>' : '') +
       '</span>';
   }
   function myCounts() {
@@ -1290,16 +1333,21 @@
       if (!g) vl.innerHTML = '';
       else {
         // 「+」的解释只在这批结果里确实有带标记的行时才出现，否则是噪音
-        var toks2 = qTokens(), hasX = false;
+        var toks2 = qTokens(), hasSub = false, hasExam = false;
         for (var k = 0; k < cur.programs.length; k++) {
-          if (matches(cur.programs[k], k, toks2) && hasExtraReqs(cur.programs[k])) { hasX = true; break; }
+          if (!matches(cur.programs[k], k, toks2)) continue;
+          var kk = extraKind(cur.programs[k]);
+          if (kk === 'exam') hasExam = true; else if (kk === 'subject') hasSub = true;
+          if (hasExam && hasSub) break;
         }
         vl.innerHTML = '<span class="vl-k">判定怎么读</span>' +
           '<span class="vl-i"><b class="verdict over">高于要求</b>你的成绩超出该校公布的分数口径</span>' +
           '<span class="vl-i"><b class="verdict meet">达到要求</b>正好持平；热门专业实收常更高</span>' +
           '<span class="vl-i"><b class="verdict under">低于要求</b>还差一些</span>' +
-          (hasX ? '<span class="vl-i"><b class="verdict meet">达到要求<i class="pvx">+</i></b>' +
-            '该专业另有科目要求或笔试 / 面试，成绩对上了也要逐条核（悬停看具体是什么）</span>' : '');
+          (hasSub ? '<span class="vl-i"><b class="verdict meet">达到要求<i class="pvx">+</i></b>' +
+            '该专业另有科目要求（哪几门必修、每门要到什么等级），成绩对上了也要逐条核</span>' : '') +
+          (hasExam ? '<span class="vl-i"><b class="verdict meet">达到要求<i class="pvx exam">考</i></b>' +
+            '还要单独报名或准备笔试 / 面试 / 作品集，别只对着分数看</span>' : '');
       }
     }
     // 面板里的口径提醒（主页面另有一行可见的同款说明）
@@ -2624,12 +2672,12 @@
     var v = verdictFor(it.p);
     if (!v) return '';
     // 部分比对（科目数不够）加个星号，对比表的小结里会解释它的含义
-    var extra = extraReqs(it.p), marked = hasExtraReqs(it.p);
+    var extra = extraReqs(it.p), kind = extraKind(it.p), marked = !!kind;
     return '<span class="pos ' + v.kind + (v.padded ? ' partial' : '') + '" title="' +
       esc(POS_TITLE[v.kind] + (v.padded ? '（你只填了 ' + v.have + ' 门，未填的按 A 计）' : '') +
         (v.by === 'count' ? '（该专业只公布门数，未公布等级）' : '') +
         (marked ? '该专业另有要求：' + extra.join('；') : '')) + '">' +
-      POS_ZH[v.kind] + (v.padded ? '*' : '') + (marked ? '+' : '') + '</span>';
+      POS_ZH[v.kind] + (v.padded ? '*' : '') + (marked ? '<i class="pvx' + (kind === 'exam' ? ' exam' : '') + '">' + (kind === 'exam' ? '考' : '+') + '</i>' : '') + '</span>';
   }
   // CSV 里只有「冲」两个字太单薄——导出的表常常是直接发给顾问的，要能自己说明白
   function posText(p) {

@@ -353,6 +353,14 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 /* 「另有要求」标记：科目 / 笔试 / 面试。成绩对上了也不等于条件满足，
    所以要有一个看得见的记号，不能只写在悬停说明里（手机上等于没有） */
 .pvx{margin-left:3px;font-size:10px;font-weight:700;line-height:1;vertical-align:1px;opacity:.9}
+/* 记号分两种：+ 是科目要求，考 是要另考一门（笔试 / 面试 / 作品集）。
+   科目要求在英国几乎条条都有（77%），全用一样的记号就等于没有记号；
+   「要另考」才是真正需要提前安排的那个（英国 21%、香港 43%），给填充胶囊。
+   胶囊用烫金而不是藏蓝：藏蓝正是「达到要求」徽章自己的文字色，填在徽章里
+   读起来像徽章反白，而不是一个另加的记号。金在这站上本就是「这里要注意」的色
+   （口径标签 / 差异提示 / ESL 标注都用它），换过来既跳得出，也不新起一套配色。 */
+.pvx.exam{color:var(--card);background:var(--gold);border-radius:3px;padding:0 4px;
+  opacity:1;font-weight:700;margin-left:4px}
 .pos .pvx,.pos i{font-style:normal}
 .pos.partial{border-style:dashed}
 .rating .verdict{margin-top:6px}

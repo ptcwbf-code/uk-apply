@@ -1358,6 +1358,18 @@ const ENG_PROG = {
    "eslFlag": "cond"
   },
   {
+   "en": "Materials Science and Engineering",
+   "band": "",
+   "ielts": "6.5（各项≥6.0）",
+   "toeflOld": "90（各项≥20）",
+   "toeflNew": "未列",
+   "gcse": "GCSE/IGCSE English Language 4/C",
+   "eslGrade": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "ibEnglish": "",
+   "extra": "",
+   "eslFlag": "cond"
+  },
+  {
    "en": "Economics",
    "band": "",
    "ielts": "6.5（各项≥6）",
