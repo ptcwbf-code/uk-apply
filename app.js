@@ -313,7 +313,7 @@
       // 筛选项的取值随板块而变（英国是 ESAT，香港是「面试」），这里只做形式校验，
       // 能不能用由 applyState 按板块再核一次
       t: (p.get('t') || 'ALL').slice(0, 24),
-      g: p.get('g') === 'dir' ? 'dir' : 'school',
+      g: GROUP_MODES.indexOf(p.get('g')) >= 0 ? p.get('g') : 'school',
       v: p.get('v') === 'card' ? 'card' : p.get('v') === 'table' ? 'table' : null,
       q: p.get('q') || '',
       o: SORT_KEYS[p.get('o')] ? p.get('o') : 'default',
@@ -1576,6 +1576,72 @@
     });
   }
 
+  // ── 分组维度 ──
+  // 除「按大学 / 按学科方向」外再加三种：按 QS 名次段、按成绩难度段、按是否需要笔试 / 面试。
+  // 这三种都是把同一个问题铺开看——排名大概在哪一档、分数要求大概多难、要不要单独报名考试。
+  var GROUP_ZH = { school: '按大学', dir: '按学科方向', qs: '按 QS 名次段',
+                   grade: '按成绩难度段', test: '按是否需要笔试 / 面试' };
+  var GROUP_MODES = ['school', 'dir', 'qs', 'grade', 'test'];
+  var QS_SEGS = [
+    { k: 'q1', zh: 'QS 前 10', color: '#1c6248' },
+    { k: 'q2', zh: 'QS 11–50', color: '#1e4a80' },
+    { k: 'q3', zh: 'QS 51–100', color: '#6b4e10' },
+    { k: 'q4', zh: 'QS 101–200', color: '#5b6577' },
+    { k: 'q0', zh: '未进前 200 / 无对应学科榜', color: '#9aa3b8' }
+  ];
+  // 难度段按 A-Level 折算分切：A*A*A=3.67、A*AA=3.33、AAA=3.00
+  var GRADE_SEGS = [
+    { k: 'g1', zh: 'A*A*A 及以上', color: '#7c0f28' },
+    { k: 'g2', zh: 'A*AA', color: '#a61c5b' },
+    { k: 'g3', zh: 'AAA', color: '#1e4a80' },
+    { k: 'g4', zh: 'AAB 及以下', color: '#4b5563' },
+    { k: 'g0', zh: '无分数档（只公布门槛）', color: '#9aa3b8' }
+  ];
+  function groupKeys() {
+    if (groupBy === 'school') return cur.schools.map(function (x) { return x.key; });
+    if (groupBy === 'dir') return Object.keys(cur.dirs);
+    if (groupBy === 'qs') return QS_SEGS.map(function (x) { return x.k; });
+    if (groupBy === 'grade') return GRADE_SEGS.map(function (x) { return x.k; });
+    if (groupBy === 'test') {
+      // 笔试卷的取值各板块不同，从数据现取，写死会漂
+      var seen = {};
+      cur.programs.forEach(function (p) { seen[p.test || ''] = 1; });
+      var ks = Object.keys(seen).filter(Boolean).sort();
+      ks.push('');                       // 「无需」排最后
+      return ks.map(function (t) { return 't:' + t; });
+    }
+    return cur.schools.map(function (x) { return x.key; });
+  }
+  function groupOf(p) {
+    if (groupBy === 'school') return [p.school];
+    if (groupBy === 'dir') return p.dirs;
+    if (groupBy === 'qs') {
+      var l = qsListFor(p);
+      if (!l.length) return ['q0'];
+      var r = rankNum(l[0].rank);
+      return [r <= 10 ? 'q1' : r <= 50 ? 'q2' : r <= 100 ? 'q3' : 'q4'];
+    }
+    if (groupBy === 'grade') {
+      var g = gradeScore(p.alevel);
+      if (g == null) return ['g0'];
+      return [g >= 3.67 ? 'g1' : g >= 3.33 ? 'g2' : g >= 3 ? 'g3' : 'g4'];
+    }
+    if (groupBy === 'test') return ['t:' + (p.test || '')];
+    return [p.school];
+  }
+  function groupMeta(k) {
+    if (groupBy === 'school') return schoolByKey[k];
+    if (groupBy === 'dir') return cur.dirs[k];
+    if (groupBy === 'qs') return QS_SEGS.filter(function (x) { return x.k === k; })[0] || { zh: k };
+    if (groupBy === 'grade') return GRADE_SEGS.filter(function (x) { return x.k === k; })[0] || { zh: k };
+    if (groupBy === 'test') {
+      var t = k.slice(2);
+      if (!t) return { zh: cur.testIsExam ? '无需入学笔试' : '无附加要求', color: '#9aa3b8' };
+      return { zh: (cur.testIsExam ? '需 ' : '需') + t, color: '#1e4a80' };
+    }
+    return { zh: k };
+  }
+
   // ── 通用小件 ──
   function offerBadge(p) {
     return '<span class="badge offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(OFFER_ZH[p.offer] || p.offer) + '</span>';
@@ -1691,6 +1757,11 @@
   ];
 
   function qsListFor(p) {
+    // 结果只取决于静态数据，缓存挂在专业对象上——分组维度、QS 列、卡片徽章都要用它
+    if (p._qsList) return p._qsList;
+    return (p._qsList = qsListCalc(p));
+  }
+  function qsListCalc(p) {
     var sch = (typeof QS_RANKS !== 'undefined' ? QS_RANKS[p.school] : null) || {};
     var subs = [];
     if (p.qs) {
@@ -1940,22 +2011,26 @@
 
     // 建立全库索引 → 便于稳定 key（跨板块不串）
     var idxMap = {}; cur.programs.forEach(function (p, i) { idxMap[i] = i; });
-    var showSchool = groupBy === 'dir';
-    var keyOrder = groupBy === 'school' ? cur.schools.map(function (s) { return s.key; }) : Object.keys(cur.dirs);
+    // 按大学分组时第一列写校名，其余维度都写专业名（否则不知道这行是哪个专业）
+    var showSchool = groupBy !== 'school';
+    var keyOrder = groupKeys();
+    // 每个专业的归属只算一次：qsListFor 要跑一遍学科名规则，放在「桶 × 专业」的双层循环里会放大几十倍
+    var entries = list.map(function (p) {
+      return { p: p, idx: idxMap[cur.programs.indexOf(p)], buckets: groupOf(p) };
+    });
 
     var out = document.createElement('div');
     keyOrder.forEach(function (k) {
       var pairs = [];
-      list.forEach(function (p) {
-        if (groupBy === 'school' ? p.school === k : p.dirs.indexOf(k) !== -1) {
-          pairs.push({ p: p, idx: idxMap[cur.programs.indexOf(p)] });
-        }
+      entries.forEach(function (e) {
+        if (e.buckets.indexOf(k) === -1) return;
+        pairs.push({ p: e.p, idx: e.idx });
       });
       if (!pairs.length) return;
       if (sortKey !== 'default') pairs = sortPairs(pairs, sortKey, sortDir);
       var groupItems = pairs.map(function (x) { return x.p; });
       var groupIdx = pairs.map(function (x) { return x.idx; });
-      var meta = groupBy === 'school' ? schoolByKey[k] : cur.dirs[k];
+      var meta = groupMeta(k);
       out.insertAdjacentHTML('beforeend',
         view === 'table' ? tableGroupHTML(groupItems, groupIdx, meta, showSchool, k) : cardGroupHTML(groupItems, groupIdx, meta, showSchool, k));
     });
@@ -2168,7 +2243,9 @@
   function switchRegion(r) {
     if (cur === REGIONS[r]) return;
     cur = REGIONS[r];
-    activeSchools = []; activeDirs = []; testSel = 'ALL'; q = ''; groupBy = 'school'; sortKey = 'default';
+    // 筛选条件必须清掉（校 Key、方向都换了一套），但「分组方式」与「排序」是看法不是条件，
+    // 正在按 QS 名次段看的人切到香港，应当还在按名次段看
+    activeSchools = []; activeDirs = []; testSel = 'ALL'; q = '';
     view = defaultView();   // 切板块也重新按屏幕宽度取默认（窄屏卡片、宽屏表格）
     // 对比清单跨板块保留，英国学校与香港学校可放进同一张对比表
     syncRegionChrome(); syncControlsChrome();
