@@ -754,8 +754,8 @@
   function pageLinkHTML(rc, idx) {
     var p = (pagePaths[rc] || [])[idx];
     if (!p) return '';
-    return '<a class="pg-link" href="' + esc(p) + '" target="_blank" rel="noopener"' +
-      ' title="这一条有独立页面，可单独发给同学或收藏：' + esc(p) + '">单页</a>';
+    return '<a class="al" href="' + esc(p) + '" target="_blank" rel="noopener"' +
+      ' title="这一条有独立页面，可单独发给同学或收藏：' + esc(p) + '">单页 ↗</a>';
   }
 
   function buildIndex() {
@@ -1747,8 +1747,24 @@
   function cmpSibButton(rc, p, key) {
     var n = sibCount[rc + '|' + p.school + '|' + p.dirs[0]] || 0;
     if (n <= 1) return '';   // 本校该方向只有它自己，不显示
-    return '<button type="button" class="cmp-sib" data-key="' + key + '"' +
+    return '<button type="button" class="al sib" data-key="' + key + '"' +
       ' title="把本校同学科方向的 ' + n + ' 个专业全部加入对比（含本行）">同方向 ' + n + ' 项</button>';
+  }
+  // 行内动作区：主按钮独占一行，其余收成同一字号的一行文字链接。
+  // 卡片与表格共用这一个函数——两处各写一遍的话，顺序和措辞迟早会走样。
+  // skipOfficial：卡片底部本来就有通栏的「打开官网」（移动端的主要操作，点击目标更大），
+  // 卡片里就别再重复一条同名链接。
+  function actRowHTML(p, idx, rc, key, skipOfficial) {
+    var links = [];
+    if (p.url && !skipOfficial) links.push('<a class="al" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer"' +
+      ' title="官网课程页：' + esc(p.url) + '">官网 ↗</a>');
+    var pg = pageLinkHTML(rc, idx);
+    if (pg) links.push(pg);
+    var sib = cmpSibButton(rc, p, key);
+    if (sib) links.push(sib);
+    links.push(reportLink(p, idx));
+    return '<div class="row-acts">' + cmpButton(key) +
+      '<div class="al-row">' + links.join('<i class="sep">·</i>') + '</div></div>';
   }
 
   // ── QS 2026 学科排名标签 ──
@@ -1935,14 +1951,15 @@
   }
   // 真链接留给「去 GitHub」用；行内那处改成按钮，点开面板先给一份可复制的报告
   function reportLink(p, idx) {
-    return '<button type="button" class="report" data-report="' + idx + '"' +
+    return '<button type="button" class="al" data-report="' + idx + '"' +
       ' title="这一行和官网不一致？点这里生成一份带专业、当前记录与来源页的报告，复制即可反馈">报告错误</button>';
   }
 
   // ── 卡片视图 ──
   function cardHTML(p, idx, showSchool) {
     var s = schoolByKey[p.school];
-    var key = cur === REGIONS.hk ? 'hk:' : 'uk:';
+    var rc = cur === REGIONS.hk ? 'hk' : 'uk';
+    var key = rc + ':';
     var e = engFor(idx);
     var mode = primaryTrack();
     var vb = verdictBadge(p);
@@ -1965,8 +1982,10 @@
         engChipTags(e) +
         '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span></div>' +
         engDetailHTML(e) + '</div>' : '') +
-      '<div class="badges">' + offerBadge(p) + testBadge(p) + qsBadge(p) + pageLinkHTML(cur === REGIONS.hk ? 'hk' : 'uk', idx) + cmpButton(key + idx) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key + idx) + '</div>' +
+      '<div class="badges">' + offerBadge(p) + testBadge(p) + qsBadge(p) + '</div>' +
       (p.note ? '<p class="card-note">' + fmtBold(p.note) + '</p>' : '') +
+      // 动作区跟在备注之后：表格里操作列也在行末，两处读序一致
+      actRowHTML(p, idx, rc, key + idx, true) +
       '<a class="go" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' +
     '</article>';
   }
@@ -1997,19 +2016,22 @@
   // colgroup 必须与表头同列数——原来按大学分组时表头 11 列、colgroup 只有 10 个 col，
   // 浏览器会把宽度整体错位一格，英语列因此被压到 97px
   function colgroupHTML(showSchool) {
+    // 备注列让 26px 给操作列：操作列要放「加入对比」+ 一行「官网 · 单页 · 同方向 · 报告错误」，
+    // 116px 时那行会折成三段，比备注少一行严重得多（备注本来就长、本来就在换行）
     return '<colgroup>' + (showSchool ? '<col style="width:104px">' : '') +
       '<col style="width:186px"><col style="width:100px"><col style="width:108px"><col style="width:116px">' +
       '<col style="width:86px"><col style="width:76px"><col style="width:152px"><col style="width:116px">' +
-      '<col style="width:176px"><col style="width:116px"></colgroup>';
+      '<col style="width:140px"><col style="width:152px"></colgroup>';
   }
   function tableGroupHTML(items, idxMap, meta, showSchool, groupKey) {
     var extra = showSchool ? '<colgroup><col style="width:104px"></colgroup>' : '<colgroup><col style="width:0px"></colgroup>';
     var schoolTh = showSchool ? '<th scope="col">大学</th>' : '';
     var testHead = esc(cur.testHead);
+    var rc = cur === REGIONS.hk ? 'hk' : 'uk';
     var mode = primaryTrack();   // 判定徽章贴在它对照的那一列下面：A-Level 贴 A-Level，IB 贴 IB
     var rows = items.map(function (p, i) {
       var s = schoolByKey[p.school];
-      var key = (cur === REGIONS.hk ? 'hk:' : 'uk:') + idxMap[i];
+      var key = (rc + ':') + idxMap[i];
       var vb = verdictBadge(p);
       var lead = showSchool
         ? '<td style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + hi(s.zh) + '</span><span class="sub-line">' + hi(s.en) + '</span></td>'
@@ -2032,7 +2054,7 @@
         engCol +
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
-        '<td>' + cmpButton(key) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' + pageLinkHTML(cur === REGIONS.hk ? 'hk' : 'uk', idxMap[i]) + reportLink(p, idxMap[i]) + '</td>' +
+        '<td class="ops-cell">' + actRowHTML(p, idxMap[i], rc, key) + '</td>' +
       '</tr>';
     }).join('');
     return '<section class="group" data-key="' + esc(groupKey || '') + '" style="--school:' + (meta.color || '#9aa3b8') + '">' + headHTML(items, meta) +
@@ -2453,7 +2475,7 @@
 
   // 一键把本校同方向的全部专业加入对比
   $('#groups').addEventListener('click', function (e) {
-    var b = e.target.closest('button.cmp-sib'); if (!b) return;
+    var b = e.target.closest('button.sib'); if (!b) return;
     var n = addSameSchoolDir(b.dataset.key);
     syncCmpButtons(); updateCompareBar(); saveCompare();
     showToast(n ? '已加入本校同方向 ' + n + ' 项' : '本校该方向没有其他可加入的专业');
@@ -2540,7 +2562,8 @@
     }, 200);
   }
   $('#groups').addEventListener('click', function (e) {
-    var b = e.target.closest('button.report'); if (!b) return;
+    // 按 data-report 找，不按类名——「报告错误」的类名会随样式调整而变
+    var b = e.target.closest('button[data-report]'); if (!b) return;
     openReportSheet(+b.dataset.report);
   });
   $('#report-close').addEventListener('click', closeReportSheet);

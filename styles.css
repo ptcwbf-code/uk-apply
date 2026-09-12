@@ -137,6 +137,28 @@ h1{margin:0;font-size:clamp(26px,3.4vw,38px);line-height:1.18;letter-spacing:-.0
 .manual-body li::marker{color:var(--line-2)}
 .manual-body b{color:var(--ink);font-weight:650}
 
+/* ══ 常见问题 ══
+   与「术语与口径说明」共用 .manual 的外壳（折叠观感一致），只是内容形态不同：
+   那边是并列的几块参考（多栏网格），这边是一问一答，所以正文走单栏、每条问题独立成块。
+   内容写死在 index.html 里而不是脚本渲染——正文要能被搜索引擎直接读到。 */
+.faq-body{padding:16px 18px;display:grid;gap:17px}
+.faq-body section{min-width:0}
+.faq-body h3{margin:0 0 8px;font-size:13.5px;color:var(--navy);font-weight:650;
+  border-bottom:1px solid var(--line);padding-bottom:6px;letter-spacing:.01em}
+.faq-body p,.faq-body li{font-size:13px;margin:0 0 7px;line-height:1.78;color:var(--ink-2)}
+.faq-body p:last-child{margin-bottom:0}
+.faq-body b{color:var(--ink);font-weight:650}
+.faq-body ul{margin:0 0 7px;padding-left:17px}
+.faq-body li{margin-bottom:5px}
+.faq-body li::marker{color:var(--line-2)}
+.faq-body a{color:var(--navy-2);text-decoration:underline;text-underline-offset:2px;
+  text-decoration-color:var(--line-2)}
+.faq-body a:hover{text-decoration-color:var(--navy-2)}
+/* 出处行：每条回答末尾的官方依据。字号再小一档，不要和正文抢 */
+.faq-body .faq-src{font-size:12px;color:var(--mut);margin-top:2px}
+.faq-body .faq-src a{color:var(--mut)}
+.faq-body .faq-src a:hover{color:var(--navy-2)}
+
 /* ══ 申请时间线 ══
    折叠状态下 summary 里就写着下一个截止日与剩余天数——最要紧的信息不必展开才看得到。
    倒计时由脚本按打开页面时的日期现算，所以静态页也不会「过期」。 */
@@ -484,19 +506,21 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;mi
   padding:5px 11px;font-size:12.5px;font-weight:650;text-decoration:none;white-space:nowrap;
   transition:background .15s ease,border-color .15s ease,color .15s ease}
 .tbl a.go2:hover{border-color:var(--navy-2);background:var(--panel);color:var(--navy)}
-/* 「单页」：每个专业在 <校>/<slug>.html 有一个独立静态页，可单独转发、收藏，也进 sitemap。
-   与紧邻的「打开官网」保持同一套观感——两者都是往外跳，样式不同会读成两个层级 */
-a.pg-link{display:inline-block;border:1px solid var(--line-2);background:var(--card);border-radius:6px;color:var(--ink-2);
-  padding:5px 11px;font-size:12.5px;font-weight:650;text-decoration:none;white-space:nowrap;
-  transition:background .15s ease,border-color .15s ease,color .15s ease}
-a.pg-link:hover{border-color:var(--navy-2);background:var(--panel);color:var(--navy)}
-/* 卡片里它跟徽章排在同一行，要小一号才不抢 */
-.badges a.pg-link{padding:0 8px;font-size:11.5px;font-weight:600;line-height:1.75}
-/* 「报告错误」：安静地待在官网按钮下面，不跟主操作抢 */
-.tbl button.report{display:block;margin-top:5px;padding:0;border:0;background:none;font:inherit;
-  font-size:11.5px;color:var(--mut);cursor:pointer;text-align:left;
-  text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2)}
-.tbl button.report:hover{color:var(--navy)}
+/* ══ 行内动作区：一个主按钮 + 一行安静的文字链接 ══
+   改前五种控件挤在同一个格子里：三种字号（13.3 / 12.5 / 11.5）、三种高度（19 / 26 / 33），
+   主次不分，读起来像没排过。现在只留「加入对比」一个按钮当主操作——它才是这一行真正要做的事，
+   其余（官网 / 单页 / 同方向 / 报告错误）全是往外跳或偶尔用一次，收成同一字号的一行文字，
+   悬停才出现下划线。加了「单页」之后控件变成五个，正是这一版要收拢的原因。 */
+.row-acts{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.card .row-acts{margin-top:9px}
+.al-row{display:flex;flex-wrap:wrap;align-items:center;font-size:11.5px;line-height:1.7;color:var(--mut)}
+.al-row .sep{color:var(--line-2);margin:0 6px;font-style:normal}
+a.al,button.al{font:inherit;font-size:11.5px;color:var(--ink-2);background:none;border:0;padding:0;margin:0;
+  cursor:pointer;white-space:nowrap;text-decoration:underline;text-decoration-color:var(--line-2);
+  text-underline-offset:3px;transition:color .15s ease,text-decoration-color .15s ease}
+a.al:hover,button.al:hover{color:var(--navy);text-decoration-color:var(--navy-2)}
+/* 动作列：顶端对齐，别跟着行高垂直居中——一列里按钮在上、链接在下才是读的顺序 */
+.tbl .ops-cell{vertical-align:top}
 
 /* ══ 可排序表头 ══ */
 .tbl .th-sortable{padding:0}
@@ -515,13 +539,6 @@ a.pg-link:hover{border-color:var(--navy-2);background:var(--panel);color:var(--n
   display:inline-flex;align-items:center;gap:6px;
   transition:background .15s ease,border-color .15s ease}
 .sort-chip:hover{border-color:var(--navy-2);background:var(--panel)}
-
-/* ══ 一键加入「本校同方向」 ══ */
-button.cmp-sib{font:inherit;font-size:11.5px;border:1px dashed var(--line-2);background:var(--card);color:var(--mut);
-  border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap;margin-right:7px;
-  transition:background .15s ease,border-color .15s ease,color .15s ease}
-button.cmp-sib:hover{border-color:var(--navy-2);color:var(--navy);background:var(--panel)}
-.badges button.cmp-sib{margin-right:0}
 
 /* ══ 对比表：标出有差异的列——一致的列不必细看 ══ */
 .tbl th.diff{color:var(--navy)}
@@ -647,17 +664,14 @@ mark.hl{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px;box-s
 .tbl .t-qs .tie{color:var(--mut);font-size:10px;font-weight:400;margin-right:1px}
 .badge.qs .tie{opacity:.6;font-weight:400;margin-right:1px}
 .tbl .t-qs.no{color:var(--mut);font-weight:400}
-  text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-2)}
-  vertical-align:-.02em;background:currentColor;
-  -webkit-mask:var(--ic-right) center/contain no-repeat;mask:var(--ic-right) center/contain no-repeat}
 
 /* ══ 加入对比 ══ */
 button.cmp{font:inherit;font-size:11.5px;border:1px solid var(--line-2);background:var(--card);color:var(--ink-2);border-radius:6px;
   padding:3px 10px;cursor:pointer;white-space:nowrap;transition:background .15s ease,border-color .15s ease,color .15s ease}
 button.cmp:hover{border-color:var(--navy-2);color:var(--navy)}
 button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-.badges button.cmp{margin-left:auto}
-.tbl .cmp{margin-right:7px;vertical-align:middle}
+/* 动作区里它跟着 .row-acts 顶端左对齐，不需要再自己撑位置 */
+.row-acts button.cmp{line-height:1.75}
 
 /* ══ 空结果 ══ */
 .empty{background:var(--card);border:1px dashed var(--line-2);border-radius:var(--r-lg);padding:30px;text-align:center;color:var(--mut)}
@@ -958,10 +972,10 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .eng-line .eng-band,.eng-line .eng-tag{display:none}
   .eng-v{font-size:12px;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .eng-block .eng-more{margin-top:2px}
-  /* 徽章行：窄屏不再把「加入对比」推到最右；「同方向 N 项」是桌面上的批量操作，先收起来 */
+  /* 徽章行：窄屏动作区跟着收紧；「同方向 N 项」是桌面上的批量操作，窄屏先收起来。
+     紧跟它的那个分隔点要一起藏——只藏按钮会留下「单页 · · 报告错误」两个点 */
   .badges{gap:5px}
-  .badges button.cmp{margin-left:0}
-  .badges button.cmp-sib{display:none}
+  .al-row .sib, .al-row .sib + .sep{display:none}
   .badge{font-size:11px;padding:1px 7px}
   .card-note{font-size:12px}
   .card .go{margin-top:6px;padding:6px 10px;font-size:12px}

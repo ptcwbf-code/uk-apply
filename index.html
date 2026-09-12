@@ -7,7 +7,7 @@
      原先「英国九校 · 香港八校」把位置占满，真正能辨认这个站的那截反而被截掉了 -->
 <title>本科录取要求速查 · 英国九校 · 香港八校</title>
 <meta name="description" content="覆盖英国九校（牛剑·G5·王爱曼华）与香港八校（港大·港中文·港科大·城大·理大·浸会·教育·岭南）热门专业本科公开录取要求检索、导出与对比，英国与香港专业可放入同一张对比表。英国含 A-level/IB/入学笔试，香港为 A-Level/IB 直申（无需 DSE）。">
-<link rel="stylesheet" href="styles.css?v=9.6">
+<link rel="stylesheet" href="styles.css?v=9.8">
 
 <!-- 图标：SVG 给现代浏览器，PNG 兜底（Safari 等对 SVG favicon 支持不全） -->
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -44,6 +44,62 @@
 <meta name="twitter:title" content="英国九校 · 香港八校 本科录取要求速查">
 <meta name="twitter:description" content="17 所英港大学的本科公开录取条件：A-Level / IB 要求、入学笔试、英语要求与 QS2026 学科排名，可检索、排序、对比并导出。">
 <meta name="twitter:image" content="https://mtennnn.cn/og-cover.png">
+<!-- FAQPage 结构化数据：正文在页面下方的「常见问题」里，这里给它一份机器可读的副本。
+     问题文案必须与页面上那 7 个 <h3> 逐字一致——build_pages.js 会逐个比对，
+     对不上就直接报错退出，免得改了页面忘了改这里、两边悄悄走样。 -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "预估成绩（predicted grade）由谁提供？是我自己填吗？",
+      "acceptedAnswer": { "@type": "Answer", "text": "不是。预估分由推荐人填——通常是你的学校老师。UCAS 的说明写得很明确：如果你的推荐人是你的老师，他们可以为你正在读、还没出成绩的资历加上预估分；而且你的申请要先在学校（或学院 / 中心）告诉你的内部截止日之前交给学校，学校才有时间审核、加推荐信和预估分。所以两件事要提前问清楚：学校给不给预估分、学校的内部截止日是哪天（它一定早于 UCAS 的官方截止日）。" }
+    },
+    {
+      "@type": "Question",
+      "name": "重考（resit）的成绩算吗？",
+      "acceptedAnswer": { "@type": "Answer", "text": "先把两种情形分开：用重考成绩重新申请下一年，和用重考成绩补上今年已经发出的条件录取。前者普遍可行，后者通常不可行。① 重考后重新申请：多数学校接受，但热门专业会打折。各校官方的措辞差别很大：巴斯——「如果你选择重考部分或全部已取得的资历，申请我们时不会因此受罚，我们会按你新的预估成绩评估」；帝国理工——除 MBBS 医学外重考者仍可被考虑，但「基于重考的成绩可能会被招生导师注意到」；LSE——「鉴于名额竞争与 LSE 的考核性质，我们偏好首次、且一次考出高分的申请人」；UCL 经济系——「由于名额竞争程度，即使你达到我们的要求，我们也不考虑重考」，UCL 医学同样不接受重考（含重读 12 年级）；牛津生物医学——「其他条件相同时，重考 GCSE 或 A-Level 的申请人获得录取的平均概率更低」；谢菲尔德——欢迎重考、多数专业同等对待，但最热门的专业可能提高要求或要求首考达到某个基线。② 用重考去补今年的 offer：一般不行。条件录取的达成以本申请周期的成绩截止日为准，次年夏季的重考属于下一个周期。布里斯托的官方说明是标准流程：「如果你同时没达到第一志愿与保底志愿的条件，你会被释放进 UCAS Clearing。你也可以明年重新申请，那会被当作一次全新的申请。」最严的一档是直接不接受，医学与牙医里最常见：利物浦牙医写明「我们不接受 A-Level 重考，也不考虑重读过 12 年级或 13 年级的申请人」；牛津临床医学写明首考没拿到 A*AA、只重考一两门的不符合申请资格。各校都留了同一条口子：特殊情况（extenuating circumstances），要按学校规定的程序和截止日主动申报。所以要不要重考、重考后申哪几所，取决于目标专业当年的明文政策——去该专业的入学要求页搜「resit」。" }
+    },
+    {
+      "@type": "Question",
+      "name": "雅思要考 UKVI 版还是普通 A 类？",
+      "acceptedAnswer": { "@type": "Answer", "text": "如果你申的是本科学位、且不需要读预科或语言班，通常普通 IELTS Academic 就够，不是必须考 UKVI 版。这是签证层面的区分：学位级别及以上，学校作为 HEP 可以自行评估你的英语（等效 CEFR B2 即可），所以内政部不强制 SELT。必须考 UKVI（SELT）的是这两种情形：① 本科以下——独立的预科、学前英语、EAP 课程；② 联合 CAS——把预科或语言课与学位打包成一张签证。曼大官网把这条规则写得最清楚：入读学位及以上课程时接受普通雅思，但「联合 CAS 需要 UKVI 认可的考试或 SELT，例如 IELTS UKVI 版」。还要注意个别学校会自行收紧：KCL 写明，需要申请学生签证的申请人，他们只接受 UKVI 认可考试中心出具的成绩。所以买考前，到目标学校官网对一遍。" }
+    },
+    {
+      "@type": "Question",
+      "name": "雅思成绩有效期多久？从考试日算还是从入学日算？",
+      "acceptedAnswer": { "@type": "Answer", "text": "考试局给的是「最多两年」——IELTS 官方的原话是：他们建议一份雅思成绩最多证明考生两年的英语能力，超过两年的成绩单只有在申请人能证明自己一直在使用或提升英语时才应被接受。但真正要盯的不是考试局那条，而是学校的口径：多数英国大学按「课程开课日」倒推两年，也就是成绩在你开课那天仍然有效。曼大的原文是「成绩自考试日起两年内有效，且必须在课程开始日仍然有效」；帝国理工写「考试成绩只有在距拟入学课程开课日两年内取得，才被视为有效」；KCL 还举了例子——「如果课程 2026 年 9 月开课，成绩必须落在 2026 年 9 月 1 日往前两年之内」。香港方面：港大要求成绩在你入学那一年的 9 月 1 日前两年内取得；港中文官方只写「雅思与托福成绩有效期为两年」。所以别按「考完两年内」自己推算——按开课日往前倒推两年，那才是成绩单要落进的区间。" }
+    },
+    {
+      "@type": "Question",
+      "name": "面试要去当地吗？线上还是线下？",
+      "acceptedAnswer": { "@type": "Answer", "text": "牛津：全部线上，用 Microsoft Teams。官方写得很明确——2026 年 12 月的面试（对应 2027 年入学）入围者一律线上参加，官方还说明线上是希望你在最能发挥的环境里面试，可以是你的学校，也可以是家里。所以大陆申请者不需要为此赴英。剑桥：线上还是线下，取决于评估你申请的那个学院和专业，申请人通常不能自选。官方按学院逐条列出：有的学院全部线下（如 Churchill、King's、Selwyn），有的全部线上（如 Christ's、Magdalene、Queens'、St John's），还有一类是「英国境内申请人线下、境外申请人线上」（如 Trinity）。主线面试在 2026 年 12 月 7–18 日，冬季 pool 的面试约在 2027 年 1 月中下旬。香港：整体比英国更偏线上，但有一个重要例外。理大官方逐专业列明形式，多数是 Zoom / Microsoft Teams 线上面试；港大商学院写明「通常是个人 Skype / Zoom 面试」；港中文商科也写明可以给无法到场的学生安排 Zoom。但港中文医学院例外——官方原文：「自 2023 年入学起，我们的医学课程已恢复 100% 线下面试，除特殊情况（如新冠相关）外，不再保证提供线上面试。」申港中文医学的内地学生要提前规划赴港。另外港科大明文面试不是必需程序（少数专业除外），获邀时才会邮件通知安排；城大官网有机器人防护，没取到官方说明，不作结论。" }
+    },
+    {
+      "@type": "Question",
+      "name": "用 A-Level / IB 申港校，要不要考 DSE？",
+      "acceptedAnswer": { "@type": "Answer", "text": "不用。香港的本科申请分两条路：读 HKDSE 课程的学生走联招（JUPAS），非 DSE 资历——A-Level、IB 等——走非联招（non-JUPAS），单独向各校申请。港中文的官方说明就是这么分的：正在修读香港中学文凭（HKDSE）课程的本地学生应通过 JUPAS 计划申请。还有一条硬性规则值得记住：同一个学年里，不能对同一门课程同时走 JUPAS 和 non-JUPAS 两条路申请。JUPAS 官网的原文是「申请人不得在同一个学年通过 JUPAS 与 non-JUPAS 同时对任何 JUPAS 涵盖的课程提出申请」，与你用什么资历申请无关。所以如果你同时持有 DSE 与其他资历，是要二选一的。本站香港板块的数据就是按非联招生源口径整理的，所以不需要看 DSE 的分数。" }
+    },
+    {
+      "@type": "Question",
+      "name": "港校认不认 A-Level 中文？",
+      "acceptedAnswer": { "@type": "Answer", "text": "这个问题要拆成两件事，它们经常被混为一谈：中文作为三门 A-Level 里的一门去计分，和中文作为满足「中文语言要求」的资历。各校的做法不一致，而且这两件事的答案可以正好相反。港大与浸会：明文把中文排除在三门之外。港大官方写的三门要求是「3A（不包括中文与英文语言科目、批判性思维、通识、全球视野与研究、知识与探究、专题研习、思维技能和 EPQ）」，部分专业措辞更严，写成「不包括所有语言科目」；浸会同样写明「不包括中文与英文语言科目」。港中文：中文不是三门之一，但另有独立的「中文语言要求」。它的三门要求是「3AL 或 2AL+2AS」，官方通则里没有排除条款；而「中文语言要求」是另一栏，写着「GCE AL / AS — E」——A-Level 或 AS 的中文科拿到 E 即可满足，还可以申请豁免（由相关学院院长酌情决定）。港科大、城大、理大的官方通则里都没有排除中文的字样，但也没有明文说可以计入。这种「查无」的情况不该替学校下结论——几所口径对不上时，直接问招生办最稳。一句话：「港校认 A-Level 中文」这个说法不成立——港大和浸会明确不算，港中文另有专门的中文要求，两者不是一回事。" }
+    },
+    {
+      "@type": "Question",
+      "name": "港校是滚动录取吗？早申请有优势吗？",
+      "acceptedAnswer": { "@type": "Answer", "text": "以港中文 2026 入学轮次为例：两轮、固定截止、不是滚动录取。早轮 2025 年 11 月 13 日截止，常规轮 2026 年 1 月 8 日截止，之后还有一个 5 月 29 日的补交截止。关键在于机制：只需交一次申请，早轮没选上的会自动进入常规轮，官方原文是与所有其他申请人同等竞争——所以早申请是多一次机会，落空没有惩罚。拿到 offer 后要在指定日期前交 HK$5,000 首期费，否则 offer 作废。其它港校也都有「早轮」，只是叫法不同：港大叫 first round（首轮），港科大叫 Priority Round。截至本站核对时，港大与港科大已公布 2027 年入学的日期——两校的首轮截止都是 2026 年 11 月 25 日中午（港大 2027 年 8 月 25 日关闭、港科大 2027 年 6 月 30 日关闭）；港中文、理大、浸会官网当时仍挂着 2026 周期，2027 的日期尚未上线。各校轮次每年都会调整，正式申请前请查该校当年公布的时间表。" }
+    },
+    {
+      "@type": "Question",
+      "name": "A-Level 和 IB 之间要自己换算吗？",
+      "acceptedAnswer": { "@type": "Answer", "text": "不用自己换算，也不要自己换算。各校是分别列出两套要求的——比如港中文写「GCE-AL / International-AL：3AL 或 2AL+2AS」，IB 另列一条，两条互不换算。并不存在一份官方统一的 A-Level ↔ IB 换算表。英国学历认证机构 UK ENIC 明确声明，它的对比声明「不对成绩、成绩比较、具体科目或英语水平作评论」；UCAS Tariff 也是把两个体系分别计分（IB 还按单科算），而且 UCAS 自己写明大学不必采用 Tariff 给的分值。少数英国大学（如 Exeter、Birmingham）会自己发布一套换算规则，但各校的换算并不一致——这恰恰说明该按各校自己列的那两列读，而不是拿一张通用的表去套。本站的判定也是按你所在体系的那一列比对的：填 A-Level 就对着 A-Level 那一列，填 IB 就对着 IB 那一列，不会把你的 IB 总分折成 A-Level 等级。" }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <a class="skip" href="#app">跳至正文</a>
@@ -230,6 +286,188 @@
 
   <!-- 「怎么用」与口径说明同类：都是参考资料，放在结果之后，不再占首屏
        （原来是压在控件区底部的 ①②③④ 一整段灰字，没人读） -->
+  <!-- 常见问题：与「术语与口径说明」同类，都是参考资料，放在结果之后。
+       内容写死在 HTML 里（不走脚本渲染），为的是正文能被搜索引擎直接读到。
+       每条回答末尾给官方出处——这个站的可信度就是「每条都能追到官网原文」，
+       拿不到官方原文的问题宁可不写，也不拿中介博客的说法凑数。 -->
+  <details class="manual" id="faq">
+    <summary>
+      <span class="man-title">常见问题</span>
+      <span class="man-sub">预估成绩谁给 · 雅思要不要 UKVI 版 · 港校要不要 DSE · A-Level 中文怎么算</span>
+    </summary>
+    <div class="faq-body">
+
+      <section>
+        <h3>预估成绩（predicted grade）由谁提供？是我自己填吗？</h3>
+        <p>不是。预估分由<b>推荐人</b>填——通常是你的学校老师。UCAS 的说明写得很明确：如果你的推荐人是你的老师，
+          他们可以为你正在读、还没出成绩的资历加上预估分；而且你的申请要先在学校（或学院 / 中心）告诉你的
+          <b>内部截止日</b>之前交给学校，学校才有时间审核、加推荐信和预估分。</p>
+        <p>所以两件事要提前问清楚：<b>学校给不给预估分</b>、<b>学校的内部截止日是哪天</b>（它一定早于 UCAS 的官方截止日）。</p>
+        <p class="faq-src">来源：<a href="https://www.ucas.com/applying/applying-university/how-get-ucas-reference" target="_blank" rel="noopener noreferrer">UCAS · How to get a UCAS reference ↗</a>　·
+          <a href="https://www.lse.ac.uk/study-at-lse/Undergraduate/Prospective-Students/How-to-Apply/Completing-the-UCAS-form/Reference" target="_blank" rel="noopener noreferrer">LSE 给推荐人的说明 ↗</a></p>
+      </section>
+
+      <section>
+        <h3>重考（resit）的成绩算吗？</h3>
+        <p>先把两种情形分开：<b>用重考成绩重新申请下一年</b>，和<b>用重考成绩补上今年已经发出的条件录取</b>。
+          前者普遍可行，后者通常不可行。</p>
+        <p><b>① 重考后重新申请：多数学校接受，但热门专业会打折。</b>各校官方的措辞差别很大：</p>
+        <ul>
+          <li>巴斯：「如果你选择重考部分或全部已取得的资历，申请我们时<b>不会因此受罚</b>——我们会按你<b>新的预估成绩</b>评估。」</li>
+          <li>帝国理工：除 MBBS 医学外，重考者<b>仍可被考虑</b>；但「基于重考的成绩可能会被招生导师<b>注意到</b>」。</li>
+          <li>LSE：「鉴于名额竞争与 LSE 的考核性质，我们<b>偏好</b>在相关考试中<b>首次、且一次考出</b>高分的申请人。」</li>
+          <li>UCL 经济系：「由于名额竞争程度，<b>即使你达到我们的要求，我们也不考虑重考。</b>」
+            UCL 医学同样写明不接受重考（含重读 12 年级）。</li>
+          <li>牛津生物医学：「其他条件相同时，重考 GCSE 或 A-Level 的申请人获得录取的<b>平均概率更低</b>。」</li>
+          <li>谢菲尔德：欢迎重考，多数专业同等对待；但最热门的专业「可能会把录取要求设得更高、
+            可能要求首考达到某个基线成绩、和/或要求先达到标准要求再申请」。</li>
+        </ul>
+        <p><b>② 用重考去补今年的 offer：一般不行。</b>条件录取的达成以<b>本申请周期</b>的成绩截止日为准，
+          次年夏季的重考属于下一个周期。布里斯托的官方说明就是标准流程：「如果你同时没达到第一志愿与保底志愿的条件，
+          你会被释放进 UCAS Clearing。你也可以<b>明年重新申请，那会被当作一次全新的申请</b>。」</p>
+        <p>最严的一档是直接不接受，医学与牙医里最常见。利物浦牙医（A200）的原文：
+          <b>「我们不接受 A-Level 重考，也不考虑重读过 12 年级或 13 年级的申请人。」</b>
+          牛津临床医学同样写明：<b>如果首考没拿到 A*AA、只是重考一两门 A-Level，就不符合申请资格。</b></p>
+        <p>不过各校都留了同一条口子：<b>特殊情况（extenuating circumstances）</b>——转学、教师严重中断、丧亲、
+          一次性重病等。走这条通道要按学校规定的程序和截止日主动申报，不会自动生效。</p>
+        <p>所以：要不要重考、重考后申哪几所，取决于<b>目标专业当年的明文政策</b>——
+          去该专业的入学要求页搜「resit」，别用「重考能不能申」这种一概而论的说法做决定。</p>
+        <p class="faq-src">来源：<a href="https://www.bath.ac.uk/guides/uk-qualification-guidance/" target="_blank" rel="noopener noreferrer">Bath · UK qualification guidance ↗</a>　·
+          <a href="https://www.imperial.ac.uk/study/help-centre/undergraduate-admissions/-what-are-the-entry-requirements-and-what-qualifications-do-you-accept.php" target="_blank" rel="noopener noreferrer">Imperial · 入学要求帮助中心 ↗</a>　·
+          <a href="https://www.lse.ac.uk/study-at-lse/undergraduate/prospective-students/how-to-apply/admissions-information" target="_blank" rel="noopener noreferrer">LSE · Admissions information ↗</a>　·
+          <a href="https://www.ucl.ac.uk/social-historical-sciences/economics/study/undergraduate/prospective-students-0/economics-frequently-asked-questions" target="_blank" rel="noopener noreferrer">UCL 经济系 FAQ ↗</a>　·
+          <a href="https://www.medsci.ox.ac.uk/study/bms/faqs/how-do-you-feel-about-a-candidate-re-taking-qualifications" target="_blank" rel="noopener noreferrer">Oxford 生物医学 FAQ ↗</a>　·
+          <a href="https://sheffield.ac.uk/undergraduate/apply/qualifications-policies" target="_blank" rel="noopener noreferrer">Sheffield ↗</a>　·
+          <a href="https://www.bristol.ac.uk/results/missed-your-offer/" target="_blank" rel="noopener noreferrer">Bristol · Missed your offer ↗</a>　·
+          <a href="https://www.medsci.ox.ac.uk/study/medicine/pre-clinical/faqs/i-have-re-sat-a-levels-or-equivalent-am-i-eligible-to-apply" target="_blank" rel="noopener noreferrer">Oxford 临床医学 FAQ ↗</a>　·
+          <a href="https://www.liverpool.ac.uk/dentistry/study/undergraduate/bachelor-of-dental-surgery/" target="_blank" rel="noopener noreferrer">Liverpool 牙医 ↗</a></p>
+      </section>
+
+      <section>
+        <h3>雅思要考 UKVI 版还是普通 A 类？</h3>
+        <p>如果你申的是<b>本科学位、且不需要读预科或语言班</b>，通常<b>普通 IELTS Academic 就够</b>，
+          不是必须考 UKVI 版。这是签证层面的区分：学位级别及以上，学校作为 HEP 可以自行评估你的英语
+          （等效 CEFR B2 即可），所以内政部不强制 SELT。</p>
+        <p><b>必须考 UKVI（SELT）的是这两种情形：</b>① <b>本科以下</b>——独立的预科、学前英语、EAP 课程；
+          ② <b>联合 CAS</b>——把预科或语言课与学位打包成一张签证。曼大官网把这条规则写得最清楚：
+          入读学位及以上课程时接受普通雅思，但「联合 CAS 需要 UKVI 认可的考试或 SELT，例如 IELTS UKVI 版」。</p>
+        <p>还要注意个别学校会自行收紧：KCL 写明，需要申请学生签证的申请人，他们只接受
+          UKVI 认可考试中心出具的成绩。所以买考前，到目标学校官网对一遍。</p>
+        <p class="faq-src">来源：<a href="https://www.gov.uk/student-visa/knowledge-of-english" target="_blank" rel="noopener noreferrer">GOV.UK · Student visa: knowledge of English ↗</a>　·
+          <a href="https://www.manchester.ac.uk/study/international/admissions/language-requirements/" target="_blank" rel="noopener noreferrer">曼大 · 英语语言要求 ↗</a>　·
+          <a href="https://www.kcl.ac.uk/study/undergraduate/how-to-apply/english-language-requirements" target="_blank" rel="noopener noreferrer">KCL ↗</a></p>
+      </section>
+
+      <section>
+        <h3>雅思成绩有效期多久？从考试日算还是从入学日算？</h3>
+        <p>考试局给的是「<b>最多两年</b>」——IELTS 官方的原话是：他们建议一份雅思成绩最多证明考生两年的英语能力，
+          超过两年的成绩单只有在申请人能证明自己一直在使用或提升英语时才应被接受。</p>
+        <p>但真正要盯的不是考试局那条，而是学校的口径：<b>多数英国大学按「课程开课日」倒推两年</b>，
+          也就是成绩在你开课那天仍然有效。曼大的原文是「成绩自考试日起两年内有效，<b>且必须在课程开始日仍然有效</b>」；
+          帝国理工写「考试成绩只有在距拟入学课程开课日两年内取得，才被视为有效」；KCL 还举了例子——
+          「如果课程 2026 年 9 月开课，成绩必须落在 2026 年 9 月 1 日往前两年之内」。</p>
+        <p>香港方面：<b>港大要求成绩在你入学那一年的 9 月 1 日前两年内取得</b>；港中文官方只写「雅思与托福成绩有效期为两年」。</p>
+        <p>所以别按「考完两年内」自己推算——<b>按开课日往前倒推两年</b>，那才是成绩单要落进的区间。</p>
+        <p class="faq-src">来源：<a href="https://ielts.org/organisations/ielts-for-organisations/verifying-ielts-results" target="_blank" rel="noopener noreferrer">IELTS 官方 · Verifying IELTS results ↗</a>　·
+          <a href="https://www.manchester.ac.uk/study/international/admissions/language-requirements/" target="_blank" rel="noopener noreferrer">曼大 · 英语语言要求 ↗</a>　·
+          <a href="https://www.kcl.ac.uk/study/undergraduate/how-to-apply/english-language-requirements" target="_blank" rel="noopener noreferrer">KCL ↗</a>　·
+          <a href="https://admissions.hku.hk/apply/international-qualifications/english-language-requirement" target="_blank" rel="noopener noreferrer">港大 ↗</a></p>
+      </section>
+
+      <section>
+        <h3>面试要去当地吗？线上还是线下？</h3>
+        <p><b>牛津：全部线上</b>，用 Microsoft Teams。官方写得很明确——2026 年 12 月的面试（对应 2027 年入学）
+          入围者一律线上参加，官方还说明线上是希望你在最能发挥的环境里面试，可以是你的学校，也可以是家里。
+          <b>所以大陆申请者不需要为此赴英。</b></p>
+        <p><b>剑桥：线上还是线下，取决于评估你申请的那个学院和专业</b>，申请人通常不能自选。
+          官方按学院逐条列出：有的学院<b>全部线下</b>（如 Churchill、King's、Selwyn），
+          有的<b>全部线上</b>（如 Christ's、Magdalene、Queens'、St John's），
+          还有一类是「英国境内申请人线下、境外申请人线上」（如 Trinity）。
+          主线面试在 2026 年 12 月 7–18 日，冬季 pool 的面试约在 2027 年 1 月中下旬。</p>
+        <p><b>香港：整体比英国更偏线上，但有一个重要例外。</b>理大官方逐专业列明形式，多数是
+          Zoom / Microsoft Teams 线上面试；港大商学院写明「通常是个人 Skype / Zoom 面试」；
+          港中文商科也写明可以给无法到场的学生安排 Zoom。<b>但港中文医学院例外</b>——
+          官方原文：「自 2023 年入学起，我们的医学课程已恢复 <b>100% 线下面试</b>，除特殊情况（如新冠相关）外，
+          <b>不再保证提供线上面试</b>。」申港中文医学的内地学生要提前规划赴港。</p>
+        <p>另外港科大明文面试<b>不是必需程序</b>（少数专业除外），获邀时才会邮件通知安排；
+          城大官网有机器人防护，没取到官方说明，不作结论。</p>
+        <p class="faq-src">来源：<a href="https://www.ox.ac.uk/admissions/undergraduate/applying-to-oxford/guide/interviews" target="_blank" rel="noopener noreferrer">牛津 · Interviews ↗</a>　·
+          <a href="https://www.undergraduate.study.cam.ac.uk/applying/interviews" target="_blank" rel="noopener noreferrer">剑桥 · Interviews ↗</a>　·
+          <a href="https://www.polyu.edu.hk/study/ug/admissions/non-jupas-year-1/non-jupas-year-1-interview-arrangement" target="_blank" rel="noopener noreferrer">理大 · 面试安排 ↗</a>　·
+          <a href="https://ug.hkubs.hku.hk/admission/faq/non-jupas-applicants" target="_blank" rel="noopener noreferrer">港大商学院 FAQ ↗</a>　·
+          <a href="https://webster.med.cuhk.edu.hk/study/prospective-students/undergraduate-study/programme-and-admission/mbchb-and-gps/admissions/interview" target="_blank" rel="noopener noreferrer">港中文医学院 · 面试 ↗</a>　·
+          <a href="https://join.hkust.edu.hk/admissions/international-qualifications/application-procedures" target="_blank" rel="noopener noreferrer">港科大 · 申请程序 ↗</a></p>
+      </section>
+
+      <section>
+        <h3>用 A-Level / IB 申港校，要不要考 DSE？</h3>
+        <p>不用。香港的本科申请分两条路：<b>读 HKDSE 课程的学生走联招（JUPAS）</b>，
+          非 DSE 资历——A-Level、IB 等——走<b>非联招（non-JUPAS）</b>，单独向各校申请。
+          港中文的官方说明就是这么分的：「正在修读香港中学文凭（HKDSE）课程的本地学生应通过 JUPAS 计划申请。」</p>
+        <p>还有一条硬性规则值得记住：<b>同一个学年里，不能对同一门课程同时走 JUPAS 和 non-JUPAS 两条路申请。</b>
+          JUPAS 官网的原文是「申请人不得在同一个学年通过 JUPAS 与 non-JUPAS 同时对<b>任何</b> JUPAS 涵盖的课程提出申请」，
+          与你用什么资历申请无关。所以如果你同时持有 DSE 与其他资历，是要二选一的。</p>
+        <p>本站香港板块的数据就是按<b>非联招生源</b>口径整理的，所以不需要看 DSE 的分数。</p>
+        <p class="faq-src">来源：<a href="https://www.jupas.edu.hk/en/eligibility/" target="_blank" rel="noopener noreferrer">JUPAS · Eligibility ↗</a>　·
+          <a href="https://admission.cuhk.edu.hk/application/non-jupas/general-requirements/" target="_blank" rel="noopener noreferrer">CUHK · Non-JUPAS General Requirements ↗</a></p>
+      </section>
+
+      <section>
+        <h3>港校认不认 A-Level 中文？</h3>
+        <p>这个问题要拆成两件事，它们经常被混为一谈：<b>中文作为三门 A-Level 里的一门去计分</b>，
+          和<b>中文作为满足「中文语言要求」的资历</b>。各校的做法不一致，而且这两件事的答案可以正好相反。</p>
+        <p><b>港大与浸会：明文把中文排除在三门之外。</b>港大官方写的三门要求是「3A（<b>不包括中文与英文语言科目</b>、
+          批判性思维、通识、全球视野与研究、知识与探究、专题研习、思维技能和 EPQ）」，部分专业措辞更严，
+          写成「不包括<b>所有</b>语言科目」；浸会同样写明「<b>不包括中文与英文语言科目</b>」。</p>
+        <p><b>港中文：中文不是三门之一，但另有独立的「中文语言要求」。</b>它的三门要求是「3AL 或 2AL+2AS」，
+          官方通则里没有排除条款；而「中文语言要求」是另一栏，写着「GCE AL / AS — E」——
+          A-Level 或 AS 的中文科拿到 E 即可满足，还可以申请豁免（由相关学院院长酌情决定）。</p>
+        <p>港科大、城大、理大的官方通则里<b>都没有</b>排除中文的字样，但也没有明文说可以计入。
+          这种「查无」的情况不该替学校下结论——四所口径对不上时，直接问招生办最稳。</p>
+        <p>一句话：<b>「港校认 A-Level 中文」这个说法不成立</b>——港大和浸会明确不算，
+          港中文另有专门的中文要求，两者不是一回事。</p>
+        <p class="faq-src">来源：<a href="https://admissions.hku.hk/apply/international-qualifications" target="_blank" rel="noopener noreferrer">港大 · International Qualifications ↗</a>　·
+          <a href="https://admissions.hkbu.edu.hk/admissions/international-qualifications.html" target="_blank" rel="noopener noreferrer">浸会 · International Qualifications ↗</a>　·
+          <a href="https://admission.cuhk.edu.hk/application/non-jupas/language-requirements/" target="_blank" rel="noopener noreferrer">港中文 · Language Requirements ↗</a>　·
+          <a href="https://join.hkust.edu.hk/admissions/international-qualifications" target="_blank" rel="noopener noreferrer">港科大 · International Qualifications ↗</a></p>
+      </section>
+
+      <section>
+        <h3>港校是滚动录取吗？早申请有优势吗？</h3>
+        <p>以港中文 2026 入学轮次为例：<b>两轮、固定截止、不是滚动录取</b>。早轮 2025 年 11 月 13 日截止，
+          常规轮 2026 年 1 月 8 日截止，之后还有一个 5 月 29 日的补交截止。</p>
+        <p>关键在于机制：<b>只需交一次申请</b>，早轮没选上的会自动进入常规轮，
+          官方原文是与所有其他申请人<b>同等竞争</b>——所以早申请是多一次机会，落空没有惩罚。
+          拿到 offer 后要在指定日期前交 HK$5,000 首期费，否则 offer 作废。</p>
+        <p>其它港校也都有「早轮」，只是叫法不同：港大叫 first round（首轮），港科大叫 Priority Round。
+          截至本站核对时，<b>港大与港科大已公布 2027 年入学的日期</b>——两校的首轮截止都是
+          <b>2026 年 11 月 25 日中午</b>（港大 2027 年 8 月 25 日关闭、港科大 2027 年 6 月 30 日关闭）；
+          港中文、理大、浸会官网当时仍挂着 2026 周期，2027 的日期尚未上线。
+          各校轮次每年都会调整，正式申请前请查该校当年公布的时间表。</p>
+        <p class="faq-src">来源：<a href="https://admission.cuhk.edu.hk/application/non-jupas/important-dates/" target="_blank" rel="noopener noreferrer">港中文 · 重要日期 ↗</a>　·
+          <a href="https://admissions.hku.hk/apply/international-qualifications" target="_blank" rel="noopener noreferrer">港大 · 国际资历申请 ↗</a>　·
+          <a href="https://join.hkust.edu.hk/admissions/international-qualifications/application-procedures" target="_blank" rel="noopener noreferrer">港科大 · 申请程序 ↗</a></p>
+      </section>
+
+      <section>
+        <h3>A-Level 和 IB 之间要自己换算吗？</h3>
+        <p>不用自己换算，也<b>不要</b>自己换算。各校是<b>分别列出两套要求</b>的——
+          比如港中文写「GCE-AL / International-AL：3AL 或 2AL+2AS」，IB 另列一条，两条互不换算。</p>
+        <p>并不存在一份官方统一的 A-Level ↔ IB 换算表。英国学历认证机构 UK ENIC 明确声明，
+          它的对比声明「<b>不对成绩、成绩比较、具体科目或英语水平作评论</b>」；UCAS Tariff 也是把两个体系
+          <b>分别计分</b>（IB 还按单科算），而且 UCAS 自己写明大学<b>不必</b>采用 Tariff 给的分值。</p>
+        <p>少数英国大学（如 Exeter、Birmingham）会自己发布一套换算规则，但<b>各校的换算并不一致</b>——
+          这恰恰说明该按各校自己列的那两列读，而不是拿一张通用的表去套。</p>
+        <p>本站的判定也是按你所在体系的那一列比对的：填 A-Level 就对着 A-Level 那一列，填 IB 就对着 IB 那一列，
+          不会把你的 IB 总分折成 A-Level 等级。</p>
+        <p class="faq-src">来源：<a href="https://www.enic.org.uk/individuals/statement-of-comparability" target="_blank" rel="noopener noreferrer">UK ENIC · Statement of Comparability ↗</a>　·
+          <a href="https://www.ucas.com/applying/before-you-apply/what-and-where-to-study/entry-requirements/calculate-your-ucas-tariff-points" target="_blank" rel="noopener noreferrer">UCAS · Tariff ↗</a>　·
+          <a href="https://admission.cuhk.edu.hk/application/non-jupas/general-requirements/" target="_blank" rel="noopener noreferrer">CUHK · Non-JUPAS General Requirements ↗</a></p>
+      </section>
+
+    </div>
+  </details>
+
   <details class="howto" id="quickstart">
     <summary>怎么用（4 步）</summary>
     <ol>
@@ -352,15 +590,15 @@
     <p><strong>数据依据</strong>：各大学官网课程页面公开信息，逐条核对（核对时间 2026 年 9 月）。英国板块面向 <strong>2027 年 9 月入学</strong>（2026–27 申请季）；香港板块为 <strong>2026 入学轮次</strong>公布的 A-Level / IB 直申要求（无需 DSE）。各校条件随申请季更新，正式申请前请以官网最新页面为准。</p>
     <p>本页成绩按各校官网公开口径照录（<strong>典型 · 最低 · 区间 · 下限 · 门槛</strong>），不构成录取承诺；牛剑及港校医学类录取还取决于入学笔试、面试与预估成绩。</p>
     <p class="disclaimer"><strong>免责声明</strong>：本页为公开资料汇编，<strong>仅供参考</strong>；所有录取要求、分数与考试政策<strong>一律以各大学官网最新公布为准</strong>，请勿据本页直接决策。</p>
-    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 9.6（英国九校 + 香港八校 + QS2026 学科排名 + 英语要求）· 纯静态页面，可离线使用</p>
+    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 9.8（英国九校 + 香港八校 + QS2026 学科排名 + 英语要求）· 纯静态页面，可离线使用</p>
   </footer>
   <button type="button" class="to-top" id="to-top" aria-label="回到顶部" title="回到顶部"><svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 13V3.4"/><path d="M4.2 7.2 8 3.4l3.8 3.8"/></svg></button>
 </main>
 
-<script src="data.js?v=9.6"></script>
-<script src="data-hk.js?v=9.6"></script>
-<script src="data-eng.js?v=9.6"></script>
-<script src="data-qs.js?v=9.6"></script>
-<script src="app.js?v=9.6"></script>
+<script src="data.js?v=9.8"></script>
+<script src="data-hk.js?v=9.8"></script>
+<script src="data-eng.js?v=9.8"></script>
+<script src="data-qs.js?v=9.8"></script>
+<script src="app.js?v=9.8"></script>
 </body>
 </html>
