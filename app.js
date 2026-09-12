@@ -732,6 +732,32 @@
     });
     return out;
   }
+  // ── 单页路径：每个专业一个独立的静态页（生成器在仓库外的 build_pages.js）──
+  // 生成器按这行标记把下面两个函数整段抽出去复用——命名只有这一份实现。
+  // 若在两边各写一遍 slug 规则，改一处忘一处就会让列表里的链接整片 404。
+  function progSlug(en) {
+    return String(en || '').toLowerCase()
+      .replace(/&/g, ' and ').replace(/[（）()]/g, ' ')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70) || 'programme';
+  }
+  // 同校可能有同名专业（帝国 Computing 的 MEng/BEng），按出现顺序补 -2、-3
+  function buildPagePaths(reg) {
+    var used = {}, out = [];
+    reg.programs.forEach(function (p) {
+      var s = progSlug(p.en);
+      if (used[s]) { used[s] += 1; s = s + '-' + used[s]; } else used[s] = 1;
+      out.push(p.school + '/' + s + '.html');
+    });
+    return out;
+  }
+  var pagePaths = { uk: [], hk: [] };
+  function pageLinkHTML(rc, idx) {
+    var p = (pagePaths[rc] || [])[idx];
+    if (!p) return '';
+    return '<a class="pg-link" href="' + esc(p) + '" target="_blank" rel="noopener"' +
+      ' title="这一条有独立页面，可单独发给同学或收藏：' + esc(p) + '">单页</a>';
+  }
+
   function buildIndex() {
     schoolByKey = {}; schoolCount = {}; dirCount = {};
     cur.schools.forEach(function (s) { schoolByKey[s.key] = s; });
@@ -741,6 +767,8 @@
     });
     engByRegion.uk = engBuildFor(REGIONS.uk);
     engByRegion.hk = engBuildFor(REGIONS.hk);
+    pagePaths.uk = buildPagePaths(REGIONS.uk);
+    pagePaths.hk = buildPagePaths(REGIONS.hk);
     if (!qBlob.uk.length) buildSearchBlobs();   // 数据静态，两个板块各建一次就够（切板块会重跑 buildIndex）
   }
   // 取某专业的英语要求：优先逐专业记录，否则回落到该校校级口径
@@ -1937,7 +1965,7 @@
         engChipTags(e) +
         '<span class="eng-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span></div>' +
         engDetailHTML(e) + '</div>' : '') +
-      '<div class="badges">' + offerBadge(p) + testBadge(p) + qsBadge(p) + cmpButton(key + idx) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key + idx) + '</div>' +
+      '<div class="badges">' + offerBadge(p) + testBadge(p) + qsBadge(p) + pageLinkHTML(cur === REGIONS.hk ? 'hk' : 'uk', idx) + cmpButton(key + idx) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key + idx) + '</div>' +
       (p.note ? '<p class="card-note">' + fmtBold(p.note) + '</p>' : '') +
       '<a class="go" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' +
     '</article>';
@@ -2004,7 +2032,7 @@
         engCol +
         '<td class="qs-cell">' + qsCell(p) + '</td>' +
         '<td class="note-cell">' + (p.note ? fmtBold(p.note) : '') + '</td>' +
-        '<td>' + cmpButton(key) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' + reportLink(p, idxMap[i]) + '</td>' +
+        '<td>' + cmpButton(key) + cmpSibButton(cur === REGIONS.hk ? 'hk' : 'uk', p, key) + '<a class="go2" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" title="' + esc(p.url) + '">打开官网</a>' + pageLinkHTML(cur === REGIONS.hk ? 'hk' : 'uk', idxMap[i]) + reportLink(p, idxMap[i]) + '</td>' +
       '</tr>';
     }).join('');
     return '<section class="group" data-key="' + esc(groupKey || '') + '" style="--school:' + (meta.color || '#9aa3b8') + '">' + headHTML(items, meta) +

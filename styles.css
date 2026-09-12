@@ -484,6 +484,14 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;mi
   padding:5px 11px;font-size:12.5px;font-weight:650;text-decoration:none;white-space:nowrap;
   transition:background .15s ease,border-color .15s ease,color .15s ease}
 .tbl a.go2:hover{border-color:var(--navy-2);background:var(--panel);color:var(--navy)}
+/* 「单页」：每个专业在 <校>/<slug>.html 有一个独立静态页，可单独转发、收藏，也进 sitemap。
+   与紧邻的「打开官网」保持同一套观感——两者都是往外跳，样式不同会读成两个层级 */
+a.pg-link{display:inline-block;border:1px solid var(--line-2);background:var(--card);border-radius:6px;color:var(--ink-2);
+  padding:5px 11px;font-size:12.5px;font-weight:650;text-decoration:none;white-space:nowrap;
+  transition:background .15s ease,border-color .15s ease,color .15s ease}
+a.pg-link:hover{border-color:var(--navy-2);background:var(--panel);color:var(--navy)}
+/* 卡片里它跟徽章排在同一行，要小一号才不抢 */
+.badges a.pg-link{padding:0 8px;font-size:11.5px;font-weight:600;line-height:1.75}
 /* 「报告错误」：安静地待在官网按钮下面，不跟主操作抢 */
 .tbl button.report{display:block;margin-top:5px;padding:0;border:0;background:none;font:inherit;
   font-size:11.5px;color:var(--mut);cursor:pointer;text-align:left;

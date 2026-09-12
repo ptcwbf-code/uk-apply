@@ -29,8 +29,23 @@
 | `styles.css` | 样式（系统字体，无外部依赖） |
 | `data.js` | 英国九校全部数据 + 学科方向定义 |
 | `data-hk.js` | 香港八校 A-Level/IB 直申数据 |
+| `data-eng.js` | 英语语言要求（校级口径 + 六校逐专业记录） |
 | `data-qs.js` | QS 2026 学科排名（17 校 × 37 学科）+ 学科方向映射 |
 | `app.js` | 板块切换 / 筛选 / 分组 / 对比 / 导出逻辑 |
+| `<校>/<slug>.html` | **每个专业一个独立静态页**（生成物，见下节），外加每校一个目录索引 `<校>/index.html` |
+| `sitemap.xml` / `robots.txt` | 给搜索引擎的入口（生成物） |
+
+## 每个专业的独立静态页
+
+主站是单页应用，一个 URL 装下全部专业——好处是筛选对比顺手，代价是**单条专业发不出去**（把「港大 JS6456」发给同学，对方打开看到的是一整张表），也进不了长尾搜索。
+
+所以每个专业另生成一个静态页：`https://mtennnn.cn/<校 key>/<英文名 slug>.html`（如 `/hku/mbbs.html`、`/manchester/materials-science-and-engineering.html`）。同校同名专业按出现顺序补 `-2`。
+
+- **生成器**：仓库外的 `../build_pages.js`（`node build_pages.js`）。它按注释标记从 `app.js` 里整块抽出 `progSlug` / `buildPagePaths`（页路径）、`engBuildFor`（专业↔英语记录匹配）、`qsListCalc`（QS 学科归类）三段源码来复用——**命名与归类只有 app.js 一份实现**，生成器和列表里那枚「单页」链接用的是同一个函数，所以不会出现「链接指向不存在的文件」。改这三处的逻辑时不用同步改生成器。
+- **页面内容**：入学要求、英语语言要求（逐专业记录给课程页、校级记录给学校总页）、QS 学科排名、同校同方向内链、回主站的深链（`#r=&q=`）。样式复用 `styles.css`，另加一小段 `.pg-*` 规则；**不依赖 JS**，正文全部在 HTML 里。
+- **列表入口**：主站卡片与表格每行都有「单页」按钮，指向该专业的静态页，便于单独转发或收藏。
+- 页面里的 `styles.css?v=` 跟着 `index.html` 走，所以**升版本号后要重新生成一次**。
+- 根目录的 `.nojekyll` 关掉 GitHub Pages 的 Jekyll 处理：408 个页面没有一页用到 Liquid，交给 Jekyll 只是白白拉长构建时间。
 
 ## QS 2026 学科排名
 
@@ -94,7 +109,9 @@
 
 ## 上线（可选）
 
-纯静态，直接把整个 `uk-apply/` 文件夹推到 GitHub Pages / Netlify / Vercel / 任意静态托管即可，无需构建。
+纯静态，把整个 `uk-apply/` 文件夹推到 GitHub Pages / Netlify / Vercel / 任意静态托管即可，服务器端无需构建。
+
+**但发版前要在本机跑一次** `node build_pages.js`（在上级 `outputs/images/` 下执行）：它会重生成全部专业静态页 + `sitemap.xml` + `robots.txt`。**增删专业之后一定要重跑**，否则新专业没有单页、列表里那枚「单页」会指向不存在的文件；升版本号之后也要重跑，因为静态页里的 `styles.css?v=` 跟着 `index.html` 走。
 
 ## 设计自查（对照可用性检查清单，版本 3.0）
 
