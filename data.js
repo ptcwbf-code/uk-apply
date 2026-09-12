@@ -453,82 +453,82 @@ const PROGRAMS = [
   { school: 'imperial', dirs: ['bio'], zh: '医学生物科学', en: 'Medical Biosciences',
     degree: 'BSc · 3 年', alevel: 'AAA', ib: '38（HL 生物 6 + 相关科 6）', test: '',
     alevelNote: '生物 A + 化学/数学/高数/物理之一 A', offer: 'min', note: '最低档与典型档相同；无笔试',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/medical-biosciences/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/medical-biosciences/' },
 
   { school: 'imperial', dirs: ['bio'], zh: '生物化学', en: 'Biochemistry',
     degree: 'BSc · 3 年', alevel: 'AAA', ib: '38（HL 化学 6 + 相关科）', test: 'ESAT',
     alevelNote: '化学 A + 生物/数学/物理之一 A', offer: 'min', note: '2027 须考 ESAT',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/biochemistry-bsc/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/biochemistry-bsc/' },
 
   { school: 'imperial', dirs: ['bio'], zh: '生物科学', en: 'Biological Sciences',
     degree: 'BSc / MSci · 3–4 年', alevel: 'AAA', ib: '38（HL 生物 6 + 相关科）', test: 'ESAT',
     alevelNote: '生物 A + 化学/数学/物理之一 A', offer: 'min', note: '2027 起须 ESAT',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/biological-sciences/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/biological-sciences/' },
 
   { school: 'imperial', dirs: ['bio'], zh: '化学', en: 'Chemistry',
     degree: 'BSc · 3 年', alevel: 'AAA', ib: '38（HL 化学+数学各 6）', test: '',
     alevelNote: '化学 A、数学 A', offer: 'min', note: '典型A*AA；无笔试',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/chemistry-bsc/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/chemistry-bsc/' },
 
   { school: 'imperial', dirs: ['physics'], zh: '物理', en: 'Physics',
     degree: 'BSc · 3 年', alevel: 'A*A*A', ib: '40（HL 数学 7、物理 7）', test: 'ESAT',
     alevelNote: '数学 A*、物理 A*', offer: 'min', note: '典型A*A*A',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/physics-bsc/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/physics-bsc/' },
 
   { school: 'imperial', dirs: ['eng'], zh: '航空工程', en: 'Aeronautical Engineering',
     degree: 'MEng · 4 年', alevel: 'A*A*A', ib: '40（HL 数学 7、物理 7）', test: 'ESAT',
     alevelNote: '数学 A*、物理 A*（3 科制须 A*）', offer: 'min', note: '典型A*A*A*',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/aeronautical-engineering/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/aeronautical-engineering/' },
 
   { school: 'imperial', dirs: ['eng'], zh: '机械工程', en: 'Mechanical Engineering',
     degree: 'MEng · 4 年', alevel: 'A*A*A', ib: '40（HL 数学、物理各 6）', test: 'ESAT',
     alevelNote: '数学 A*；物理 3 科制须 A*', offer: 'min', note: '典型A*A*A*',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/mechanical-engineering/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/mechanical-engineering/' },
 
   { school: 'imperial', dirs: ['eng'], zh: '电子与电气工程', en: 'Electrical and Electronic Engineering',
     degree: 'MEng · 4 年', alevel: 'A*A*A', ib: '40（HL 数学 7、物理 7）', test: 'ESAT',
     alevelNote: '数学 A*、物理 A*', offer: 'min', note: '典型A*A*A；官方名为 Electrical and Electronic',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/electrical-electronic-engineering-meng/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/electrical-electronic-engineering-meng/' },
 
   { school: 'imperial', dirs: ['eng'], zh: '土木工程', en: 'Civil Engineering',
     degree: 'MEng · 4 年', alevel: 'A*A*A', ib: '40（HL 数学 7、物理 6）', test: 'ESAT',
     alevelNote: '数学 A*、物理 A*', offer: 'min', note: '典型A*A*A/A*AAA',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/civil-engineering/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/civil-engineering/' },
 
   { school: 'imperial', dirs: ['eng'], zh: '化学工程', en: 'Chemical Engineering',
     degree: 'MEng · 4 年', alevel: 'A*A*A', ib: '40（HL 数学 7、化学 7）', test: 'ESAT',
     alevelNote: '化学 A*、数学 A*', offer: 'min', note: '典型A*A*A',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/chemical-engineering/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/chemical-engineering/' },
 
   { school: 'imperial', dirs: ['eng'], zh: '设计工程', en: 'Design Engineering',
     degree: 'MEng · 4 年', alevel: 'A*AA', ib: '39（HL 数学 7 + 一科 6）', test: 'ESAT',
     alevelNote: '数学 A* + 两门 AA', offer: 'min', note: '典型A*AA；戴森设计学院',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/design-engineering/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/design-engineering/' },
 
   { school: 'imperial', dirs: ['eng'], zh: '生物医学工程', en: 'Biomedical Engineering',
     degree: 'MEng · 4 年', alevel: 'A*AA', ib: '39（HL 数学 6、物理 6）', test: '',
     alevelNote: '数学 A*、物理 A、第三科 A', offer: 'min', note: '页面未列笔试（与其他工程系不同，留意）',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/biomedical-engineering/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/biomedical-engineering/' },
 
   { school: 'imperial', dirs: ['econ'], zh: '经济学、金融与数据科学', en: 'Economics, Finance and Data Science',
     degree: 'BSc · 3 年', alevel: 'A*AA', ib: '39（HL 数学 7 + 两门 6）', test: 'TMUA',
     alevelNote: '数学 A*', offer: 'min', note: '商学院本科；TMUA + 线上面试',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/economics-finance-data-science/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/economics-finance-data-science/' },
 
   { school: 'imperial', dirs: ['cs'], zh: '计算机', en: 'Computing',
     degree: 'MEng · 4 年', alevel: 'A*A*A', ib: '41（HL 数学 7 + 相关科 7）', test: 'TMUA',
     alevelNote: '数学 A*', offer: 'min', note: '典型A*A*A；TMUA + 面试',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/computing-meng/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/computing-meng/' },
 
   { school: 'imperial', dirs: ['cs'], zh: '计算机（三年制）', en: 'Computing',
     degree: 'BEng · 3 年', alevel: 'A*A*A', ib: '41（HL 数学 7 + 相关科 7）', test: 'TMUA',
     alevelNote: '数学 A*', offer: 'min', note: '与 Computing MEng 同系同要求；TMUA + 面试',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/computing-beng/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/computing-beng/' },
 
   { school: 'imperial', dirs: ['stats'], zh: '数学', en: 'Mathematics',
     degree: 'BSc · 3 年', alevel: 'A*A*A', ib: '39（HL 数学 7）', test: 'TMUA',
     alevelNote: '数学 A* + 高数 A*', offer: 'min', note: '典型A*A*A；数学系各方向要求一致',
-    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/2027/mathematics-bsc/' },
+    url: 'https://www.imperial.ac.uk/study/courses/undergraduate/mathematics-bsc/' },
 
 
 

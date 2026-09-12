@@ -447,7 +447,7 @@ const HKPROGRAMS = [
   { school: 'hkust', dirs: ['bio'], zh: '生物医学与健康科学', en: 'BSc Biomedical and Health Sciences',
     degree: 'JS5118 · 4 年制', alevel: '≥3 AL', ib: 'Diploma（数学 + 化学HL/生物HL 之一）', test: '面试',
     alevelNote: '科目：数学 + 化学或生物 其一', offer: 'ger', note: '可直申（非 Group B 内声明）；面试强制',
-    url: 'https://join.hkust.edu.hk/our-programs/school-of-science/biomedical-and-health' },
+    url: 'https://join.hkust.edu.hk/our-programs/school-of-science/biomedical-and-health-sciences' },
 
   { school: 'hkust', dirs: ['cs'], zh: '计算机科学 / 人工智能（经 CSE 系）', en: 'BEng/BSc Computer Science & BEng AI',
     degree: '经 CSE 系（本地码 JS5240）', alevel: '≥3 AL', ib: 'Diploma（数学 + 物理/化学/生物/CS HL 之一）', test: '',
@@ -467,7 +467,7 @@ const HKPROGRAMS = [
   { school: 'hkust', dirs: ['econ'], zh: '环球商业', en: 'BBA Global Business',
     degree: 'JS5313 · 4 年制', alevel: '≥3 AL', ib: 'Diploma', test: '面试',
     alevelNote: '无特定科目', offer: 'ger', note: '旗舰、高选拔；面试强制',
-    url: 'https://join.hkust.edu.hk/our-programs/school-of-business-and-management/global-business-management' },
+    url: 'https://join.hkust.edu.hk/our-programs/school-of-business-and-management/global-business' },
 
   { school: 'hkust', dirs: ['econ'], zh: '经济学', en: 'BBA Economics',
     degree: 'JS5311 · 4 年制', alevel: '≥3 AL', ib: 'Diploma（SL/HL Math）', test: '',
