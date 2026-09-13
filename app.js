@@ -371,9 +371,38 @@
       dse.hidden = !cur.noDse;
       dse.textContent = cur.noDse ? 'A-Level / IB 直申 · 无需 DSE' : '';
     }
-    $('#stat-schools').textContent = cur.schools.length;
-    $('#stat-programs').textContent = cur.programs.length;
+    renderSpecimen();   // 首屏样张同样跟随板块：切到香港，印的就是港校的一条
     renderTimeline();   // 时间线同样跟随板块（英国有倒计时，香港暂无可核实的日期）
+  }
+  // ── 首屏样张 ──
+  // 挑一条真数据印在封面上。优先用下面这两条（辨识度高、四要素齐全），
+  // 万一数据里改了名就退回「第一条四要素齐全的」——样张开不了天窗。
+  var SPECIMEN_PICK = { uk: ['oxford', 'Computer Science'], hk: ['hku', 'Bachelor of Laws'] };
+  function renderSpecimen() {
+    var el = $('#specimen'); if (!el) return;
+    var code = cur === REGIONS.hk ? 'hk' : 'uk';
+    var pick = SPECIMEN_PICK[code] || [];
+    var i = cur.programs.findIndex(function (p) { return p.school === pick[0] && p.en === pick[1]; });
+    if (i < 0) {
+      i = cur.programs.findIndex(function (p) { return p.alevel && p.ib && p.test; });
+    }
+    if (i < 0) { el.hidden = true; return; }
+    el.hidden = false;
+    var p = cur.programs[i], sc = schoolByKey[p.school] || {};
+    var e = engFor(i) || {};
+    // 括号里的东西在样张这一行是噪音（「各项 7.0」「HL 766」在表里才有用），
+    // 一律只取主体那一截——样张的职责是让人一眼看懂「一条要求由哪几块组成」。
+    var cut = function (v) { return v ? String(v).split('（')[0] : ''; };
+    var total = PROGRAMS.length + HKPROGRAMS.length;
+    var bits = [p.alevel && 'A-Level ' + cut(p.alevel), p.ib && 'IB ' + cut(p.ib),
+                cut(p.test), e.ielts && '雅思 ' + cut(e.ielts)].filter(Boolean);
+    el.innerHTML =
+      '<p class="sp-meta">英国 ' + SCHOOLS.length + ' 校 · 香港 ' + HKSCHOOLS.length +
+        ' 校 · ' + total + ' 个专业 · 逐条核对于 2026-09</p>' +
+      '<p class="sp-row"><span class="sp-school">' + esc(sc.zh || '') + '</span>' +
+        '<span class="sp-sep">·</span>' +
+        '<span class="sp-prog">' + esc(p.zh) + '</span>' +
+        '<span class="sp-val">' + esc(bits.join('　·　')) + '</span></p>';
   }
   // 控件回填（搜索框 / 分组 / 视图按钮）——重置、切换板块、从状态恢复共用
   function syncControlsChrome() {
@@ -999,11 +1028,12 @@
     });
     return opts;
   }
+  // 校色点撤了：筛选 chip 上已经有校名，再挂一个色点只是把同一份身份说第二遍。
+  // 校色现在只在校印（.seal）里出现——见 styles.css 的 .group-head。
   function chipRows(list, isSchool) {
     return list.map(function (s) {
       var on = (isSchool ? activeSchools : activeDirs).indexOf(s.key) !== -1;
       return '<button type="button" class="chip" data-k="' + s.key + '" aria-pressed="' + on + '">' +
-        (isSchool ? '<span class="dot" style="--c:' + s.color + '"></span>' : '') +
         esc(s.zh) + '<span class="cnt">' + (isSchool ? (schoolCount[s.key] || 0) : dirCount[s.key] || 0) + '</span></button>';
     }).join('');
   }
@@ -1275,8 +1305,8 @@
   }
   function hasExtraReqs(p) { return !!extraKind(p); }
   var VERDICT_ZH = { over: '高于', meet: '达到', under: '低于' };
-  function verdictBadge(p) {
-    var v = verdictFor(p);
+  function verdictBadge(p, v) {
+    v = v || verdictFor(p);   // 表格每行要按判定给行挂类名，算一次就够，别算两遍
     if (!v) return '';
     var label = VERDICT_ZH[v.kind] + barWord(p);
     var mine = v.by === 'alevel' ? 'A-Level ' + String(gAl).trim() : 'IB ' + myIbTotal();
@@ -1372,7 +1402,8 @@
         vl.innerHTML = '<span class="vl-k">判定怎么读</span>' +
           '<span class="vl-i"><b class="verdict over">高于公布要求</b>你的成绩超出该校公布的口径</span>' +
           '<span class="vl-i"><b class="verdict meet">与公布要求相当</b>正好持平；热门专业实收常更高</span>' +
-          '<span class="vl-i"><b class="verdict under">低于公布要求</b>还差一些，仍可作为冲刺</span>' +
+          '<span class="vl-i"><b class="verdict under">低于公布要求</b>还差一些，仍可作为冲刺——' +
+            '表里只有这一档会标色：整行一层淡赭，徽章赭红加粗</span>' +
           (hasSub ? '<span class="vl-i"><b class="verdict meet">与公布要求相当<i class="pvx">+</i></b>' +
             '该专业另有科目要求（哪几门必修、每门要到什么等级），成绩对上了也要逐条核</span>' : '') +
           (hasExam ? '<span class="vl-i"><b class="verdict meet">与公布要求相当<i class="pvx exam">考</i></b>' +
@@ -2052,10 +2083,15 @@
     var rows = items.map(function (p, i) {
       var s = schoolByKey[p.school];
       var key = (rc + ':') + idxMap[i];
-      var vb = verdictBadge(p);
+      // 判定算一次，两处用：贴徽章 + 给这一行挂类名（低于公布要求的那行铺一层赭）
+      var vv = verdictFor(p);
+      var vb = verdictBadge(p, vv);
+      // 行首那 3px 校色竖条撤了：同一份校色散在五个地方就不再是标记，是噪声；
+      // 何况这一行本来就写着校名。对比表里那一条留着——那边只有 2–5 行，
+      // 那一道色确实在做活（「这行是哪一所」），而这里它重复 239 次。
       var lead = showSchool
-        ? '<td style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + hi(s.zh) + '</span><span class="sub-line">' + hi(s.en) + '</span></td>'
-        : '<td style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span>' + hitChip(p, idxMap[i]) + '</td>';
+        ? '<td><span class="lead-line">' + hi(s.zh) + '</span><span class="sub-line">' + hi(s.en) + '</span></td>'
+        : '<td><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span>' + hitChip(p, idxMap[i]) + '</td>';
       var testCol = p.test
         ? '<span class="t-test" title="' + (TEST_TITLE[p.test] || '') + '">' + esc(p.test) + '</span>'
         : '<span class="t-test no">—</span>';
@@ -2064,7 +2100,7 @@
       var rid = 'eng-' + (groupKey || 'g') + '-' + idxMap[i];
       var engCol = '<td class="eng-cell">' + engCellInner(e, rid, (showSchool ? '' : s.zh + ' · ') + p.zh) + '</td>';
       // 详情统一走抽屉（竖排更好读，且不受表格横向滚动影响），不再渲染行内展开行
-      return '<tr>' + lead +
+      return '<tr' + (vv && vv.kind === 'under' ? ' class="is-under"' : '') + '>' + lead +
         (showSchool ? '<td><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span>' + hitChip(p, idxMap[i]) + '</td>' : '') +
         '<td>' + esc(p.degree) + '</td>' +
         '<td class="c-score">' + scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '') + (mode === 'alevel' ? vb : '') + '</td>' +

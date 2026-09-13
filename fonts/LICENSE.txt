@@ -1,0 +1,34 @@
+本目录下的 woff2 是自托管字体子集，随站分发（运行时不连任何外部域名，离线可用不受影响）。
+
+字形子集用 Google Fonts 的 css2 接口裁出（接口只当「裁字形的工具」用，成品是本地文件），
+所以文件名里的 unicode 覆盖范围就是当前站点实际用到的那些字符：
+
+  source-serif-4-latin-400i.woff2  拉丁衬线 斜体
+  source-serif-4-latin-700.woff2   拉丁衬线 粗体
+  ibm-plex-mono-latin-400.woff2    等宽 正体
+  ibm-plex-mono-latin-700.woff2    等宽 粗体
+  noto-serif-sc-h1-700.woff2       中文衬线 粗体，只覆盖 h1 的 17 个字
+
+三支字体均为 SIL Open Font License 1.1（OFL-1.1），允许自由使用、修改与再分发，
+包括子集化后的形式。原始许可与作者：
+
+  Source Serif 4   © Adobe，作者 Frank Grießhammer
+                   https://github.com/adobe-fonts/source-serif
+  IBM Plex Mono    © IBM Corp.
+                   https://github.com/IBM/plex
+  Noto Serif SC    © The Noto Project Authors
+                   https://github.com/notofonts/noto-cjk
+
+OFL 全文见 https://openfontlicense.org/ 。按 OFL 的要求：这些文件不得单独作为字体
+再销售；以子集形式嵌在本站里随页面分发是允许的。
+
+修改说明：本目录里的六个文件都是**子集**——只保留本站实际用到的字形，其余被删除。
+这属于 OFL 所说的 Modified Version，故在此逐条记录修改内容（删除了原字体中未被使用的
+字形，未改动保留下来的字形轮廓与度量）。其中的中文衬线那一支为了与完整版区分，
+在 @font-face 里改用了自定 family 名（Noto Serif SC H1，见 styles.css）。
+本站不单独分发这些字体文件，它们只作为本页面的一部分提供。
+
+重建方式：在 outputs/images/ 下执行 `python _fonts.py`（见该脚本里的字符集定义）。
+改了 h1 文案要重跑，因为中文那一支是按当前 h1 用字裁的。
+换字体文件时请和版本号一起升——sw.js 的缓存按版本整体作废，单换文件不升号，
+老用户会一直吃缓存里的旧字。
