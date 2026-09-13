@@ -159,7 +159,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 a{color:inherit}
 /* 所有数字（分数、名次、计数）统一等宽，方便纵向比对 */
-.tbl,.sp-meta,.cnt,.rating .v,.chip .cnt,.gn,.score-sub{font-variant-numeric:tabular-nums}
+.tbl,.cnt,.rating .v,.chip .cnt,.gn,.score-sub{font-variant-numeric:tabular-nums}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .skip{position:absolute;left:-999px;top:0;background:var(--navy);color:#fff;padding:8px 14px;z-index:60;border-radius:0 0 var(--r) 0}
 .skip:focus{left:0}
@@ -197,7 +197,7 @@ a{color:inherit}
 .masthead{position:relative;background:
     radial-gradient(120% 160% at 12% -20%,rgba(255,255,255,.10),transparent 62%),
     linear-gradient(180deg,var(--mast-a),var(--mast-b) 78%);
-  color:#fff;padding:22px 0 15px}
+  color:#fff;padding:26px 0 17px}
 .masthead::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
   background:linear-gradient(90deg,var(--gold) 0%,var(--gold-2) 16%,rgba(var(--gold-rgb),.40) 58%,rgba(var(--gold-rgb),.12) 100%)}
 .masthead-grid{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between}
@@ -210,22 +210,6 @@ a{color:inherit}
 h1{margin:0;font-family:var(--serif-zh);font-size:clamp(26px,3.4vw,38px);line-height:1.18;letter-spacing:-.01em;font-weight:700;text-wrap:balance}
 .lede{margin:12px 0 0;max-width:62ch;color:#c2cde0;font-size:var(--fs-3);line-height:1.75}
 .lede strong{color:#fff;font-weight:600}
-/* ── 首屏样张：封面上印一行真数据 ──
-   一条等宽的口径行（范围、专业数、核对月份）＋ 一条衬线的大字样张。
-   两行都在页眉里，所以这里的颜色全是深底上的浅字，不跟浅色主题走。 */
-/* 样张与 lede 之间不再画线——页眉底部本来就有一条烫金细线，
-   它正是草图里那一条（「样张下面一道金线」）。再画一条就成两道了。 */
-.specimen{margin:16px 0 0}
-.sp-meta{margin:0 0 5px;font-family:var(--mono);font-size:var(--fs-2);letter-spacing:.06em;
-  color:var(--gold-2)}
-.sp-row{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;
-  font-family:var(--serif);font-size:var(--fs-5);line-height:1.35;color:#fff}
-.sp-school{font-weight:700}
-.sp-sep{color:rgba(255,255,255,.45)}
-.sp-prog{font-weight:700}
-/* 分数那一截也走衬线但收一档：它要和「牛津 · 计算机科学」拉开主次，又得看得出是同一条 */
-.sp-val{font-size:var(--fs-3);color:#c2cde0;letter-spacing:.02em}
-
 /* ══ 无脚本提示（<noscript>）——只在脚本不可用时出现，承接页眉之下 ══ */
 .noscript{margin:20px 0 0;padding:16px 18px;background:var(--card);border:1px solid var(--line-2);
   border-left:3px solid var(--gold);border-radius:var(--r)}
@@ -965,9 +949,6 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 @media (max-width:760px){
   .wrap{padding:0 16px}
   .masthead{padding:26px 0 18px}
-  .specimen{margin-top:13px}
-  .sp-row{font-size:var(--fs-4)}
-  .sp-val{font-size:var(--fs-2)}
   .ctl-block{display:block}
   .chips{margin-top:5px}
   .search{min-width:100%}
@@ -1080,7 +1061,7 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .masthead::after{display:none}
   .masthead h1,.masthead .lede{color:#000}
   .masthead .lede{font-size:9.5pt}
-  .masthead .eyebrow,.masthead .specimen{display:none}
+  .masthead .eyebrow{display:none}
   /* 口径说明在纸上最有用，强制展开 */
   .manual{border:1px solid #999;box-shadow:none;page-break-inside:avoid}
   .manual summary::after{content:""}

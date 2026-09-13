@@ -371,38 +371,7 @@
       dse.hidden = !cur.noDse;
       dse.textContent = cur.noDse ? 'A-Level / IB 直申 · 无需 DSE' : '';
     }
-    renderSpecimen();   // 首屏样张同样跟随板块：切到香港，印的就是港校的一条
     renderTimeline();   // 时间线同样跟随板块（英国有倒计时，香港暂无可核实的日期）
-  }
-  // ── 首屏样张 ──
-  // 挑一条真数据印在封面上。优先用下面这两条（辨识度高、四要素齐全），
-  // 万一数据里改了名就退回「第一条四要素齐全的」——样张开不了天窗。
-  var SPECIMEN_PICK = { uk: ['oxford', 'Computer Science'], hk: ['hku', 'Bachelor of Laws'] };
-  function renderSpecimen() {
-    var el = $('#specimen'); if (!el) return;
-    var code = cur === REGIONS.hk ? 'hk' : 'uk';
-    var pick = SPECIMEN_PICK[code] || [];
-    var i = cur.programs.findIndex(function (p) { return p.school === pick[0] && p.en === pick[1]; });
-    if (i < 0) {
-      i = cur.programs.findIndex(function (p) { return p.alevel && p.ib && p.test; });
-    }
-    if (i < 0) { el.hidden = true; return; }
-    el.hidden = false;
-    var p = cur.programs[i], sc = schoolByKey[p.school] || {};
-    var e = engFor(i) || {};
-    // 括号里的东西在样张这一行是噪音（「各项 7.0」「HL 766」在表里才有用），
-    // 一律只取主体那一截——样张的职责是让人一眼看懂「一条要求由哪几块组成」。
-    var cut = function (v) { return v ? String(v).split('（')[0] : ''; };
-    var total = PROGRAMS.length + HKPROGRAMS.length;
-    var bits = [p.alevel && 'A-Level ' + cut(p.alevel), p.ib && 'IB ' + cut(p.ib),
-                cut(p.test), e.ielts && '雅思 ' + cut(e.ielts)].filter(Boolean);
-    el.innerHTML =
-      '<p class="sp-meta">英国 ' + SCHOOLS.length + ' 校 · 香港 ' + HKSCHOOLS.length +
-        ' 校 · ' + total + ' 个专业 · 逐条核对于 2026-09</p>' +
-      '<p class="sp-row"><span class="sp-school">' + esc(sc.zh || '') + '</span>' +
-        '<span class="sp-sep">·</span>' +
-        '<span class="sp-prog">' + esc(p.zh) + '</span>' +
-        '<span class="sp-val">' + esc(bits.join('　·　')) + '</span></p>';
   }
   // 控件回填（搜索框 / 分组 / 视图按钮）——重置、切换板块、从状态恢复共用
   function syncControlsChrome() {
