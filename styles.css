@@ -392,6 +392,13 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
   display:inline-flex;gap:7px;align-items:center;
   transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease}
 .chip:hover{border-color:var(--navy-2);color:var(--navy)}
+/* chip 悬停预览：绝对定位，出现时不影响芯片的宽高，所以整行不会因为鼠标移过而重排。
+   配色借用提示条那一对（深底浅字），深色模式下会自然反过来。 */
+.chip{position:relative}
+.chip-prev{position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);z-index:20;
+  padding:3px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;
+  background:var(--toast-bg);color:var(--toast-fg);font-size:var(--fs-1);font-weight:400;letter-spacing:0;
+  box-shadow:var(--sh-2)}
 .chip .cnt{color:var(--mut);font-size:var(--fs-2);font-family:var(--mono)}
 .chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
 .chip[aria-pressed="true"] .cnt{color:#bccbe4}
@@ -561,9 +568,27 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
 .howto summary:hover{color:var(--navy)}
 .howto ol{margin:9px 0 0;padding-left:20px}
 .howto li{font-size:var(--fs-3);line-height:1.8;color:var(--ink-2);margin-bottom:3px}
+/* 快捷键清单。kbd 用等宽 + 描边小键帽，和正文分得开；不做阴影（纸面上没有浮起来的东西） */
+.kbd-hint{margin:11px 0 0;font-size:var(--fs-2);line-height:2;color:var(--mut)}
+.kbd-hint kbd{font-family:var(--mono);font-size:var(--fs-1);color:var(--ink-2);
+  background:var(--panel);border:1px solid var(--line-2);border-radius:4px;padding:1px 5px;margin:0 1px}
 /* 只在打印时出现的一行上下文：纸上单独一张表格，得能自己说清是哪一批结果 */
 .print-meta{display:none}
-.scope-row{min-height:0}
+/* 方位条：吸顶在结果区上方。自己必须是不透明的——不然行会从它底下透出来。
+   z-index 高于分组头（5）：两个都吸顶时，分组头停在它的下沿（top 由 --scope-h 给）。 */
+.scope-row{position:sticky;top:0;z-index:6;min-height:0;
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;
+  margin:0 0 12px;padding:7px 0;background:var(--bg);border-bottom:1px solid var(--line)}
+.scope-n{font-size:var(--fs-2);color:var(--mut);white-space:nowrap}
+.scope-n strong{font-family:var(--mono);font-size:var(--fs-3);color:var(--ink)}
+.scope-chips{display:flex;flex-wrap:wrap;gap:5px}
+/* 条件小标签：点一下就把这条去掉。比滚回顶部改筛选快得多 —— 这正是它存在的理由 */
+.sc-x{display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:var(--fs-1);
+  color:var(--ink-2);background:var(--card);border:1px solid var(--line-2);border-radius:6px;
+  padding:2px 7px;cursor:pointer;transition:border-color .15s ease,color .15s ease}
+.sc-x:hover{border-color:var(--navy-2);color:var(--navy)}
+.sc-x .ic{width:9px;height:9px;opacity:.6}
+.scope-cmp{font-size:var(--fs-2);color:var(--mut);margin-left:auto;white-space:nowrap}
 .linklike{background:none;border:0;padding:0;font:inherit;font-size:var(--fs-3);color:var(--navy-2);text-decoration:underline;text-underline-offset:3px;cursor:pointer;margin:2px}
 .linklike:hover{color:var(--navy)}
 /* 提示条与对比栏都是「底部居中 fixed」：对比栏 z-index 更高，加过对比项之后
@@ -595,7 +620,7 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
    并按滚动锚定把偏移纠回去。scroll-margin-top 留给键盘与锚点跳转。 */
 .group{margin-bottom:26px;scroll-margin-top:60px;content-visibility:auto;contain-intrinsic-size:auto 2600px}
 .group-head{display:flex;align-items:baseline;gap:12px;margin:0 0 10px;padding:12px 14px 10px;
-  position:sticky;top:0;z-index:5;
+  position:sticky;top:var(--scope-h,0px);z-index:5;
   background:var(--bg);                     /* 必须是实色：吸顶时要有东西挡住从底下滚过的行 */
   border-bottom:1px solid var(--line-2)}
 .group-head h2{margin:0;font-size:var(--fs-5);line-height:1.25;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
@@ -670,19 +695,22 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:var(--f
    10 列宽表里分行反而更利落。行悬停不变，仍然是扫行时的定位手段。 */
 .tbl tbody tr td{transition:background .12s ease}
 .tbl tbody tr:hover td{background:var(--panel)}
+/* 键盘走行的光标。必须排在 :hover 之后——两者优先级相同，后写的赢。
+   首格那道竖条用 box-shadow（内阴影）而不是 border：border 会把首列挤宽 3px，
+   上下走行时整张表会跟着抖。 */
+.tbl tbody tr.row-cursor td{background:var(--panel)}
+.tbl tbody tr.row-cursor td:first-child{box-shadow:inset 3px 0 0 var(--navy-2)}
+#groups .card.row-cursor{border-color:var(--navy-2)}
 .tbl td .lead-line{font-weight:650;font-size:var(--fs-3)}
 .tbl td .sub-line{font-size:var(--fs-2);color:var(--mut);font-family:var(--serif);font-style:italic;margin-top:2px}
-/* ── 成绩列对齐 ──
-   A-Level / IB 这两列的用途就是**纵向比大小**（A*A*A 与 A*AA 的差别在长度上：
-   左对齐时各行左端相同、右端只差一点点，扫一列看不出来）。所以分数那一行右对齐。
-   但这两列不是纯数字列：319 / 408 条专业还挂着一条「科目要求」说明，
-   中位数 21 字、最长近 400 字。跟着右对齐就成了一段右对齐的散文，没法读，
-   所以只动分数那一行，下面的说明与判定徽章仍然靠左。 */
-.tbl .g{display:block}
-.tbl td.c-score > .g{text-align:right}
-/* 说明段落必须显式拉回左对齐——它继承的是格子的 text-align，
-   不写这一条，那段中位数 21 字的要求说明就会跟着右对齐 */
-.tbl td.c-score > .gn{text-align:left}
+/* ── 成绩列：一律左对齐 ──
+   11.0 试过把分数那一行右对齐（理由是「纵向比大小、末位对齐才看得出档次差」），
+   实测放上去是错的：这一格是「分数 + 科目要求说明 + 判定徽章」三件东西竖着摞，
+   只把最上面那行推去右边，整列就出来一条 Z 字折线，反而比原来更乱。
+   左对齐时全列共用一条左轴，说明段落与徽章也都在那条轴上；而等级串本来就
+   从最高档写起（A*A*A / A*AA / AAA），最该先比的那一位正好在左端。
+   QS 名次那一列是另一回事：那里是「名次在前、学科名在后」的两段结构，
+   所以给名次留了个定宽小栏位（见下），跟这里无关。 */
 /* QS 名次：名次在前、学科名在后，整格右对齐只会让学科名参差不齐。
    改成「名次占一个定宽小栏位」——名次在栏位里右对齐，学科名都从同一个 x 起排，
    两列各自都齐。flex 而不是 inline-block：学科名过长时在自己的盒子里折行，
@@ -884,6 +912,57 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .eh-b .eh-n{font-family:var(--mono);font-size:var(--fs-2);color:var(--mut)}
 .gaps{font-size:var(--fs-3);color:var(--ink-2);max-width:70ch;margin:12px auto 0;line-height:1.8;text-align:left}
 
+/* ══ 对照栏（宽屏） ══
+   对比是这个产品存在的理由，可原来的流程是「盲选一堆，然后开门看一眼」。
+   宽屏上把清单常驻在页边：每条一行、点一下移除、底下是「展开对比」。
+   它顺手解决三件事——浮层不再盖住内容、清单在积累这件事看得见、
+   以及底部那条栏不必再和提示条、「回到顶部」挤在同一条基线上。
+
+   为什么默认只在 ≥1880 展开：这张表 10 列，横向空间是它的命。
+   1440 屏上容器只有 1381px，让出 300px 给栏会把表格压到 1081；
+   而 1880 以上容器已经顶到 1560 上限，右侧本来就有 300px 是空的。
+   窄于 1880 时先只显示右边缘那个「对比 N」标签，点开才占位。
+   窄于 1440 干脆不出现，仍用底部条。 */
+.cmp-rail{display:none}
+@media (min-width:1440px){
+  body.rail-on .cmp-rail{display:flex}
+  /* 两处同时在说「你选了哪几个」就重复了 */
+  body.rail-on .comparebar{display:none}
+  body.rail-open .wrap{max-width:1860px;padding-right:322px}
+  /* 「回到顶部」和展开的栏都在右边，让开 */
+  body.rail-open .to-top{right:322px}
+}
+.cmp-rail{position:fixed;right:0;top:96px;z-index:70;width:300px;
+  max-height:calc(100vh - 150px);flex-direction:column;
+  background:var(--card);border:1px solid var(--line-2);border-right:0;
+  border-radius:var(--r-lg) 0 0 var(--r-lg);box-shadow:var(--sh-2);overflow:hidden}
+.cr-toggle{display:flex;align-items:center;gap:7px;width:100%;padding:10px 13px;border:0;
+  background:none;font:inherit;font-size:var(--fs-2);color:var(--ink-2);cursor:pointer;text-align:left}
+.cr-toggle:hover{color:var(--navy)}
+.cr-toggle::after{content:"";width:10px;height:10px;margin-left:auto;flex:none;background:currentColor;
+  -webkit-mask:var(--ic-right) center/contain no-repeat;mask:var(--ic-right) center/contain no-repeat;
+  transform:rotate(90deg);transition:transform .15s ease}
+body:not(.rail-open) .cr-toggle::after{transform:rotate(-90deg)}
+.cr-tg-k{white-space:nowrap}
+.cr-tg-n{font-family:var(--mono);font-weight:700;color:var(--navy)}
+.cr-body{display:flex;flex-direction:column;min-height:0;border-top:1px solid var(--line)}
+body:not(.rail-open) .cr-body{display:none}
+.cr-list{list-style:none;margin:0;padding:6px;overflow:auto;flex:1 1 auto;min-height:0}
+.cr-i{display:flex;align-items:baseline;gap:8px;width:100%;padding:7px 9px;border:0;border-radius:var(--r);
+  background:none;font:inherit;font-size:var(--fs-2);color:var(--ink);cursor:pointer;text-align:left;
+  transition:background .15s ease}
+.cr-i:hover{background:var(--panel)}
+.cr-i .seal{align-self:center}
+.cr-txt{flex:1 1 auto;min-width:0}
+.cr-txt b{font-weight:650}
+.cr-txt em{display:block;font-style:normal;font-size:var(--fs-1);color:var(--mut);margin-top:1px}
+.cr-x{color:var(--mut);flex:none;opacity:0;transition:opacity .15s ease;display:inline-flex}
+.cr-x .ic{width:11px;height:11px}
+.cr-i:hover .cr-x,.cr-i:focus-visible .cr-x{opacity:.7}
+.cr-empty{margin:0;padding:12px 13px;font-size:var(--fs-2);color:var(--mut);line-height:1.7}
+.cr-foot{display:flex;gap:8px;padding:10px 13px;border-top:1px solid var(--line);background:var(--panel)}
+.cr-foot .btn{flex:1 1 auto;text-align:center;justify-content:center;display:flex}
+
 /* ══ 对比栏与弹层 ══ */
 .comparebar{position:fixed;left:50%;bottom:18px;transform:translate(-50%,14px);opacity:0;width:max-content;
   background:linear-gradient(180deg,#1a3a68,#132a4c);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:var(--r-lg);
@@ -982,7 +1061,12 @@ button.cmp.on{background:var(--navy);color:#fff;border-color:var(--navy)}
   .cs-btn{padding:6px 11px}
 }
 
+/* 板块切换的跨淡。默认时长（250ms）在这么大一页上有点拖，收短一点；
+   减少动效时整个关掉——退化成即时切换。 */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+
 @media (prefers-reduced-motion:reduce){
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none !important}
   .toast,.overlay,.overlay-box,.comparebar,.card,.chip,.btn,.seg-btn,.region-tab,button.cmp,.to-top{transition:none}
   .chip:active,.btn:active,.seg-btn:active,.region-tab:active,button.cmp:active{transform:none}
   .card:hover{transform:none}

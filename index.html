@@ -12,7 +12,7 @@
      哪怕同源。其余三支等 CSS 自己按需取，不值得抢带宽。 -->
 <link rel="preload" href="fonts/noto-serif-sc-h1-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/source-serif-4-latin-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=11.1">
+<link rel="stylesheet" href="styles.css?v=11.2">
 
 <!-- 图标：SVG 给现代浏览器，PNG 兜底（Safari 等对 SVG favicon 支持不全） -->
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -270,7 +270,16 @@
     <p class="vlegend" id="vlegend"></p>
   </div>
 
-  <p class="scope-row"><button id="sort-chip" class="sort-chip" type="button" hidden title="点一下取消排序"></button><button id="scope-clear" class="linklike" type="button" hidden>清除筛选</button></p>
+  <!-- 方位条：长表滚过几屏之后，得能一眼看出「现在是什么条件、还剩多少、对比里存了几个」。
+       吸顶在结果区上方，条件本身可以逐条点掉——不必再滚回顶部改。
+       （原来是散在结果线上方的一行排序提示 + 一个「清除筛选」，滚两屏就看不见了。） -->
+  <p class="scope-row">
+    <span class="scope-n"><strong id="scope-count">—</strong> 项</span>
+    <span class="scope-chips" id="scope-chips"></span>
+    <button id="sort-chip" class="sort-chip" type="button" hidden title="点一下取消排序"></button>
+    <button id="scope-clear" class="linklike" type="button" hidden>清除筛选</button>
+    <span class="scope-cmp" id="scope-cmp" hidden></span>
+  </p>
   <p class="legend" id="legend" hidden></p>
   <nav class="jumpbar" id="jumpbar" hidden aria-label="按大学跳转"></nav>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -488,6 +497,10 @@
       <li>点行内「加入对比」——英国与香港的专业可混选进同一张对比表，表内会标出各专业有差异的列。</li>
       <li>「导出 / 分享 ▾」里有：导出 CSV（可选范围与列）、复制链接（把这批结果发给别人）、打印 / 存 PDF（出纸质版）。</li>
     </ol>
+    <!-- 快捷键不写在这里就等于不存在：鼠标用户不会去猜，键盘用户（老师会反复用）需要一份清单 -->
+    <p class="kbd-hint">键盘：<kbd>/</kbd> 搜索 · <kbd>1</kbd> 英国 <kbd>2</kbd> 香港 · <kbd>t</kbd> 表格 <kbd>c</kbd> 卡片 ·
+      <kbd>↑</kbd><kbd>↓</kbd> 上下走行 · <kbd>Enter</kbd> 把走到的这一行加入对比 ·
+      <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>K</kbd> 打开学生成绩 · <kbd>Esc</kbd> 清空搜索 / 退出走行 · <kbd>?</kbd> 再看一遍</p>
   </details>
   </div><!-- /#panel-data -->
 
@@ -497,6 +510,21 @@
     <button class="btn btn-ghost" id="compare-clear" type="button">清空</button>
     <button class="btn btn-primary" id="compare-open" type="button">查看对比</button>
   </div>
+
+  <!-- 对照栏：宽屏上把对比清单常驻在页边，不再「盲选一堆、再开门看一眼」。
+       窄屏仍用下面那条底部栏——那里页边没有可用的横向空间（见 styles.css 的媒体查询）。
+       展开 / 收起由 body 上的 rail-on / rail-open 两个类控制，按钮只负责翻后者。 -->
+  <aside class="cmp-rail" id="cmp-rail" aria-label="对比清单">
+    <button type="button" class="cr-toggle" id="cr-toggle" aria-expanded="false"
+            title="收起 / 展开对照栏"><span class="cr-tg-k">对比</span><span class="cr-tg-n" id="cr-tg-n">0</span></button>
+    <div class="cr-body">
+      <ul class="cr-list" id="cr-list"></ul>
+      <div class="cr-foot">
+        <button class="btn btn-primary btn-sm" id="cr-open" type="button">展开对比</button>
+        <button class="btn btn-ghost btn-sm" id="cr-clear" type="button">清空</button>
+      </div>
+    </div>
+  </aside>
 
   <div class="overlay" id="compare-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="compare-title">
     <div class="overlay-box">
@@ -609,15 +637,15 @@
     <p><strong>数据依据</strong>：各大学官网课程页面公开信息，逐条核对（核对时间 2026 年 9 月）。英国板块面向 <strong>2027 年 9 月入学</strong>（2026–27 申请季）；香港板块为 <strong>2026 入学轮次</strong>公布的 A-Level / IB 直申要求（无需 DSE）。各校条件随申请季更新，正式申请前请以官网最新页面为准。</p>
     <p>本页成绩按各校官网公开口径照录（<strong>典型 · 最低 · 区间 · 下限 · 门槛</strong>），不构成录取承诺；牛剑及港校医学类录取还取决于入学笔试、面试与预估成绩。</p>
     <p class="disclaimer"><strong>免责声明</strong>：本页为公开资料汇编，<strong>仅供参考</strong>；所有录取要求、分数与考试政策<strong>一律以各大学官网最新公布为准</strong>，请勿据本页直接决策。</p>
-    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 11.1（英国九校 + 香港八校 + QS2026 学科排名 + 英语要求）· 纯静态页面，可离线使用</p>
+    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 11.2（英国九校 + 香港八校 + QS2026 学科排名 + 英语要求）· 纯静态页面，可离线使用</p>
   </footer>
   <button type="button" class="to-top" id="to-top" aria-label="回到顶部" title="回到顶部"><svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 13V3.4"/><path d="M4.2 7.2 8 3.4l3.8 3.8"/></svg></button>
 </main>
 
-<script src="data.js?v=11.1"></script>
-<script src="data-hk.js?v=11.1"></script>
-<script src="data-eng.js?v=11.1"></script>
-<script src="data-qs.js?v=11.1"></script>
-<script src="app.js?v=11.1"></script>
+<script src="data.js?v=11.2"></script>
+<script src="data-hk.js?v=11.2"></script>
+<script src="data-eng.js?v=11.2"></script>
+<script src="data-qs.js?v=11.2"></script>
+<script src="app.js?v=11.2"></script>
 </body>
 </html>

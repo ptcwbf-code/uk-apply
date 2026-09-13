@@ -538,6 +538,38 @@
     if (k === 'qs') return d === 'desc' ? '名次好 → 差' : '名次差 → 好';
     return d === 'desc' ? '高 → 低' : '低 → 高';
   }
+  // 方位条上的条件小标签。每一条都带 ×，点一下就把这个条件去掉——
+  // 长表滚到第五屏时，这是最快的「改一个条件」的入口。
+  function renderScopeChips() {
+    var box = $('#scope-chips'); if (!box) return;
+    var out = [];
+    activeSchools.forEach(function (k) { if (schoolByKey[k]) out.push(['school', k, schoolByKey[k].zh]); });
+    activeDirs.forEach(function (d) { if (cur.dirs[d]) out.push(['dir', d, cur.dirs[d].zh]); });
+    if (testSel !== 'ALL') {
+      out.push(['test', testSel,
+        testSel === 'NONE' ? '无' + cur.testHead : testSel === 'YES' ? '需' + cur.testHead : testSel]);
+    }
+    if (q) out.push(['q', '', '“' + q + '”']);
+    box.innerHTML = out.map(function (o) {
+      return '<button type="button" class="sc-x" data-kind="' + o[0] + '" data-k="' + esc(o[1]) + '"' +
+        ' title="去掉这个条件：' + esc(o[2]) + '">' + esc(o[2]) +
+        '<span aria-hidden="true">' + ICON.close + '</span></button>';
+    }).join('');
+    var cmp = $('#scope-cmp');
+    if (cmp) {
+      cmp.hidden = !compare.size;
+      cmp.textContent = compare.size ? '对比 ' + compare.size + ' 项' : '';
+    }
+  }
+  $('#scope-chips').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-kind]'); if (!b) return;
+    var k = b.dataset.k;
+    if (b.dataset.kind === 'school') activeSchools = activeSchools.filter(function (x) { return x !== k; });
+    else if (b.dataset.kind === 'dir') activeDirs = activeDirs.filter(function (x) { return x !== k; });
+    else if (b.dataset.kind === 'test') testSel = 'ALL';
+    else if (b.dataset.kind === 'q') { q = ''; $('#q').value = ''; }
+    syncControlsChrome(); renderChips(); apply();
+  });
   function renderSortChip() {
     var chip = $('#sort-chip'); if (!chip) return;
     if (sortKey === 'default') { chip.hidden = true; return; }
@@ -1007,6 +1039,7 @@
     }).join('');
   }
   function renderChips() {
+    hideChipPreview();   // 下面要换掉 innerHTML，预览节点的引用先清干净
     // 只列出本板块确有专业的学科方向（英国板块无传媒类，香港板块物理 / 统计等方向不全）
     var dirKeys = Object.keys(cur.dirs).filter(function (d) { return (dirCount[d] || 0) > 0; });
     $('#filters-dir').innerHTML = chipRows(dirKeys.map(function (d) { return { key: d, zh: cur.dirs[d].zh }; }), false);
@@ -1025,6 +1058,60 @@
       note.hidden = !cur.testHeadHK;
       note.textContent = cur.testHeadHK ? '香港本轮多数专业不设入学笔试；这一列列的是面试 / 作品集等附加要求' : '';
     }
+  }
+
+  // ── chip 悬停预览：加上（或取消）这一条会剩几项 ──
+  // 筛选原来是试错：点进去、看剩几条、再撤回来。悬停时先把「加上这一条之后剩几项」
+  // 算出来，学生就不必来回点。只在悬停 / 聚焦时出现，平时完全不占位（绝对定位的小标签），
+  // 所以芯片行不会因为鼠标移过而抖。
+  var _prevEl = null, _prevChip = null, _prevCache = {}, _prevSig = '';
+  function previewSig() {
+    return [curRc(), activeSchools.join(','), activeDirs.join(','), testSel, q, onlyReach ? 1 : 0].join('|');
+  }
+  // 把某一条筛选打开（或关掉）之后的结果数。testOK() 读的是全局 testSel，
+  // 这里临时换一下再换回来——同步执行，换不出去。
+  function countWith(kind, key, on) {
+    var toks = qTokens(), schools = activeSchools, dirs = activeDirs, savedTest = testSel;
+    if (kind === 'school') schools = on ? schools.concat([key]) : schools.filter(function (k) { return k !== key; });
+    else if (kind === 'dir') dirs = on ? dirs.concat([key]) : dirs.filter(function (k) { return k !== key; });
+    else testSel = on ? key : 'ALL';
+    var n = cur.programs.filter(function (p, i) {
+      if (schools.length && schools.indexOf(p.school) === -1) return false;
+      if (dirs.length && !p.dirs.some(function (d) { return dirs.indexOf(d) !== -1; })) return false;
+      if (!testOK(p)) return false;
+      if (q && !blobHit(curRc(), i, toks)) return false;
+      if (onlyReach && !reachOK(p, i)) return false;
+      return true;
+    }).length;
+    testSel = savedTest;
+    return n;
+  }
+  function chipKind(el) {
+    var box = el.closest && el.closest('.chips'); if (!box) return null;
+    return box.id === 'filters-school' ? 'school' : box.id === 'filters-dir' ? 'dir'
+         : box.id === 'filters-test' ? 'test' : null;
+  }
+  function showChipPreview(chip) {
+    var kind = chipKind(chip); if (!kind || !chip.dataset.k) return;
+    var sig = previewSig();
+    if (sig !== _prevSig) { _prevCache = {}; _prevSig = sig; }   // 筛选一变，缓存的数就作废
+    var on = chip.getAttribute('aria-pressed') !== 'true';
+    var ck = kind + ':' + chip.dataset.k + ':' + (on ? '1' : '0');
+    var n = _prevCache[ck];
+    if (n === undefined) n = _prevCache[ck] = countWith(kind, chip.dataset.k, on);
+    if (!_prevEl) {
+      _prevEl = document.createElement('span');
+      _prevEl.className = 'chip-prev';
+      // 纯视觉提示：读屏该知道的是 chip 自己的 aria-pressed 与计数，不必再念一遍
+      _prevEl.setAttribute('aria-hidden', 'true');
+    }
+    _prevEl.textContent = (on ? '加上这条：' : '取消这条：') + n + ' 项';
+    chip.appendChild(_prevEl);
+    _prevChip = chip;
+  }
+  function hideChipPreview() {
+    if (_prevEl && _prevEl.parentNode) _prevEl.parentNode.removeChild(_prevEl);
+    _prevChip = null;
   }
 
   // ── 过滤 ──
@@ -2072,8 +2159,8 @@
       return '<tr' + (vv && vv.kind === 'under' ? ' class="is-under"' : '') + '>' + lead +
         (showSchool ? '<td><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span>' + hitChip(p, idxMap[i]) + '</td>' : '') +
         '<td>' + esc(p.degree) + '</td>' +
-        '<td class="c-score">' + scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '') + (mode === 'alevel' ? vb : '') + '</td>' +
-        '<td class="c-score">' + scoreHTML(p.ib, 'g g-ib') + (mode === 'ib' ? vb : '') + '</td>' +
+        '<td>' + scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '') + (mode === 'alevel' ? vb : '') + '</td>' +
+        '<td>' + scoreHTML(p.ib, 'g g-ib') + (mode === 'ib' ? vb : '') + '</td>' +
         '<td>' + testCol + '</td>' +
         '<td><span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(OFFER_ZH[p.offer] || p.offer) + '</span></td>' +
         engCol +
@@ -2094,9 +2181,16 @@
     Array.prototype.forEach.call(document.querySelectorAll('#groups .tblwrap'), function (w) {
       w.classList.toggle('hscroll', w.scrollWidth > w.clientWidth + 1);
     });
-    // 表头吸顶要停在吸顶的学校头下方，所以偏移取学校头的实际高度
+    // 吸顶是三层的：方位条贴顶（top:0）→ 分组头停在它下沿 → 表头再停在分组头下沿。
+    // 下面每个高度都是现量的，因为窄屏会换行、字号会变，写死迟早对不上。
+    var sr = document.querySelector('.scope-row');
+    var scopeH = sr ? sr.offsetHeight : 0;
     var g = document.querySelector('#groups .group-head');
-    if (g) document.documentElement.style.setProperty('--stick-top', g.offsetHeight + 'px');
+    var headH = g ? g.offsetHeight : 0;
+    var rs = document.documentElement.style;
+    rs.setProperty('--scope-h', scopeH + 'px');
+    rs.setProperty('--head-h', headH + 'px');
+    rs.setProperty('--stick-top', (scopeH + headH) + 'px');
   }
   var _syncT;
   window.addEventListener('resize', function () {
@@ -2104,6 +2198,7 @@
     _syncT = setTimeout(function () {
       // 对比栏在窄屏会换行变高，提示条的抬升量要跟着重算
       syncTableOverflow(); syncCmpBarLift();
+      syncRail();   // 右栏的显隐取决于宽度，拖过阈值要跟着变
       // 用户没手动挑过视图时，跟着屏幕宽度走（手机横竖屏切换、桌面拖窗口都算）
       if (!viewPicked && view !== defaultView()) { view = defaultView(); syncControlsChrome(); apply(); }
     }, 150);
@@ -2114,7 +2209,7 @@
     // 取用后立即复位：apply 可能因空结果提前 return，留在 false 会让后续渲染永远不淡入
     var doAnim = animate; animate = true;
     persistState();   // 所有状态改动都汇到这里，统一写 URL + localStorage
-    renderSortChip();
+    renderSortChip(); renderScopeChips();
     var list = filtered();
     updateMyChrome();
     renderPrintMeta(list.length);   // 放在空结果提前 return 之前，两种情况下纸上都有上下文
@@ -2160,6 +2255,7 @@
 
     $('#groups').innerHTML = '';
     $('#groups').appendChild(out);
+    clearRowCursor();   // 行是新建的，键盘光标不能留在已消失的节点上
     syncTableOverflow();
     // 内容整体换过就淡入一次；先移除再加，确保连续两次渲染也能重放
     if (doAnim) {
@@ -2167,6 +2263,7 @@
       g.classList.remove('anim'); void g.offsetWidth; g.classList.add('anim');
     }
     $('#result-count').textContent = list.length;
+    var sc = $('#scope-count'); if (sc) sc.textContent = list.length;
     var scope = [];
     if (activeDirs.length) scope.push(activeDirs.map(function (d) { return cur.dirs[d].zh; }).join('、'));
     if (activeSchools.length) scope.push(activeSchools.map(function (k) { return schoolByKey[k].zh; }).join('、'));
@@ -2185,6 +2282,26 @@
       renderChips(); apply();
     };
   }
+  // chip 的悬停 / 聚焦预览。mouseover 会随指针在 chip 内部移动反复触发，
+  // 所以用「当前 chip」挡一下；离开整块控件区就收起来。
+  (function () {
+    var ctl = document.querySelector('.controls');
+    if (!ctl) return;
+    ctl.addEventListener('mouseover', function (e) {
+      var chip = e.target.closest ? e.target.closest('.chip') : null;
+      if (chip === _prevChip) return;
+      if (chip) showChipPreview(chip); else hideChipPreview();
+    });
+    ctl.addEventListener('mouseleave', hideChipPreview);
+    ctl.addEventListener('focusin', function (e) {
+      var chip = e.target.closest ? e.target.closest('.chip') : null;
+      if (chip) showChipPreview(chip);
+    });
+    ctl.addEventListener('focusout', function (e) {
+      var to = e.relatedTarget;
+      if (!to || !to.closest || !to.closest('.chip')) hideChipPreview();
+    });
+  })();
   $('#filters-test').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-k]'); if (!b || b.dataset.k === testSel) return;
     testSel = b.dataset.k; renderChips(); apply();
@@ -2374,8 +2491,16 @@
     syncRegionChrome(); syncControlsChrome();
     buildIndex(); renderManual(); renderChips(); apply();
   }
-  $('#tab-uk').addEventListener('click', function () { switchRegion('uk'); });
-  $('#tab-hk').addEventListener('click', function () { switchRegion('hk'); });
+  // 板块切换是「整页内容替换」，正是 View Transition 的正当用途：两边都有的东西
+  // （板块徽章、页签、结果数）平滑对位，而不是整块闪一下。
+  // 不支持、或用户要求减少动效时退化成现在的即时切换——功能上没有任何差别。
+  function switchRegionAnimated(r) {
+    if (cur === REGIONS[r]) return;
+    if (typeof document.startViewTransition !== 'function' || prefersReduced()) { switchRegion(r); return; }
+    document.startViewTransition(function () { switchRegion(r); });
+  }
+  $('#tab-uk').addEventListener('click', function () { switchRegionAnimated('uk'); });
+  $('#tab-hk').addEventListener('click', function () { switchRegionAnimated('hk'); });
 
   // 表头排序：默认 → 反向 → 回到默认
   $('#groups').addEventListener('click', function (e) {
@@ -2519,6 +2644,10 @@
   }
   function updateCompareBar() {
     var bar = $('#comparebar');
+    syncRail();   // 右栏与底部栏由同一处驱动，免得两边各记一份状态
+    // 方位条上的「对比 N 项」也要跟着变——加减对比项走的是这里，不经过 apply()
+    var scmp = $('#scope-cmp');
+    if (scmp) { scmp.hidden = !compare.size; scmp.textContent = compare.size ? '对比 ' + compare.size + ' 项' : ''; }
     if (!compare.size) {
       // 先播完收起动画再真正隐藏，避免「啪」地消失
       if (!bar.hidden) {
@@ -2542,8 +2671,9 @@
     if (wasHidden) { void bar.offsetWidth; bar.classList.add('show'); }
     syncCmpBarLift();
   }
-  // 清空是「一下没了 30 项」的动作，给一个 5 秒的后悔阀门
-  $('#compare-clear').addEventListener('click', function () {
+  // 清空是「一下没了 30 项」的动作，给一个 5 秒的后悔阀门。
+  // 抽成具名函数：底部栏与宽屏右栏各有自己的按钮，逻辑只能有一份。
+  function clearCompare() {
     if (!compare.size) return;
     var backup = Array.from(compare);
     compare.clear(); updateCompareBar(); syncCmpButtons(); saveCompare();
@@ -2555,6 +2685,57 @@
         showToast('已恢复 ' + backup.length + ' 项');
       }
     });
+  }
+  $('#compare-clear').addEventListener('click', clearCompare);
+
+  // ── 对照栏（宽屏） ──
+  // 阈值两档：≥1440 才出现，≥1880 才默认展开。
+  // 理由是这张表 10 列、横向空间是它的命：1440 屏上容器只有 1381px，
+  // 让出 300px 会把表格压到 1081；而 1880 以上容器已经顶到上限，右侧本就有 300px 空着。
+  // 窄于 1880 先只显示右边缘那个「对比 N」标签，点开才占位——不白拿用户的表格宽度。
+  var RAIL_MIN = 1440, RAIL_FREE = 1880, RAIL_STORE = 'ukapply.rail.v1';
+  var railPicked = null;
+  try { railPicked = localStorage.getItem(RAIL_STORE); } catch (e) {}
+  function railWantOpen() {
+    return railPicked !== null ? railPicked === '1' : window.innerWidth >= RAIL_FREE;
+  }
+  function renderRail() {
+    var list = $('#cr-list'); if (!list) return;
+    var items = cmpItems();
+    var n = $('#cr-tg-n'); if (n) n.textContent = items.length;
+    // 括号里的东西在这里是噪音（「各项 6.5」在表里才有用），只留主体那一截
+    var cut = function (v) { return v ? String(v).split('（')[0] : ''; };
+    list.innerHTML = items.map(function (it) {
+      var sc = allSchoolByKey[it.p.school] || {};
+      var marks = [it.p.alevel && 'A-Level ' + cut(it.p.alevel), it.p.ib && 'IB ' + cut(it.p.ib)]
+        .filter(Boolean).join(' · ');
+      var key = (it.rc === 'hk' ? 'hk:' : 'uk:') + it.idx;
+      return '<li><button type="button" class="cr-i" data-key="' + key +
+        '" title="点一下把它移出对比">' + sealHTML(sc, false) +
+        '<span class="cr-txt"><b>' + esc(sc.zh || '') + '</b>' + esc(it.p.zh) +
+        (marks ? '<em>' + esc(marks) + '</em>' : '') + '</span>' +
+        '<span class="cr-x" aria-hidden="true">' + ICON.close + '</span></button></li>';
+    }).join('');
+  }
+  function syncRail() {
+    var on = compare.size > 0 && window.innerWidth >= RAIL_MIN;
+    var open = on && railWantOpen();
+    document.body.classList.toggle('rail-on', on);
+    document.body.classList.toggle('rail-open', open);
+    if (on) renderRail();
+    var t = $('#cr-toggle'); if (t) t.setAttribute('aria-expanded', String(open));
+  }
+  $('#cr-toggle').addEventListener('click', function () {
+    railPicked = document.body.classList.contains('rail-open') ? '0' : '1';
+    try { localStorage.setItem(RAIL_STORE, railPicked); } catch (e) {}
+    syncRail();
+  });
+  $('#cr-open').addEventListener('click', openCompare);
+  $('#cr-clear').addEventListener('click', clearCompare);
+  $('#cr-list').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-key]'); if (!b) return;
+    compare.delete(b.dataset.key);
+    updateCompareBar(); syncCmpButtons(); saveCompare();
   });
   $('#compare-open').addEventListener('click', openCompare);
   $('#compare-close').addEventListener('click', closeCompare);
@@ -2636,9 +2817,38 @@
       if (act === first || !ov.contains(act)) { e.preventDefault(); last.focus(); }
     } else if (act === last || !ov.contains(act)) { e.preventDefault(); first.focus(); }
   });
+  // ── 键盘走行 ──
+  // 表格与卡片共用一个「当前行」光标：↑↓ 上下走，Enter 把这一行加进对比。
+  // 光标本身不占布局（整行浅底 + 首格一道内阴影竖条），所以走动时列不会挤。
+  var rowCursor = -1;
+  function cursorRows() {
+    return Array.prototype.slice.call(
+      document.querySelectorAll('#groups .tbl tbody tr:not(.cmp-group), #groups .card'));
+  }
+  function clearRowCursor() {
+    Array.prototype.forEach.call(document.querySelectorAll('#groups .row-cursor'),
+      function (e) { e.classList.remove('row-cursor'); });
+    rowCursor = -1;
+  }
+  function moveRowCursor(d) {
+    var list = cursorRows(); if (!list.length) return;
+    var i = rowCursor < 0 ? (d > 0 ? 0 : list.length - 1) : rowCursor + d;
+    i = Math.max(0, Math.min(list.length - 1, i));
+    clearRowCursor();
+    rowCursor = i;
+    var el = list[i];
+    el.classList.add('row-cursor');
+    el.scrollIntoView({ block: 'nearest', behavior: prefersReduced() ? 'auto' : 'smooth' });
+  }
+
   // 全局键盘快捷：此前只有弹层内部能纯键盘操作。
   // 全部限定在「没有弹层打开、且焦点不在输入框里」时才生效——否则打字打到一半就被劫持
   document.addEventListener('keydown', function (e) {
+    // 成绩面板：⌘/Ctrl+K 在任何时候都能开（弹层开着时除外），所以放在修饰键拦截之前
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+      if (topOverlay()) return;
+      e.preventDefault(); openGradeSheet(); return;
+    }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (topOverlay()) return;   // 弹层开着时归上面那个处理
     var el = document.activeElement;
@@ -2651,9 +2861,26 @@
     if (e.key === 'Escape' && el === $('#q') && (q || $('#q').value)) {
       $('#q').value = ''; q = ''; apply(); $('#q').blur(); return;
     }
+    if (e.key === 'Escape') { clearRowCursor(); return; }
     if (typing) return;
     if (e.key === 't' || e.key === 'T') setView('table');
     else if (e.key === 'c' || e.key === 'C') setView('card');
+    // 1 / 2 换板块：与页签上的数字顺序一致
+    else if (e.key === '1') switchRegionAnimated('uk');
+    else if (e.key === '2') switchRegionAnimated('hk');
+    else if (e.key === 'ArrowDown') { e.preventDefault(); moveRowCursor(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); moveRowCursor(-1); }
+    else if (e.key === 'Enter') {
+      // Enter 只对「走到的这一行」生效，不做默认动作
+      var row = document.querySelector('#groups .row-cursor'); if (!row) return;
+      var btn = row.querySelector('button.cmp'); if (!btn) return;
+      e.preventDefault(); btn.click();
+    } else if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
+      // 两种都收：多数键盘 Shift+/ 给的就是 '?'，但个别布局下 e.key 仍是 '/'。
+      // 上面那个不带修饰键的 '/' 分支已经先把它截走了，所以这里只可能是带 Shift 的。
+      e.preventDefault();
+      showToast('键盘：/ 搜索 · 1 英 2 港 · t 表格 c 卡片 · ↑↓ 走行 · Enter 加入对比 · ⌘/Ctrl+K 成绩 · Esc 取消', 7000);
+    }
   });
   // 打印样式早就写好了（去交互件、每页重复表头、强制展开口径说明），只是界面上一直没有兑现它的按钮。
   // <details> 收起时内容仍会被隐藏，所以打印前后要真的开合一次；
@@ -2822,8 +3049,8 @@
         '<td class="cycle-cell"><span class="cy">' + esc(cycleShort(it.rc)) + '</span>' +
           '<span class="cy-sub">' + esc(REGIONS[it.rc].cycle) + '</span></td>' +
         td(3, esc(p.degree)) +
-        td(4, scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : ''), 'c-score') +
-        td(5, scoreHTML(p.ib, 'g g-ib'), 'c-score') +
+        td(4, scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '')) +
+        td(5, scoreHTML(p.ib, 'g g-ib')) +
         td(6, test) +
         td(7, '<span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(offer) + '</span>' + posChip(it)) +
         td(8, engCellInner(engFor(it.idx, isHK ? 'hk' : 'uk')), 'eng-cell') +
