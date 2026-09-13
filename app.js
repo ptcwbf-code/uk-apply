@@ -604,14 +604,13 @@
     el.textContent = bits.join(' ｜ ');
   }
   function prefersReduced() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-  // 视图默认：表格（窄屏也用表格——卡片虽不需要列头，但竖向占地太大）。
-  // 注：窄屏表格要横向滚动，而横向滚动容器里的表头吸不住「页面」，这是取舍。
-  // 用户手动切过视图才持久化，没切过就每次取这里的默认。
   // 视图默认：窄屏给卡片，宽屏给表格。
-  // 8.0 时窄屏也默认表格（注释里的理由是「卡片竖向占地太大」），可表格 min-width 是 900px，
+  // 8.0 时窄屏也默认表格（注释里的理由是「卡片竖向占地太大」），可表格当时列宽写死、
   // 手机上唯一能做的就是横向拖。卡片压成紧凑几行之后这个理由就不成立了——
   // 「一眼扫到分数」比「拖到英语列再拖回来」快得多。用户手动切过视图就按用户的来。
-  function defaultView() { return window.innerWidth <= 700 ? 'card' : 'table'; }
+  // 断点 900 要和 styles.css 里那段紧凑卡片的媒体查询同值：768–1024 的平板竖屏
+  // 拿到 10 列宽表只会横向滚动，而卡片在那个宽度下本来就是两栏铺开。
+  function defaultView() { return window.innerWidth <= 900 ? 'card' : 'table'; }
 
   // ── 术语说明（分板块） ──
   var MANUAL = {
@@ -1368,13 +1367,15 @@
           if (kk === 'exam') hasExam = true; else if (kk === 'subject') hasSub = true;
           if (hasExam && hasSub) break;
         }
+        // 三个词单看仍然像「判定结果」，所以把「公布要求 / 公布口径」钉进词里：
+        // 它对照的是各校公布的分数线，不是录取概率。
         vl.innerHTML = '<span class="vl-k">判定怎么读</span>' +
-          '<span class="vl-i"><b class="verdict over">高于要求</b>你的成绩超出该校公布的分数口径</span>' +
-          '<span class="vl-i"><b class="verdict meet">达到要求</b>正好持平；热门专业实收常更高</span>' +
-          '<span class="vl-i"><b class="verdict under">低于要求</b>还差一些</span>' +
-          (hasSub ? '<span class="vl-i"><b class="verdict meet">达到要求<i class="pvx">+</i></b>' +
+          '<span class="vl-i"><b class="verdict over">高于公布要求</b>你的成绩超出该校公布的口径</span>' +
+          '<span class="vl-i"><b class="verdict meet">与公布要求相当</b>正好持平；热门专业实收常更高</span>' +
+          '<span class="vl-i"><b class="verdict under">低于公布要求</b>还差一些，仍可作为冲刺</span>' +
+          (hasSub ? '<span class="vl-i"><b class="verdict meet">与公布要求相当<i class="pvx">+</i></b>' +
             '该专业另有科目要求（哪几门必修、每门要到什么等级），成绩对上了也要逐条核</span>' : '') +
-          (hasExam ? '<span class="vl-i"><b class="verdict meet">达到要求<i class="pvx exam">考</i></b>' +
+          (hasExam ? '<span class="vl-i"><b class="verdict meet">与公布要求相当<i class="pvx exam">考</i></b>' +
             '还要单独报名或准备笔试 / 面试 / 作品集，别只对着分数看</span>' : '');
       }
     }
@@ -1403,6 +1404,11 @@
         warn.textContent = bits2.join(' ');
       }
     }
+    // 口径限制与三色图例合成一块，整块跟着「填没填」显隐——
+    // 两行各自显隐的话，填了成绩它会一段段长出来，控件卡的高度就跟着跳。
+    // 这一块现在贴着结果线，不在控件卡里（见 index.html 的 #judge-notes）。
+    var jn = $('#judge-notes');
+    if (jn) jn.hidden = !hasProfile();
   }
 
   // ── 英语成绩的判定 ──
@@ -2015,16 +2021,30 @@
   }
   // colgroup 必须与表头同列数——原来按大学分组时表头 11 列、colgroup 只有 10 个 col，
   // 浏览器会把宽度整体错位一格，英语列因此被压到 97px
+  //
+  // 列宽走百分比，不写死 px。理由在 styles.css 的 table.tbl 上写着：
+  // table-layout:fixed 取「表格指定宽度」与「列宽之和」里较大的那个，
+  // 写死 px 时列宽之和（有「大学」列时 1336）就成了表格的实际宽度，
+  // 屏幕窄于它一律横向滚动——1280 屏扣掉 Windows 滚动条只剩约 1221 可用，
+  // 于是默认视图上就溢出了，而横向滚动容器里的 sticky 表头是吸不住的。
+  // 百分比则永远正好铺满容器：宽屏把多出来的空间按原比例分给各列，窄屏等比收窄。
+  // 下面这组数只表示「各列之间谁该宽一点」的相对份量，单位是「份」不是像素。
+  var COL_W = {
+    school: 104,   // 大学（只在按方向 / 名次段等分组时出现）
+    prog: 186, degree: 100, alevel: 108, ib: 116, test: 86,
+    offer: 76, eng: 152, qs: 116, note: 140, ops: 152
+  };
+  // 备注列让 26 份给操作列：操作列要放「加入对比」+ 一行「官网 · 单页 · 同方向 · 报告错误」，
+  // 116px 时那行会折成三段，比备注少一行严重得多（备注本来就长、本来就在换行）
+  var COL_ORDER = ['prog', 'degree', 'alevel', 'ib', 'test', 'offer', 'eng', 'qs', 'note', 'ops'];
   function colgroupHTML(showSchool) {
-    // 备注列让 26px 给操作列：操作列要放「加入对比」+ 一行「官网 · 单页 · 同方向 · 报告错误」，
-    // 116px 时那行会折成三段，比备注少一行严重得多（备注本来就长、本来就在换行）
-    return '<colgroup>' + (showSchool ? '<col style="width:104px">' : '') +
-      '<col style="width:186px"><col style="width:100px"><col style="width:108px"><col style="width:116px">' +
-      '<col style="width:86px"><col style="width:76px"><col style="width:152px"><col style="width:116px">' +
-      '<col style="width:140px"><col style="width:152px"></colgroup>';
+    var keys = (showSchool ? ['school'] : []).concat(COL_ORDER);
+    var total = keys.reduce(function (s, k) { return s + COL_W[k]; }, 0);
+    return '<colgroup>' + keys.map(function (k) {
+      return '<col style="width:' + (COL_W[k] / total * 100).toFixed(3) + '%">';
+    }).join('') + '</colgroup>';
   }
   function tableGroupHTML(items, idxMap, meta, showSchool, groupKey) {
-    var extra = showSchool ? '<colgroup><col style="width:104px"></colgroup>' : '<colgroup><col style="width:0px"></colgroup>';
     var schoolTh = showSchool ? '<th scope="col">大学</th>' : '';
     var testHead = esc(cur.testHead);
     var rc = cur === REGIONS.hk ? 'hk' : 'uk';
@@ -2047,8 +2067,8 @@
       return '<tr>' + lead +
         (showSchool ? '<td><span class="lead-line">' + hi(p.zh) + '</span><span class="sub-line">' + hi(p.en) + '</span>' + hitChip(p, idxMap[i]) + '</td>' : '') +
         '<td>' + esc(p.degree) + '</td>' +
-        '<td>' + scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '') + (mode === 'alevel' ? vb : '') + '</td>' +
-        '<td>' + scoreHTML(p.ib, 'g g-ib') + (mode === 'ib' ? vb : '') + '</td>' +
+        '<td class="c-score">' + scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '') + (mode === 'alevel' ? vb : '') + '</td>' +
+        '<td class="c-score">' + scoreHTML(p.ib, 'g g-ib') + (mode === 'ib' ? vb : '') + '</td>' +
         '<td>' + testCol + '</td>' +
         '<td><span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(OFFER_ZH[p.offer] || p.offer) + '</span></td>' +
         engCol +
@@ -2797,8 +2817,8 @@
         '<td class="cycle-cell"><span class="cy">' + esc(cycleShort(it.rc)) + '</span>' +
           '<span class="cy-sub">' + esc(REGIONS[it.rc].cycle) + '</span></td>' +
         td(3, esc(p.degree)) +
-        td(4, scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : '')) +
-        td(5, scoreHTML(p.ib, 'g g-ib')) +
+        td(4, scoreHTML(p.alevel, 'g') + (p.alevelNote ? '<div class="gn">' + esc(p.alevelNote) + '</div>' : ''), 'c-score') +
+        td(5, scoreHTML(p.ib, 'g g-ib'), 'c-score') +
         td(6, test) +
         td(7, '<span class="t-offer" title="' + esc(OFFER_TITLE[p.offer] || '') + '">' + esc(offer) + '</span>' + posChip(it)) +
         td(8, engCellInner(engFor(it.idx, isHK ? 'hk' : 'uk')), 'eng-cell') +
@@ -3117,6 +3137,36 @@
     $('#export').setAttribute('aria-expanded', String(open));
     if (open) renderExportPanel();
   }
+  // 「▾ 菜单」（index.html 里是 <details class="menu">，工具栏一个、对比弹层标题栏一个）：
+  // 开合、键盘、Esc 的语义浏览器本来就给了一半，这里只补它不管的两件——
+  // 点菜单里任一项就收起（否则菜单一直挡着刚打开的那块面板），
+  // 点菜单外面也收起（原生 <details> 不会自己关）。
+  // 每次开要先把别的菜单收掉：两个菜单虽然不同屏，但对比弹层是从工具栏开着的时候也能进的。
+  (function () {
+    var menus = Array.prototype.slice.call(document.querySelectorAll('.menu'));
+    if (!menus.length) return;
+    menus.forEach(function (menu) {
+      menu.addEventListener('click', function (e) {
+        if (e.target.closest('.menu-drop button')) menu.open = false;
+      });
+      menu.addEventListener('toggle', function () {
+        if (!menu.open) return;
+        menus.forEach(function (m) { if (m !== menu) m.open = false; });
+      });
+    });
+    document.addEventListener('click', function (e) {
+      menus.forEach(function (m) { if (m.open && !m.contains(e.target)) m.open = false; });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      menus.forEach(function (m) {
+        if (!m.open) return;
+        m.open = false;
+        var s = m.querySelector('summary');
+        if (s) s.focus();     // 焦点得跟着回来，别留在已经收起的菜单里
+      });
+    });
+  })();
   $('#export').addEventListener('click', function () { openExportPanel($('#export-panel').hidden); });
   $('#ep-cancel').addEventListener('click', function () { openExportPanel(false); });
   $('#ep-scope').addEventListener('click', function (e) {
