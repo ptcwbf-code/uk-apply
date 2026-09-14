@@ -417,6 +417,94 @@
     }
     return out.sort(function (a, b) { return b - a; });
   }
+  // ── 科目要求核对 ──
+  // 判定原先只比「你最好的 N 门等级之和」，于是科目全不对也会显示「高于要求」：
+  // 爱丁堡化学工程要「数学 B + 化学 B」，一个历史/地理/艺术全 A* 的人照样被判「高于要求」。
+  // 现在只要在 A-Level 那一栏里带上科目（「数学 A*、物理 A、化学 A」），就顺带核这一项。
+  // 只写「A*A*A」时科目未知，判定照旧——不额外给结论，也不假装核过。
+  var SUBJ_ALIAS = [
+    ['高数', /高数|进阶数学|further\s*math/i], ['数学', /数学|math/i],
+    ['物理', /物理|physics/i], ['化学', /化学|chem/i], ['生物', /生物|bio/i],
+    ['计算机', /计算机|computing|computer\s*science|^cs$|cs\b/i],
+    ['经济', /经济|econ/i], ['商务', /商务|会计|business|accounting/i],
+    ['历史', /历史|history/i], ['地理', /地理|geography/i],
+    ['英语文学', /英语文学|english\s*literature/i], ['英语语言', /英语语言|english\s*language/i],
+    ['心理学', /心理|psycholog/i], ['政治', /政治|politic/i], ['社会学', /社会学|sociolog/i],
+    ['哲学', /哲学|philosoph/i], ['宗教研究', /宗教|theolog|religious/i],
+    ['艺术与设计', /艺术|设计|\bart\b|design/i], ['音乐', /音乐|music/i],
+    ['戏剧', /戏剧|drama|theatre/i], ['传媒', /传媒|媒体|media|film/i],
+    ['法律', /法律|\blaw\b/i], ['人类学', /人类学|anthropolog/i],
+    ['古典文明', /古典文明|classical\s*civilis|classics/i], ['古典语言', /拉丁|希腊|latin|greek/i],
+    ['现代语言', /现代语言|modern\s*(foreign\s*)?language|语言/i]
+  ];
+  function subjectOf(word) {
+    for (var i = 0; i < SUBJ_ALIAS.length; i++) if (SUBJ_ALIAS[i][1].test(word)) return SUBJ_ALIAS[i][0];
+    return null;
+  }
+  // 「数学 A*、物理 A」→ [{s:'数学',g:'A*'},{s:'物理',g:'A'}]；一个科目名都没有时返回 null
+  var _spCache = { key: null, val: null };
+  function subjectPairs() {
+    var raw = String(gAl == null ? '' : gAl);
+    if (_spCache.key === raw) return _spCache.val;
+    var out = [];
+    raw.split(/[、,，;；\/]+/).forEach(function (chunk) {
+      var t = chunk.trim();
+      if (!t) return;
+      // 一段里挤了两门（「数学 A* 物理 A」）就再按空格拆开
+      if ((t.match(/[一-龥A-Za-z]+/g) || []).filter(subjectOf).length > 1) {
+        t.split(/\s+/).forEach(function (w) { t2(w); });
+      } else t2(t);
+      function t2(w2) {
+        var s = subjectOf(w2);
+        if (!s) return;
+        var m = w2.match(/([A-E])\s*(\*)?/);
+        out.push({ s: s, g: m ? (m[1] + (m[2] || '')).toUpperCase() : null });
+      }
+    });
+    _spCache = { key: raw, val: out.length ? out : null };
+    return _spCache.val;
+  }
+  function gradeOK(g, min) {
+    if (!min) return true;
+    if (!g || GRADE_VAL[g] == null) return false;   // 没写等级就不算通过
+    return GRADE_VAL[g] >= GRADE_VAL[min];
+  }
+  // 返回 null（没填科目 / 该专业没解析出规则，给不了结论）或
+  //      {state:'ok'|'miss', miss}（miss 是第一条没满足的规则）
+  function subjVerdict(p) {
+    var pairs = subjectPairs();
+    if (!pairs || typeof SUBJ_REQ === 'undefined') return null;
+    var req = SUBJ_REQ[p.school + '|' + p.en];
+    if (!req) return null;                    // 备注没能解析成规则——宁可不给结论
+    if (req.kind === 'none') return { state: 'ok', none: true };
+    var i, j;
+    for (i = 0; i < (req.need || []).length; i++) {
+      var n = req.need[i], hit = false;
+      for (j = 0; j < pairs.length; j++)
+        if (n.any.indexOf(pairs[j].s) >= 0 && gradeOK(pairs[j].g, n.min)) { hit = true; break; }
+      if (!hit) return { state: 'miss', miss: needText(n) };
+    }
+    for (i = 0; i < (req.pick || []).length; i++) {
+      var pk = req.pick[i], c = 0;
+      for (j = 0; j < pairs.length; j++)
+        if (pk.of.indexOf(pairs[j].s) >= 0 && gradeOK(pairs[j].g, pk.min)) c++;
+      if (c < pk.n) return { state: 'miss', miss: pickText(pk) };
+    }
+    return { state: 'ok', approx: !!req.approx };
+  }
+  function needText(n) { return n.any.join(' 或 ') + (n.min ? ' 需 ' + n.min : ''); }
+  function pickText(pk) {
+    return pk.of.slice(0, 4).join(' / ') + (pk.of.length > 4 ? ' 等' : '') +
+      ' 中至少 ' + pk.n + ' 门' + (pk.min ? ' 达 ' + pk.min : '');
+  }
+  // 徽章上那枚「科目」记号：只在「等级够了但科目对不上」时出现
+  function subjMark(p) {
+    var v = subjVerdict(p);
+    if (!v || v.state !== 'miss') return '';
+    return '<i class="pvx bad" title="' + esc('科目要求不满足：' + v.miss +
+      '。等级够了但选的科目不对，这一条申请不上。') + '">科目</i>';
+  }
+
   // 一座专业的 A-Level 要求档。两处必须清洗，否则会读进不属于要求的字母：
   // 1) 括号里的「或 AAB + Art Foundation」是备选方案，会带进 Art 的 A、EPQ 的 E；
   // 2) 出现区间时取更高的一端——英国写「高–低」(A*A*A*–A*AA)，港中文写「低–高」(ABB–AAB)，
@@ -1377,6 +1465,7 @@
     return '<span class="verdict ' + v.kind + (v.padded ? ' partial' : '') + '" title="' + esc(tip) + '">' +
       esc(label) + (v.padded ? '<span class="pv">按A补</span>' : '') +
       (marked ? '<span class="pvx' + (kind === 'exam' ? ' exam' : '') + '" title="' + esc('该专业另有要求：' + extra.join('；')) + '">' + (kind === 'exam' ? '考' : '+') + '</span>' : '') +
+      subjMark(p) +
       '</span>';
   }
   function myCounts() {
@@ -1437,6 +1526,19 @@
           (e3.under ? ' · 不够 ' + e3.under : '') +
           (e3.none ? ' · 未列 IELTS / TOEFL ' + e3.none : ''));
       }
+      // 科目核对只在你把科目写进 A-Level 那一栏之后才有——没写就没有可核的，不占一行
+      if (g && subjectPairs()) {
+        var sToks = qTokens(), sKnown = 0, sBad = 0;
+        for (var si = 0; si < cur.programs.length; si++) {
+          if (!matches(cur.programs[si], si, sToks)) continue;
+          var sv3 = subjVerdict(cur.programs[si]);
+          if (!sv3) continue;                     // 没解析出规则的，不算进分母
+          sKnown++;
+          if (sv3.state === 'miss') sBad++;
+        }
+        if (sKnown) parts.push('科目：可核对 ' + sKnown + ' 项 · ' +
+          (sBad ? '科目不符 ' + sBad : '对得上'));
+      }
       gb.textContent = parts.join('；');
     }
     // 判定那三个词各是什么意思，就在色块旁边写一遍（悬停说明手机上等于不存在）
@@ -1446,12 +1548,14 @@
       if (!g) vl.innerHTML = '';
       else {
         // 「+」的解释只在这批结果里确实有带标记的行时才出现，否则是噪音
-        var toks2 = qTokens(), hasSub = false, hasExam = false;
+        var toks2 = qTokens(), hasSub = false, hasExam = false, hasBad = false;
         for (var k = 0; k < cur.programs.length; k++) {
           if (!matches(cur.programs[k], k, toks2)) continue;
           var kk = extraKind(cur.programs[k]);
           if (kk === 'exam') hasExam = true; else if (kk === 'subject') hasSub = true;
-          if (hasExam && hasSub) break;
+          var sv2 = subjVerdict(cur.programs[k]);
+          if (sv2 && sv2.state === 'miss') hasBad = true;
+          if (hasExam && hasSub && hasBad) break;
         }
         // 三个词单看仍然像「判定结果」，所以把「公布要求 / 公布口径」钉进词里：
         // 它对照的是各校公布的分数线，不是录取概率。
@@ -1463,7 +1567,10 @@
           (hasSub ? '<span class="vl-i"><b class="verdict meet">与公布要求相当<i class="pvx">+</i></b>' +
             '该专业另有科目要求（哪几门必修、每门要到什么等级），成绩对上了也要逐条核</span>' : '') +
           (hasExam ? '<span class="vl-i"><b class="verdict meet">与公布要求相当<i class="pvx exam">考</i></b>' +
-            '还要单独报名或准备笔试 / 面试 / 作品集，别只对着分数看</span>' : '');
+            '还要单独报名或准备笔试 / 面试 / 作品集，别只对着分数看</span>' : '') +
+          (hasBad ? '<span class="vl-i"><b class="verdict meet">与公布要求相当<i class="pvx bad">科目</i></b>' +
+            '把科目填进了 A-Level 那一栏，这一条选的科目对不上（点徽章看缺哪门）——' +
+            '等级够了也申请不上这一条</span>' : '');
       }
     }
     // 面板里的口径提醒（主页面另有一行可见的同款说明）
@@ -2991,7 +3098,7 @@
       esc(POS_TITLE[v.kind] + (v.padded ? '（你只填了 ' + v.have + ' 门，未填的按 A 计）' : '') +
         (v.by === 'count' ? '（该专业只公布门数，未公布等级）' : '') +
         (marked ? '该专业另有要求：' + extra.join('；') : '')) + '">' +
-      POS_ZH[v.kind] + (v.padded ? '*' : '') + (marked ? '<i class="pvx' + (kind === 'exam' ? ' exam' : '') + '">' + (kind === 'exam' ? '考' : '+') + '</i>' : '') + '</span>';
+      POS_ZH[v.kind] + (v.padded ? '*' : '') + (marked ? '<i class="pvx' + (kind === 'exam' ? ' exam' : '') + '">' + (kind === 'exam' ? '考' : '+') + '</i>' : '') + subjMark(p) + '</span>';
   }
   // CSV 里只有「冲」两个字太单薄——导出的表常常是直接发给顾问的，要能自己说明白
   function posText(p) {

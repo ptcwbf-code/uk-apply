@@ -547,6 +547,11 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
    （口径标签 / 差异提示 / ESL 标注都用它），换过来既跳得出，也不新起一套配色。 */
 .pvx.exam{color:var(--card);background:var(--gold);border-radius:3px;padding:0 4px;
   opacity:1;font-weight:700;margin-left:4px}
+/* 「科目不符」：等级够了但选的科目不对——这条是申请不上的硬伤，比「另有要求」更重，
+   所以用判定三色里的红（和「低于要求」同族），与「要另考」的金胶囊分开。
+   只在你把科目填进 A-Level 那一栏之后才可能出现。 */
+.pvx.bad{color:var(--card);background:var(--v-under);border-radius:3px;padding:0 4px;
+  opacity:1;font-weight:700;margin-left:4px}
 .pos .pvx,.pos i{font-style:normal}
 .pos.partial{border-style:dashed}
 .rating .verdict{margin-top:6px}
