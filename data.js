@@ -3,15 +3,15 @@
 // 成绩口径见"术语与口径说明"：典型（典型录取水平）/ 最低 / 区间；剑桥为各学院最低 offer 水平
 
 const SCHOOLS = [
-  { key: 'oxford',    zh: '牛津',   en: 'University of Oxford',  group: 'G5·牛剑', mark: '牛', color: '#7c0f28', checked: '2026-09' },
-  { key: 'cambridge', zh: '剑桥',   en: 'University of Cambridge', group: 'G5·牛剑', mark: '剑', color: '#0f4c81', checked: '2026-09' },
-  { key: 'imperial',  zh: '帝国理工', en: 'Imperial College London', group: 'G5', mark: '帝', color: '#162d5c', checked: '2026-09' },
-  { key: 'lse',       zh: 'LSE',    en: 'London School of Economics', group: 'G5', mark: 'LSE', color: '#a61c5b', checked: '2026-09' },
-  { key: 'ucl',       zh: 'UCL',    en: 'University College London', group: 'G5', mark: 'UCL', color: '#511c5c', checked: '2026-09' },
-  { key: 'kcl',       zh: 'KCL',    en: "King's College London", group: '王爱曼华', mark: 'KCL', color: '#3a5da8', checked: '2026-09' },
-  { key: 'manchester',zh: '曼大',   en: 'University of Manchester', group: '王爱曼华', mark: '曼', color: '#73172d', checked: '2026-09' },
-  { key: 'edinburgh', zh: '爱丁堡', en: 'University of Edinburgh', group: '王爱曼华', mark: '爱', color: '#1e2d3d', checked: '2026-09' },
-  { key: 'warwick',   zh: '华威',   en: 'University of Warwick',  group: '王爱曼华', mark: '华', color: '#4b1e64', checked: '2026-09' }
+  { key: 'oxford',    zh: '牛津',   en: 'University of Oxford',  group: 'G5·牛剑', mark: '牛', color: '#7c0f28', checked: '2026-09', fee: { label: '国际生学费', amt: '£39,620–66,580', year: '2027', note: '按专业浮动；临床医学显著更高', url: 'https://www.ox.ac.uk/admissions/undergraduate/fees-and-funding/course-fees' }},
+  { key: 'cambridge', zh: '剑桥',   en: 'University of Cambridge', group: 'G5·牛剑', mark: '剑', color: '#0f4c81', checked: '2026-09', fee: { label: '国际生学费', amt: '£29,052–70,554', year: '2026', note: '分 5 档，医学 / 兽医最高', url: 'https://www.undergraduate.study.cam.ac.uk/international-students/international-fees-and-costs' }},
+  { key: 'imperial',  zh: '帝国理工', en: 'Imperial College London', group: 'G5', mark: '帝', color: '#162d5c', checked: '2026-09', fee: { label: '国际生学费', amt: '£42,700–58,600', year: '2026', note: '按院系：商 £42,700、理工 £45,500、医学 £58,600', url: 'https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/' }},
+  { key: 'lse',       zh: 'LSE',    en: 'London School of Economics', group: 'G5', mark: 'LSE', color: '#a61c5b', checked: '2026-09', fee: { label: '国际生学费', amt: '£28,900–39,900', year: '2026/27', note: '按专业分档，入学年份锁定', url: 'https://www.lse.ac.uk/study-at-lse/undergraduate/fees-and-funding' }},
+  { key: 'ucl',       zh: 'UCL',    en: 'University College London', group: 'G5', mark: 'UCL', color: '#511c5c', checked: '2026-09', fee: { label: '国际生学费', amt: '£33,300–48,600', year: '2027/28', note: '按专业分档；医学 £57,300。区间为本站收录专业', url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/fees-and-funding' }},
+  { key: 'kcl',       zh: 'KCL',    en: "King's College London", group: '王爱曼华', mark: 'KCL', color: '#3a5da8', checked: '2026-09', fee: { label: '国际生学费', amt: '£30,750–45,400', year: '2026/27', note: '按专业分档；医学 £60,200。区间为本站收录专业', url: 'https://www.kcl.ac.uk/study/undergraduate/fees-and-funding/tuition-fees' }},
+  { key: 'manchester',zh: '曼大',   en: 'University of Manchester', group: '王爱曼华', mark: '曼', color: '#73172d', checked: '2026-09', fee: { label: '国际生学费', amt: '£27,800–39,900', year: '2026/27', note: '按专业分档。区间为本站收录专业', url: 'https://www.manchester.ac.uk/study/undergraduate/fees-and-funding/' }},
+  { key: 'edinburgh', zh: '爱丁堡', en: 'University of Edinburgh', group: '王爱曼华', mark: '爱', color: '#1e2d3d', checked: '2026-09', fee: { label: '国际生学费', amt: '£29,600–38,900', year: '2026-27', note: '分档；医学 £54,650、兽医 £41,700', url: 'https://registryservices.ed.ac.uk/tuition-fees/find/undergraduate/2026-2027/full-time-new-students' }},
+  { key: 'warwick',   zh: '华威',   en: 'University of Warwick',  group: '王爱曼华', mark: '华', color: '#4b1e64', checked: '2026-09', fee: { label: '国际生学费', amt: '£27,870–35,530', year: '2026-27', note: '课堂类 / 实验类两档；2027-28 未定', url: 'https://warwick.ac.uk/study/undergraduate/fees-and-funding/course-costs/' }}
 ];
 
 const DIRS = {

@@ -2015,6 +2015,17 @@
       ? '<span class="gd-checked" title="这所大学的数据逐条核对的月份；每一行的来源页面见「操作」列里的官网链接">核对 ' + esc(meta.checked) + '</span>'
       : '';
   }
+  // 学费：只在校级给一个数，不做逐专业。
+  // 理由：英港之间差一个数量级（这才是选校要看的），而同一所学校里各专业的费率差异
+  // 远小于它；更要紧的是，一半英国学校按专业分档公布、且 2027 入学的国际生费率多数还没
+  // 出来——逐专业填会在表里留下一片空格，比校级一个区间更误导。悬停给出处与口径年份。
+  function feeTag(meta) {
+    var f = meta && meta.fee;
+    if (!f || !f.amt) return '';
+    var tip = (f.label || '国际生学费') + ' ' + f.amt + '（' + f.year + ' 口径）'
+      + (f.note ? '　' + f.note : '') + (f.url ? '　来源：' + f.url : '');
+    return '<span class="gd-fee" title="' + esc(tip) + '">' + esc(f.amt) + '<i>/年</i></span>';
+  }
   // 「这行和官网不一致？」总得有个出口：本站的可信度就等于数据准确度，
   // 用户发现了却无处可说，下一个人还会踩同一处。
   var REPORT_EMAIL = 'ptcwbf@gmail.com';
@@ -2084,7 +2095,7 @@
   }
   function cardGroupHTML(items, idxMap, meta, showSchool, groupKey) {
     return '<section class="group" data-key="' + esc(groupKey || '') + '" style="--school:' + (meta.color || '#9aa3b8') + '">' +
-      '<div class="group-head"><h2>' + esc(meta.zh) + '</h2>' + (meta.en ? '<span class="en">' + esc(meta.en) + '</span>' : '') + checkedTag(meta) +
+      '<div class="group-head"><h2>' + esc(meta.zh) + '</h2>' + (meta.en ? '<span class="en">' + esc(meta.en) + '</span>' : '') + feeTag(meta) + checkedTag(meta) +
       '<span class="cnt">' + items.length + ' 项</span></div>' +
       '<div class="cards">' + items.map(function (p, i) { return cardHTML(p, idxMap[i], showSchool); }).join('') + '</div></section>';
   }
@@ -2103,7 +2114,7 @@
   function headHTML(items, meta) {
     var seal = sealHTML(meta, true);
     return '<div class="group-head' + (seal ? ' has-seal' : '') + '">' + seal + '<h2>' + esc(meta.zh) + '</h2>' +
-      (meta.en ? '<span class="en">' + esc(meta.en) + '</span>' : '') + checkedTag(meta) +
+      (meta.en ? '<span class="en">' + esc(meta.en) + '</span>' : '') + feeTag(meta) + checkedTag(meta) +
       '<span class="cnt">' + items.length + ' 项</span></div>';
   }
   // colgroup 必须与表头同列数——原来按大学分组时表头 11 列、colgroup 只有 10 个 col，

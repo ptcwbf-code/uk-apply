@@ -630,6 +630,14 @@ select{font:inherit;padding:8px 9px;border:1px solid var(--line-2);border-radius
    放在计数左边，接管 margin-left:auto，所以计数要收掉自己的那一份 */
 .group-head .gd-checked{margin-left:auto;color:var(--mut);font-size:var(--fs-2);white-space:nowrap;font-family:var(--mono);letter-spacing:.02em}
 .group-head .gd-checked + .cnt{margin-left:12px}
+/* 学费：与「核对」同属「这所学校是什么情况」，所以并排放在校名之后。
+   只给校级一个数——英港之间差一个数量级，这才是选校要看的；同一所学校内各专业的
+   费率差异远小于它，而一半英国学校按专业分档、2027 的国际生费率又多数没出，
+   逐专业填只会在表里留下一片空格。金额用等宽字体，方便纵向比。 */
+.group-head .gd-fee{color:var(--ink-2);font-size:var(--fs-2);white-space:nowrap;
+  font-family:var(--mono);letter-spacing:.01em;border:1px solid var(--line-2);
+  border-radius:5px;padding:1px 7px;background:var(--card);cursor:help}
+.group-head .gd-fee i{font-style:normal;color:var(--mut);font-size:.92em}
 
 /* ══ 卡片视图 ══ */
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
