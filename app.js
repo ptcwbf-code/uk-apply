@@ -3738,19 +3738,16 @@
   function sheetHTML(items) {
     var groups = sheetGroups(items);
     var unit = epPer === 'dir' ? '个方向' : '所学校';
-    var how = epPer === 'school' ? '横版 A4，每所学校从新的一页开始。'
-      : epPer === 'dir' ? '横版 A4，每个学科方向从新的一页开始。'
-      : '横版 A4，整份连续排版。';
-    // 这一页纸会脱离本站，所以封面得自己说清「哪一批、按什么筛的、什么时候核的」
+    // 封面是一份正式文件的抬头：不放「横版 A4」「双面打印怎么设」这类操作说明，
+    // 也不在标题里挂「（一校一页）」这种版式注解。那些都是给「正在打印的这个人」看的，
+    // 属于屏幕上的提示（见 index.html 里导出面板那行 .ep-note）；印在纸上只会让
+    // 这份文件显得像一张打印稿。至于版面怎么排——看一眼纸就知道，不必写出来。
     var cover = '<div class="sh-cover">' +
-      '<h1>' + esc(cur.name) + ' · 本科录取要求' +
-        (epPer === 'school' ? '（一校一页）' : epPer === 'dir' ? '（按学科方向）' : '') + '</h1>' +
+      '<h1>' + esc(cur.name) + ' · 本科录取要求</h1>' +
       '<p class="sh-sub">' + esc(cur.year) + '（' + esc(cur.cycle) + '）　·　' + items.length + ' 个专业' +
         (epPer === 'none' ? '' : '　·　' + groups.length + ' ' + unit) +
         '　·　数据核对 2026-09　·　完整可搜索版 mtennnn.cn</p>' +
       '<p class="sh-scope">筛选：' + esc(scopeBits().join(' ｜ ')) + '</p>' +
-      '<p class="sh-how">' + how +
-        '<b>双面打印请把打印机的翻页方式设为「长边翻页」</b>，否则背面会上下倒过来。</p>' +
       '</div>';
     var body = groups.map(function (g, gi) {
       var meta = g.meta || {};
