@@ -3742,12 +3742,20 @@
     // 也不在标题里挂「（一校一页）」这种版式注解。那些都是给「正在打印的这个人」看的，
     // 属于屏幕上的提示（见 index.html 里导出面板那行 .ep-note）；印在纸上只会让
     // 这份文件显得像一张打印稿。至于版面怎么排——看一眼纸就知道，不必写出来。
+    // scopeBits() 的第一项固定是「板块 · 入学年份（申请季）」，上面那行副标题已经写了。
+    // 直接用它会让没加任何筛选时的封面出现「筛选：英国九校 · 2027 年 9 月入学…」——
+    // 前半截是刚说过的话。所以切掉第一项；切完为空就整行不印（没筛就没筛）。
+    // 「搜索：经济」前面再套「筛选：」会变成「筛选：搜索：经济」，两层冒号，
+    // 在纸上改写成「关键词“经济”」才读得顺（这一步只影响纸面，不动 renderPrintMeta 那行）。
+    var scope = scopeBits().slice(1).map(function (b) {
+      return b.indexOf('搜索：') === 0 ? '关键词“' + b.slice(3) + '”' : b;
+    });
     var cover = '<div class="sh-cover">' +
       '<h1>' + esc(cur.name) + ' · 本科录取要求</h1>' +
       '<p class="sh-sub">' + esc(cur.year) + '（' + esc(cur.cycle) + '）　·　' + items.length + ' 个专业' +
         (epPer === 'none' ? '' : '　·　' + groups.length + ' ' + unit) +
         '　·　数据核对 2026-09　·　完整可搜索版 mtennnn.cn</p>' +
-      '<p class="sh-scope">筛选：' + esc(scopeBits().join(' ｜ ')) + '</p>' +
+      (scope.length ? '<p class="sh-scope">筛选：' + esc(scope.join(' ｜ ')) + '</p>' : '') +
       '</div>';
     var body = groups.map(function (g, gi) {
       var meta = g.meta || {};
