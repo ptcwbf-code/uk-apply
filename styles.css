@@ -1170,6 +1170,11 @@ body:not(.rail-open) .cr-body{display:none}
 .sheet .sh-cover h1{font-family:var(--serif);font-size:17pt;line-height:1.3;margin:0 0 3pt;color:#000}
 .sheet .sh-sub{font-size:9pt;color:#333;margin:0 0 2pt;line-height:1.5}
 .sheet .sh-scope{font-size:8pt;color:#555;margin:0;line-height:1.5}
+/* 选编说明：封面最后一行的小字。字号再小一档、上面压一条细线——它是脚注不是抬头，
+   但必须和「收录 239 个专业」待在同一张纸上：那个数字单看会被读成
+   「这所学校一共 239 个专业」，而本站是选编，不是完整专业目录。 */
+.sheet .sh-note{font-size:7.5pt;color:#555;margin:4pt 0 0;padding-top:3pt;
+  border-top:.5pt solid #ccc;line-height:1.5}
 /* 页眉：校印 + 中英文校名 + 院校分组 + 项数。break-after:avoid 保证它不会被独自留在页底 */
 .sheet .sh-head{display:flex;align-items:baseline;gap:7pt;border-bottom:1.5pt solid #000;
   padding-bottom:3pt;margin-bottom:5pt;break-after:avoid;page-break-after:avoid}

@@ -3750,12 +3750,20 @@
     var scope = scopeBits().slice(1).map(function (b) {
       return b.indexOf('搜索：') === 0 ? '关键词“' + b.slice(3) + '”' : b;
     });
+    // 「239 个专业」单看会被读成「这所学校一共 239 个专业」——本站是**选编**，
+    // 这个数字是收录数，不是各校的专业总数。口径取自源报告自己的标题
+    //（「英国七校热门专业…汇总」「香港五校热门本科…」「牛剑热门方向…」），
+    // 方向清单就是站上那套学科方向分类，不另造说法。
+    var dirNames = Object.keys(cur.dirs).map(function (d) { return cur.dirs[d].short || cur.dirs[d].zh; });
     var cover = '<div class="sh-cover">' +
       '<h1>' + esc(cur.name) + ' · 本科录取要求</h1>' +
-      '<p class="sh-sub">' + esc(cur.year) + '（' + esc(cur.cycle) + '）　·　' + items.length + ' 个专业' +
+      '<p class="sh-sub">' + esc(cur.year) + '（' + esc(cur.cycle) + '）　·　收录 ' + items.length + ' 个专业' +
         (epPer === 'none' ? '' : '　·　' + groups.length + ' ' + unit) +
         '　·　数据核对 2026-09　·　完整可搜索版 mtennnn.cn</p>' +
       (scope.length ? '<p class="sh-scope">筛选：' + esc(scope.join(' ｜ ')) + '</p>' : '') +
+      '<p class="sh-note">本册为选编：收录各校在 ' + dirNames.length + ' 个热门学科方向（' +
+        esc(dirNames.join(' / ')) + '）的本科课程，' +
+        '不是完整的本科专业目录；各校全部课程请以官网为准。</p>' +
       '</div>';
     var body = groups.map(function (g, gi) {
       var meta = g.meta || {};
@@ -3767,7 +3775,9 @@
           '<span class="sh-head-n">' + g.items.length + ' 项</span></div>' +
         (epPer === 'school' && meta.fee ? sheetSummaryHTML(g.items, meta) : '') +
         sheetTableHTML(g.items,
-          esc(meta.zh || cur.name) + ' · ' + g.items.length + ' 项' +
+          // 「收录 N 项」而不是「N 项」：每一页都要能被单独抽出来看，
+          // 而「23 项」单看像是这所学校一共 23 个专业（本站是选编，不是全目录）
+          esc(meta.zh || cur.name) + ' · 收录 ' + g.items.length + ' 项' +
           (epPer === 'none' ? '' : ' · 第 ' + (gi + 1) + ' / ' + groups.length + ' ' + unit) +
           ' · 来源 mtennnn.cn · 数据核对 2026-09') +
         '</section>';
