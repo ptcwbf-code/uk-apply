@@ -12,7 +12,7 @@
      哪怕同源。其余三支等 CSS 自己按需取，不值得抢带宽。 -->
 <link rel="preload" href="fonts/noto-serif-sc-h1-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/source-serif-4-latin-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=11.4">
+<link rel="stylesheet" href="styles.css?v=11.5">
 
 <!-- 图标：SVG 给现代浏览器，PNG 兜底（Safari 等对 SVG favicon 支持不全） -->
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -197,6 +197,10 @@
         <summary class="btn btn-ghost" title="导出 CSV · 复制链接 · 打印 / 存 PDF">导出 / 分享</summary>
         <div class="menu-drop">
           <button class="btn btn-primary" id="export" type="button" aria-expanded="false" title="选择范围与列后导出 CSV">导出 CSV</button>
+          <!-- 「打印」与「打印册」都在打印，区别只有版式：前者印屏幕上这份（竖版、连续），
+               后者重新分页成横版一校一张纸。放两个按钮而不是塞进一个设置对话框，
+               因为最常见的用法是「印一校一页」这一下，不该先点开面板再选。 -->
+          <button class="btn btn-ghost" id="print-sheet" type="button" title="横版 A4，每所学校另起一页——打印了贴墙 / 放门口用。按当前筛选结果排；没筛过就是本板块全部，所以「九校 239 项一校一张纸」也是一键">打印册（一校一页）</button>
           <button class="btn btn-ghost" id="share" type="button" title="复制一条带当前板块、筛选、排序与搜索词的链接——发给同学或顾问，对方打开就是同一批结果">复制链接</button>
           <button class="btn btn-ghost" id="print" type="button" title="打印当前结果，或存成 PDF——打印样式会去掉交互件、每页重复表头，并强制展开术语与口径说明">打印 / 存 PDF</button>
         </div>
@@ -224,16 +228,37 @@
          见下方 #judge-notes。 -->
 
 
-    <!-- 导出面板：范围（D3）+ 列（D2） -->
+    <!-- 导出面板：范围 × 版式 × 列。三条轴彼此独立——
+         范围决定「导哪些条目」，版式决定「纸上怎么排」，列只对 CSV / 剪贴板生效。
+         「版式」这一行是为了「打印了放门口」那类需求加的：要印九所学校的全部专业，
+         选择单位本来就该是学校、甚至不用选（本板块全部 × 每校一页），
+         而对比清单是专业级、上限 30 项，装不下 239 项的英国板块。 -->
     <div class="export-panel" id="export-panel" hidden>
       <div class="ep-row"><span class="ep-k">范围</span><div class="ep-opts" id="ep-scope" role="group" aria-label="导出范围"></div></div>
+      <!-- 指定学校：只在范围选了「指定学校」时出现，免得平时白占一行高度。
+           这一组勾选与上面的「大学」筛选彼此独立——筛选是看什么，这里是印什么 -->
+      <div class="ep-row" id="ep-schools-row" hidden>
+        <span class="ep-k">学校<span class="mini-acts"><button class="mini" id="ep-sch-all" type="button">全选</button><button class="mini" id="ep-sch-none" type="button">全不选</button></span></span>
+        <div class="ep-opts" id="ep-schools" role="group" aria-label="选择要导出的学校"></div>
+      </div>
+      <div class="ep-row"><span class="ep-k">版式</span>
+        <div class="ep-opts" id="ep-per" role="group" aria-label="打印分页"></div>
+        <!-- 详略是第二组，管的是「一页里放多少」而不是「哪里另起一页」——
+             分页决定纸怎么切，详略决定每行占多高。两者一起才谈得上「一所学校一张纸」 -->
+        <div class="ep-opts ep-fix" id="ep-compact" role="group" aria-label="纸张详略"></div>
+      </div>
       <div class="ep-row"><span class="ep-k">列<span class="mini-acts"><button class="mini" id="ep-all" type="button">全选</button><button class="mini" id="ep-none" type="button">仅基础列</button></span></span><div class="ep-opts" id="ep-cols" role="group" aria-label="导出列"></div></div>
       <div class="ep-foot">
+        <button class="btn btn-primary" id="ep-sheet" type="button" title="按上面的范围与版式排成横版 A4 打印册：一校一页、表头每页重复、页脚带来源与校对日期；在打印对话框里选「另存为 PDF」就是电子版">打印册 / 存 PDF</button>
         <button class="btn btn-primary" id="ep-go" type="button">导出 CSV</button>
         <button class="btn btn-ghost" id="ep-copy" type="button" title="按当前勾选的列复制成制表符分隔的文本，可直接粘进 Excel / Notion / 微信">复制到剪贴板</button>
         <button class="btn btn-ghost" id="ep-cancel" type="button">取消</button>
         <span class="ep-hint" id="ep-hint" role="status" aria-live="polite"></span>
       </div>
+      <!-- 上面那三种导出都按当前筛选走；这一行是固定的整册 .docx（构建期生成，见仓库外的
+           build_docx.js）。两件事用途不同，所以分开放：要「发给别人 / 改一改再印」用这个，
+           要「就印现在筛出来的这批」用上面的打印册 -->
+      <p class="ep-more">要能改的整册？<a href="print/">下载 Word（A4 横版、每校一页）</a>——不随上面的筛选，是固定的整册。</p>
     </div>
 
     <div class="ctl-filters">
@@ -637,16 +662,22 @@
     <p><strong>数据依据</strong>：各大学官网课程页面公开信息，逐条核对（核对时间 2026 年 9 月）。英国板块面向 <strong>2027 年 9 月入学</strong>（2026–27 申请季）；香港板块为 <strong>2026 入学轮次</strong>公布的 A-Level / IB 直申要求（无需 DSE）。各校条件随申请季更新，正式申请前请以官网最新页面为准。</p>
     <p>本页成绩按各校官网公开口径照录（<strong>典型 · 最低 · 区间 · 下限 · 门槛</strong>），不构成录取承诺；牛剑及港校医学类录取还取决于入学笔试、面试与预估成绩。</p>
     <p class="disclaimer"><strong>免责声明</strong>：本页为公开资料汇编，<strong>仅供参考</strong>；所有录取要求、分数与考试政策<strong>一律以各大学官网最新公布为准</strong>，请勿据本页直接决策。</p>
-    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 11.4（英国九校 + 香港八校 + QS2026 学科排名 + 英语要求）· 纯静态页面，可离线使用</p>
+    <p class="meta-line">UK·HK Admissions Reference · 版本 uk-apply 11.5（英国九校 + 香港八校 + QS2026 学科排名 + 英语要求）· 纯静态页面，可离线使用</p>
   </footer>
   <button type="button" class="to-top" id="to-top" aria-label="回到顶部" title="回到顶部"><svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 13V3.4"/><path d="M4.2 7.2 8 3.4l3.8 3.8"/></svg></button>
 </main>
 
-<script src="data.js?v=11.4"></script>
-<script src="data-hk.js?v=11.4"></script>
-<script src="data-eng.js?v=11.4"></script>
-<script src="data-qs.js?v=11.4"></script>
-<script src="data-req.js?v=11.4"></script>
-<script src="app.js?v=11.4"></script>
+<!-- 打印册的纸面版式。屏幕上永远是空的（styles.css 里 .sheet{display:none}），
+     只在点「打印册」时由 app.js 填内容、给 body 挂上 sheet-mode，
+     打印的那一刻才顶替掉 <main>。放在 <main> 外面正是为了让那条替换规则
+     只需要一条：body.sheet-mode > main{display:none}。 -->
+<div class="sheet" id="sheet"></div>
+
+<script src="data.js?v=11.5"></script>
+<script src="data-hk.js?v=11.5"></script>
+<script src="data-eng.js?v=11.5"></script>
+<script src="data-qs.js?v=11.5"></script>
+<script src="data-req.js?v=11.5"></script>
+<script src="app.js?v=11.5"></script>
 </body>
 </html>

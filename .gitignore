@@ -7,6 +7,9 @@ check-report.txt
 check.js
 check-hk.js
 genverify.js
+# _check41.py 每次跑都会重写这两个探针页（站外脚本，见该文件开头）
+_probe.html
+_nojs-probe.html
 
 # 抓取/核对用的中间稿，不进版本库
 *.tsv

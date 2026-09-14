@@ -1090,6 +1090,9 @@ body:not(.rail-open) .cr-body{display:none}
 .ep-row{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;margin-bottom:9px}
 .ep-k{font-size:var(--fs-2);color:var(--mut);font-weight:650;min-width:52px}
 .ep-opts{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+/* 一行里并排的第二组（版式行里的「详细 / 紧凑」）：不跟着抢宽度，
+   否则两组会各分到一半，看起来像八个按钮挤在一起 */
+.ep-fix{flex:0 0 auto}
 .ep-btn{font:inherit;font-size:var(--fs-3);border:1px solid var(--line-2);background:var(--card);color:var(--ink-2);
   border-radius:7px;padding:4px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;
   transition:background .15s ease,border-color .15s ease,color .15s ease}
@@ -1102,6 +1105,12 @@ body:not(.rail-open) .cr-body{display:none}
 .ep-col input{margin:0;accent-color:var(--navy)}
 .ep-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
 .ep-hint{font-size:var(--fs-2);color:var(--mut);margin-left:auto;font-family:var(--mono)}
+/* 面板底部那行「要能改的整册？」——静态 .docx 的入口。
+   样式刻意比上面的按钮轻：它是另一条路（固定整册），不该和「就印现在这批」抢注意力 */
+.ep-more{font-size:var(--fs-2);color:var(--mut);margin:9px 0 0;padding-top:8px;
+  border-top:1px solid var(--line)}
+.ep-more a{color:var(--navy-2);font-weight:650;text-decoration:none;border-bottom:1px solid var(--line-2)}
+.ep-more a:hover{border-bottom-color:var(--navy-2)}
 
 /* ══ 深色模式：跟随系统。主要靠换 token，只有少量硬编码浅底的组件需要单独覆盖 ══ */
 @media (prefers-color-scheme:dark){
@@ -1145,7 +1154,72 @@ body:not(.rail-open) .cr-body{display:none}
   .tbl .t-offer,.badge.offer,.cmp-diff-note,.legend .lg-i b,.legend .lg-k{color:#dcbe7c}
 }
 
+/* ══ 打印册：横版 A4，一校一张纸 ══
+   这一块在屏幕上永远看不见（.sheet 是空的、且 display:none），只在点「打印册」时
+   由 app.js 填好内容、给 body 挂上 sheet-mode，打印那一刻顶替掉 <main>。
+   所以这里直接按纸面写：单位用 pt 而不是 px，字号按 A4 横版的实际观感定，
+   不受页面上那套 --fs-* 缩放影响（那些是给屏幕的，跟着断点变）。 */
+.sheet{display:none}
+.sheet .sh-cover{border-bottom:2pt solid #000;padding-bottom:5pt;margin-bottom:7pt}
+.sheet .sh-cover h1{font-family:var(--serif);font-size:17pt;line-height:1.3;margin:0 0 3pt;color:#000}
+.sheet .sh-sub{font-size:9pt;color:#333;margin:0 0 2pt;line-height:1.5}
+.sheet .sh-scope{font-size:8pt;color:#555;margin:0 0 2pt;line-height:1.5}
+.sheet .sh-how{font-size:8pt;color:#555;margin:0;line-height:1.5}
+.sheet .sh-how b{color:#000}
+/* 页眉：校印 + 中英文校名 + 院校分组 + 项数。break-after:avoid 保证它不会被独自留在页底 */
+.sheet .sh-head{display:flex;align-items:baseline;gap:7pt;border-bottom:1.5pt solid #000;
+  padding-bottom:3pt;margin-bottom:5pt;break-after:avoid;page-break-after:avoid}
+.sheet .sh-head h2{font-size:13pt;margin:0;color:#000;line-height:1.2}
+.sheet .sh-head-en{font-family:var(--serif);font-style:italic;font-size:9.5pt;color:#555}
+.sheet .sh-head-grp{font-size:7.5pt;color:#555;border:.5pt solid #bbb;border-radius:2pt;padding:0 3pt}
+.sheet .sh-head-n{margin-left:auto;font-family:var(--mono);font-size:9pt;color:#333}
+/* 条件摘要卡：贴门口那一张要的六个数，不用翻表就扫完 */
+.sheet .sh-sum{display:flex;flex-wrap:wrap;gap:3pt 16pt;border:.5pt solid #999;border-radius:2pt;
+  background:#f6f6f6;padding:4pt 8pt;margin:0 0 5pt;break-inside:avoid;page-break-inside:avoid}
+.sheet .sh-sum-i{display:flex;align-items:baseline;gap:5pt}
+.sheet .sh-sum-k{font-size:7.5pt;color:#555}
+.sheet .sh-sum-v{font-size:9.5pt;font-weight:650;color:#000}
+.sheet .sh-tbl{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8pt}
+.sheet .sh-tbl thead{display:table-header-group}   /* 一所学校要翻页时，第二页顶上仍有表头 */
+.sheet .sh-tbl th{background:#ececec;border:.5pt solid #999;padding:3pt 4pt;text-align:left;
+  font-size:8pt;font-weight:650;color:#000;line-height:1.4}
+/* 行高与内边距是压页数最直接的两个旋钮（行高由每行最高那格决定）。
+   1.42 行距配 8pt 字在纸面上仍好读，再紧就该费眼了——量出来 1.5 → 1.42
+   大约能让 3 行高的那一档每页多放一行 */
+.sheet .sh-tbl td{border:.5pt solid #ccc;padding:2.5pt 4pt;vertical-align:top;line-height:1.42;
+  color:#111;word-break:break-word;overflow-wrap:anywhere}
+.sheet .sh-tbl tr{break-inside:avoid;page-break-inside:avoid}
+.sheet .sh-zh{display:block;font-weight:650}
+.sheet .sh-en{display:block;font-family:var(--serif);font-style:italic;font-size:7pt;color:#666;margin-top:1pt}
+/* 紧凑版把英文名跟在中文名后面同段排：短名字就只占一行，省下的行高直接换成每校少一页 */
+.sheet .sh-en-in{font-family:var(--serif);font-style:italic;font-size:7pt;color:#666}
+.sheet .sh-eng1{display:block}
+.sheet .sh-eng2{display:block;font-size:7pt;color:#555;margin-top:1pt}
+/* 紧凑版把 IELTS 与 TOEFL 并成一行：行高由这一行里最高的那格决定，
+   并掉这一行就等于每所学校少印一页 */
+.sheet .sh-eng-in .sh-eng1,.sheet .sh-eng-in .sh-eng2{display:inline;font-size:7.5pt;margin-top:0}
+.sheet .sh-eng-in .sh-eng2{color:#555}
+.sheet .sh-tag{display:inline-block;font-size:6.5pt;color:#555;border:.5pt solid #bbb;
+  border-radius:2pt;padding:0 3pt;margin-top:1pt}
+.sheet .sh-tag.prog{color:#1a4c8b;border-color:#9fc0e0}
+.sheet .sh-dash{color:#999}
+/* 页脚在 <tfoot> 里（理由见 app.js 里 sheetTableHTML 的注释）：所以在每页底部重复，
+   且不会在表刚好占满一页时被单独挤到下一页。样式上是一格，不是段落。 */
+.sheet .sh-tbl tfoot{display:table-footer-group}
+.sheet .sh-tbl tfoot td{font-size:7pt;color:#666;text-align:right;line-height:1.5;
+  padding:2pt 4pt 0;border:0;border-top:.5pt solid #bbb;background:#fff}
+/* 分页：每所学校（或每个方向）另起一页，这是「一个大学一页纸」的实现处。
+   写在 .sh-group 上而不是 .sh-head 上——后者只在 per=school/dir 时才有意义，
+   而这条规则只对第二个及以后的组生效，封面自然留在了第一页 */
+.sheet .sh-group + .sh-group{break-before:page;page-break-before:always}
+
 @media print{
+  /* 打印册：body 上挂着 sheet-mode 时，只留 #sheet，其余全部让位。
+     写成「除 #sheet 外全藏」而不是只藏 <main>——页眉（.masthead）、跳转链接、noscript
+     都在 <main> 外面，只藏 main 的话站点页眉会印在册子第一页顶上（实测踩过）。
+     排除 script 只是免得把它也卷进来。 */
+  body.sheet-mode > *:not(.sheet):not(script){display:none !important}
+  body.sheet-mode > .sheet{display:block !important}
   /* 打印：留标题与口径说明，去掉一切交互件；表格能自动分页并重复表头 */
   .controls,.resultline,.scope-row,.toast,.comparebar,.overlay,.jumpbar,.legend,.judge-notes,
   .to-top,.export-panel,.quickstart,.howto,.sort-chip,.skip,.regionbar{display:none !important}

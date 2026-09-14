@@ -709,14 +709,19 @@
       return '<button type="button" class="jb" data-jump="' + s.key + '">' + sealHTML(s, false) + esc(s.zh) + '</button>';
     }).join('');
   }
-  // 打印时纸上那行上下文：一张脱离本站的纸，得能自己说清是哪一批、按什么条件筛的
-  function renderPrintMeta(n) {
-    var el = $('#print-meta'); if (!el) return;
+  // 一份脱离本站的纸（或一张长图）得能自己说清是哪一批、按什么条件筛的。
+  // 竖版打印的页眉注释、打印册的封面都用这一句，改口径只改这里。
+  function scopeBits() {
     var bits = [cur.name + ' · ' + cur.year + '（' + cur.cycle + '）'];
     if (activeDirs.length) bits.push('学科方向：' + activeDirs.map(function (d) { return cur.dirs[d].zh; }).join('、'));
     if (activeSchools.length) bits.push('大学：' + activeSchools.map(function (k) { return schoolByKey[k].zh; }).join('、'));
     if (testSel !== 'ALL') bits.push(cur.testHead + '：' + (testSel === 'NONE' ? '无' : testSel === 'YES' ? '需笔试' : testSel));
     if (q) bits.push('搜索：' + q);
+    return bits;
+  }
+  function renderPrintMeta(n) {
+    var el = $('#print-meta'); if (!el) return;
+    var bits = scopeBits();
     if (hasProfile()) bits.push('学生成绩：' + gradeBrief());
     bits.push('共 ' + n + ' 项');
     el.textContent = bits.join(' ｜ ');
@@ -933,7 +938,10 @@
       if (!v || v === '—') return '—';
       var t = String(v).split('（')[0].trim();
       if (/未列|未公开|—/.test(t)) return '—';
-      return /^[0-9]/.test(t) ? t : '—';
+      // 必须是「一个分数」才算数。原先只判首字符是不是数字，于是
+      // 「2026-01-21 起的新版考试暂不受理」这种以年份开头的说明文字被当成分数原样显示，
+      // 凭着一行字把英语列撑高三行——它的本意是「这是说明，不是分数」，这里才判得准。
+      return /^\d+(\.\d+)?$/.test(t) ? t : '—';
     }
     return brief(e.toeflOld) + ' / ' + brief(e.toeflNew);
   }
@@ -3005,6 +3013,8 @@
   // 挂在 beforeprint 上，用户直接按 Ctrl+P 也走得通。
   var printOpened = [];
   window.addEventListener('beforeprint', function () {
+    // 不是打印册发起的打印：先把上一次可能残留的纸面清掉，否则这一下会印出一份空白页
+    if (!sheetPrinting) releaseSheet();
     printOpened = [];
     [$('#manual'), $('#timeline')].forEach(function (d) {
       if (d && !d.open) { d.open = true; printOpened.push(d); }
@@ -3090,7 +3100,11 @@
     return true;
   }
   function posChip(it) {
-    var v = verdictFor(it.p);
+    // 参数是 it（对比表里的一整条记录），不是 p——早先这里写成了 subjMark(p)，
+    // p 在这个作用域里根本不存在：填了成绩再打开对比表就抛 ReferenceError，
+    // 整行渲染中断、冲/稳/保徽章整个消失。_check41.py 的对比弹层那一段就是在抓它
+    var p = it.p;
+    var v = verdictFor(p);
     if (!v) return '';
     // 部分比对（科目数不够）加个星号，对比表的小结里会解释它的含义
     var extra = extraReqs(it.p), kind = extraKind(it.p), marked = !!kind;
@@ -3425,9 +3439,26 @@
   function saveCols() { try { localStorage.setItem(COL_STORE, JSON.stringify(csvCols)); } catch (e) {} }
 
   var epScope = 'filtered';
+  // 打印册的分页版式：none 连续 | school 每校一页 | dir 每方向一页。
+  // 它与 epScope 正交——「本板块全部 × 每校一页」才是「打印了放门口」要的那份。
+  var epPer = 'none';
+  // 纸张详略：false 详细（完整参照）| true 紧凑（去掉长文本列、QS 只留最好的榜）。
+  // 与 epPer 正交——分页决定纸怎么切，详略决定一行占多高，两个一起才谈得上「一所学校一张纸」。
+  var epCompact = false;
+  // 「指定学校」这个范围专用的勾选。与 #filters-school 的筛选彼此独立：筛选是「现在看什么」，
+  // 这里是「这一份印什么」，两者混用会让「筛一所学校印另一所」没法做。
+  // null = 用户还没动过，进面板时按当前板块全选（全不选是个合法选择，不能用空数组表示「没动过」）。
+  // 带上板块标记：切板块后原来勾的学校 key 在新板块里不存在，会静默印出一份空册子。
+  var epSchools = null, epSchoolsRc = '';
   function scopeItems() {
     if (epScope === 'all') return cur.programs.map(function (p, i) { return { p: p, rc: curRc(), idx: i }; });
     if (epScope === 'compare') return cmpItems();
+    if (epScope === 'schools') {
+      var rc = curRc();
+      var want = epSchools || [];
+      return cur.programs.map(function (p, i) { return { p: p, rc: rc, idx: i }; })
+        .filter(function (it) { return want.indexOf(it.p.school) !== -1; });
+    }
     var rc = curRc();
     return filtered().map(function (p) { return { p: p, rc: rc, idx: cur.programs.indexOf(p) }; });
   }
@@ -3454,18 +3485,37 @@
     document.body.appendChild(a); a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
   }
-  // 导出面板：范围与列
+  // 导出面板：范围 × 版式 × 列
   var EP_SCOPES = [
     { k: 'filtered', zh: '当前筛选结果' },
     { k: 'all', zh: '本板块全部' },
-    { k: 'compare', zh: '对比清单' }
+    { k: 'compare', zh: '对比清单' },
+    { k: 'schools', zh: '指定学校' }
   ];
+  var EP_PERS = [
+    { k: 'none', zh: '连续（不分页）' },
+    { k: 'school', zh: '每校一页' },
+    { k: 'dir', zh: '按方向一页' }
+  ];
+  var EP_COMPACT = [
+    { k: 'full', zh: '详细', title: '含逐专业的科目要求与备注——完整参照，页数多' },
+    { k: 'tight', zh: '紧凑', title: '去掉科目要求与备注、QS 只留最好的榜，英文名与中文名同排——一所学校尽量压在一张纸上，适合打印了贴墙' }
+  ];
+  // 「指定学校」范围下的条数——单独算，不然 counts 表里这一项是空的
+  function schoolScopeCount() {
+    var want = epSchools || [];
+    return cur.programs.filter(function (p) { return want.indexOf(p.school) !== -1; }).length;
+  }
   function renderExportPanel() {
     var host = $('#ep-scope'); if (!host) return;
+    // 勾选按板块存：换板块就作废重来，否则拿着一串英国 key 去香港的名单里筛，只会得到空册子
+    if (epSchoolsRc !== curRc()) { epSchools = null; epSchoolsRc = curRc(); }
+    if (epSchools === null) epSchools = cur.schools.map(function (s) { return s.key; });
     var counts = {
       filtered: filtered().length,
       all: cur.programs.length,
-      compare: compare.size
+      compare: compare.size,
+      schools: schoolScopeCount()
     };
     host.innerHTML = EP_SCOPES.map(function (s) {
       var on = epScope === s.k;
@@ -3473,14 +3523,283 @@
         (counts[s.k] ? '' : ' title="该项当前没有条目"') + '>' + esc(s.zh) +
         '<span class="ep-n">' + counts[s.k] + '</span></button>';
     }).join('');
+
+    var perHost = $('#ep-per');
+    perHost.innerHTML = EP_PERS.map(function (p) {
+      var on = epPer === p.k;
+      return '<button type="button" class="ep-btn' + (on ? ' on' : '') + '" data-per="' + p.k + '"' +
+        ' aria-pressed="' + on + '" title="' + esc(EP_PER_TITLE[p.k]) + '">' + esc(p.zh) + '</button>';
+    }).join('');
+    var cHost = $('#ep-compact');
+    cHost.innerHTML = EP_COMPACT.map(function (c) {
+      var on = epCompact === (c.k === 'tight');
+      return '<button type="button" class="ep-btn' + (on ? ' on' : '') + '" data-compact="' + c.k + '"' +
+        ' aria-pressed="' + on + '" title="' + esc(c.title) + '">' + esc(c.zh) + '</button>';
+    }).join('');
+
+    // 学校勾选块只在「指定学校」范围下露头——平时收起来，不给面板白加一行高度
+    var row = $('#ep-schools-row');
+    row.hidden = epScope !== 'schools';
+    if (!row.hidden) {
+      var chip = $('#ep-schools');
+      chip.innerHTML = cur.schools.map(function (s) {
+        var on = epSchools.indexOf(s.key) !== -1;
+        return '<button type="button" class="ep-btn' + (on ? ' on' : '') + '" data-school="' + esc(s.key) + '"' +
+          ' aria-pressed="' + on + '">' + esc(s.zh) + '</button>';
+      }).join('');
+    }
+
     var cols = $('#ep-cols');
     cols.innerHTML = CSV_COLS.map(function (c) {
       return '<label class="ep-col"><input type="checkbox" data-col="' + c.k + '"' +
         (csvCols[c.k] ? ' checked' : '') + '><span>' + esc(c.h) + '</span></label>';
     }).join('');
     var n = CSV_COLS.filter(function (c) { return csvCols[c.k]; }).length;
-    $('#ep-hint').textContent = (counts[epScope] || 0) + ' 行 × ' + n + ' 列';
+    // 提示行说清「导出多少行」。分页时报「分几段」而不是「几张纸」——
+    // 实际页数取决于每段有多少专业、每行那几格折几行，这里算不出来，也不该猜一个数给用户。
+    var segs = epPer === 'none' ? 0 : sheetGroups(scopeItemsClean()).length;
+    $('#ep-hint').textContent = (counts[epScope] || 0) + ' 行 × ' + n + ' 列'
+      + (epPer === 'none' ? ''
+        : '　·　打印册分 ' + segs + (epPer === 'dir' ? ' 个方向' : ' 所学校') + '，各起一页');
   }
+  var EP_PER_TITLE = {
+    none: '整份连着排，不按学校 / 方向另起一页',
+    school: '每换一所学校就另起一页——「一个大学一页纸」',
+    dir: '每换一个学科方向就另起一页——同一方向的各校排在一张纸上'
+  };
+
+  // ══ 打印册：把结果排成横版 A4，一校一张纸 ══
+  //
+  // 与「打印 / 存 PDF」的分工：那个印屏幕上这一份（竖版、连续、带操作列），
+  // 这个按学校 / 方向重新分页、换横版，是「打印了贴墙 / 放门口」用的那一份。
+  //
+  // 为什么分页做成了「版式」而不是「选择」：要印九所学校的全部专业时，选择单位本来就
+  // 该是学校、或者干脆不用选（本板块全部 × 每校一页），而对比清单是专业级、上限 30 项，
+  // 装不下英国板块的 239 项——「各学校全部专业一起」这个操作之所以别扭，根子在这里。
+  // 范围照旧交给 scopeItems()，这一段只管「怎么排」。
+  //
+  // w 是「份」不是像素，各自合计 100，按比例分掉 A4 横版的可用宽度。
+  //   · amount 行高由「这一行里最高的一格」决定，所以要压页数，先砍长文本的那几列；
+  //   · 详细版是完整参照（含逐专业的科目要求与备注），一所大校必然超过一张纸；
+  //   · 紧凑版去掉科目要求 / 备注、QS 只留最好那个榜，把每校压到尽量少的页数，
+  //     给「打印了贴门口 / 一校一页」那种用法。
+  // 两版共用同一批字段名，见下面 sheetCellHTML 的分派。
+  // ⚠ 这一整块会被站点外的 build_docx.js 抽走生成静态 .docx——
+  //   改列时把下面两行标记一起留着，否则纸上这册和下载的那册会各说各话。
+  // SHEET_COLS_START
+  var SHEET_COLS_FULL = [
+    { k: 'prog',       h: '专业',          w: 20 },
+    { k: 'degree',     h: '代码 / 学制',    w: 8 },
+    { k: 'alevel',     h: 'A-Level',       w: 7 },
+    { k: 'alevelNote', h: '科目 / 要求',    w: 15 },
+    { k: 'ib',         h: 'IB',            w: 6 },
+    { k: 'test',       h: '笔试 / 面试',    w: 7 },
+    { k: 'eng',        h: '英语要求',       w: 14 },
+    { k: 'qs',         h: 'QS2026 学科',    w: 11 },
+    { k: 'note',       h: '备注',          w: 12 }
+  ];
+  var SHEET_COLS_TIGHT = [
+    { k: 'prog',   h: '专业',          w: 24, inline: 1 },
+    { k: 'degree', h: '学制',          w: 8 },
+    { k: 'alevel', h: 'A-Level',       w: 9 },
+    { k: 'ib',     h: 'IB',            w: 14 },
+    { k: 'test',   h: '笔试 / 面试',    w: 9 },
+    { k: 'eng',    h: '英语要求',       w: 19, inline: 1 },
+    { k: 'qs',     h: 'QS2026 最好',    w: 17, best: 1 }
+  ];
+  // SHEET_COLS_END
+  function sheetCols() { return epCompact ? SHEET_COLS_TIGHT : SHEET_COLS_FULL; }
+
+  function scopeItemsClean() {
+    return scopeItems().filter(function (it) { return it && it.p; });
+  }
+  // 分页的单位。返回 [{key, meta, items}]，顺序按当前板块的学校 / 方向定义走。
+  // per=none 时就一组，页脚也就不写「第几所」。
+  function sheetGroups(items) {
+    if (!items.length) return [];
+    if (epPer === 'none') return [{ key: 'all', meta: null, items: items }];
+    var out = [], seen = {};
+    if (epPer === 'school') {
+      cur.schools.forEach(function (s) { seen[s.key] = { key: s.key, meta: s, items: [] }; });
+      items.forEach(function (it) {
+        var k = it.p.school;
+        // 对比清单能跨板块混选，会带上另一板块的学校——现补一个桶，排在当前板块那几所之后
+        if (!seen[k]) seen[k] = { key: k, meta: allSchoolByKey[k] || { key: k, zh: k }, items: [] };
+        seen[k].items.push(it);
+      });
+      Object.keys(seen).forEach(function (k) { if (seen[k].items.length) out.push(seen[k]); });
+      return out;
+    }
+    // per=dir：一个专业可以挂多个方向，于是会出现在多个桶里——与屏幕上的「按学科方向」分组同口径
+    items.forEach(function (it) {
+      it.p.dirs.forEach(function (d) {
+        if (!seen[d]) { seen[d] = { key: d, meta: cur.dirs[d] || { zh: d }, items: [] }; out.push(seen[d]); }
+        seen[d].items.push(it);
+      });
+    });
+    var order = Object.keys(cur.dirs);
+    out.sort(function (a, b) { return order.indexOf(a.key) - order.indexOf(b.key); });
+    return out;
+  }
+  // 纸面一行要的字段：csvRowOf 早就把每个字段摊平成「显示用字符串」了（它就是 CSV 那一行）。
+  // 这里直接复用，不另写一套——否则 CSV 说「A*AA」、纸上说「A*A*A」这种分叉迟早会出现。
+  function sheetCellHTML(c, r, it, e) {
+    if (c.k === 'prog') {
+      // 详细版把英文名压成单独一行（好扫）；紧凑版跟在中文名后面同段排，
+      // 短名字就只占一行——省下的行高直接换成每校少一页
+      return '<span class="sh-zh">' + esc(r.zh) + '</span>' +
+        (r.en ? (c.inline ? ' <span class="sh-en-in">' + esc(r.en) + '</span>'
+                          : '<span class="sh-en">' + esc(r.en) + '</span>') : '');
+    }
+    if (c.k === 'eng') {
+      if (!e) return '<span class="sh-dash">—</span>';
+      var ielts = '<span class="sh-eng1">IELTS ' + esc(engIeltsShort(e)) + '</span>';
+      var toefl = '<span class="sh-eng2">TOEFL ' + esc(engPair(e)) + '</span>';
+      var tag = e.tag ? '<span class="sh-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' : '';
+      // 详细版分两行（好扫）；紧凑版并成一行——「IELTS 7.5 TOEFL 110」在 19% 宽里放得下，
+      // 省下的这一行直接换成每校少一页。行高是「这一行里最高那格」决定的，所以每省一行都算数
+      return c.inline
+        ? '<span class="sh-eng-in">' + ielts + ' ' + toefl + '</span>' + tag
+        : ielts + toefl + tag;
+    }
+    // 紧凑版的 QS 只留最好那个榜：整串榜单在纸上要占两行，
+    // 而「这所学校在这个方向排第几」才是选校真正在看的那个数
+    if (c.k === 'qs' && c.best) {
+      var l = qsListFor(it.p);
+      return l.length
+        ? esc((QS_SUBJECT_ZH[l[0].sub] || l[0].sub) + ' #' + rankText(l[0].rank))
+        : '<span class="sh-dash">未上榜</span>';
+    }
+    var v = r[c.k];
+    if (v == null || v === '' || v === '—') return '<span class="sh-dash">—</span>';
+    return esc(v);
+  }
+  function sheetTableHTML(items, footText) {
+    var cols0 = sheetCols();
+    var cols = '<colgroup>' + cols0.map(function (c) {
+      return '<col style="width:' + c.w + '%">';
+    }).join('') + '</colgroup>';
+    // 表头跨页重复：一所学校的专业多到要翻页时，第二页顶上不能是光秃秃一张表
+    var head = '<thead><tr>' + cols0.map(function (c) {
+      return '<th scope="col">' + esc(c.h) + '</th>';
+    }).join('') + '</tr></thead>';
+    // 页脚做成 <tfoot> 而不是表后一个 <p>：后者在表刚好占满一页时会被单独挤到下一页，
+    // 白耗一张只印着一行页脚的纸（实测每所学校都中招）。tfoot 挂在表上，
+    // 由 display:table-footer-group 在每一页底部重复——顺带每张散页都能自己说明身份。
+    var foot = footText
+      ? '<tfoot><tr><td colspan="' + cols0.length + '" class="sh-foot">' + footText + '</td></tr></tfoot>'
+      : '';
+    var rows = items.map(function (it) {
+      var r = csvRowOf(it), e = engFor(it.idx, it.rc);
+      return '<tr>' + cols0.map(function (c) {
+        return '<td class="sh-c-' + c.k + '">' + sheetCellHTML(c, r, it, e) + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    return '<table class="sh-tbl">' + cols + head + foot + '<tbody>' + rows + '</tbody></table>';
+  }
+  // 区间取两端「那条专业自己的原文」，不把等级分反解回字符串——
+  // 反解出来的写法（AAA / A*AA）不一定和官网原文对得上，而卡片上写错比不写更糟。
+  function rangeBy(items, key, scoreFn) {
+    var scored = items.map(function (it) { return { v: scoreFn(it), s: it.p[key] }; })
+      .filter(function (x) { return x.v != null && x.s; });
+    if (!scored.length) return '';
+    scored.sort(function (a, b) { return a.v - b.v; });
+    var lo = scored[0], hi = scored[scored.length - 1];
+    return lo.v === hi.v ? lo.s : lo.s + ' – ' + hi.s;
+  }
+  // 每校条件摘要卡：给「贴门口」那一张用的几个数，一眼扫完不用翻表
+  function sheetSummaryHTML(items, meta) {
+    var al = rangeBy(items, 'alevel', function (x) { return gradeScore(x.p.alevel); });
+    var ib = rangeBy(items, 'ib', function (x) { return ibScore(x.p.ib); });
+    var needTest = items.filter(function (x) { return x.p.test; }).length;
+    var f = meta && meta.fee;
+    var best = null;
+    items.forEach(function (x) {
+      var l = qsListFor(x.p);
+      if (!l.length) return;
+      var n = rankNum(l[0].rank);
+      if (!best || n < best.n) {
+        best = { n: n, label: (QS_SUBJECT_ZH[l[0].sub] || l[0].sub) + ' #' + rankText(l[0].rank) };
+      }
+    });
+    var cells = [
+      ['A-Level', al || '—'],
+      ['IB（45 分制）', ib || '—'],
+      [cur.testHead, needTest ? needTest + ' / ' + items.length + ' 项需要' : '均不需要'],
+      ['国际生学费', (f && f.amt) ? f.amt + ' / 年' + (f.year ? '（' + f.year + ' 口径）' : '') : '见官网'],
+      ['最好学科名次', best ? best.label : '未上榜'],
+      ['数据核对', (meta && meta.checked) || '—']
+    ];
+    return '<div class="sh-sum">' + cells.map(function (kv) {
+      return '<div class="sh-sum-i"><span class="sh-sum-k">' + esc(kv[0]) + '</span>' +
+        '<span class="sh-sum-v">' + esc(kv[1]) + '</span></div>';
+    }).join('') + '</div>';
+  }
+  function sheetHTML(items) {
+    var groups = sheetGroups(items);
+    var unit = epPer === 'dir' ? '个方向' : '所学校';
+    var how = epPer === 'school' ? '横版 A4，每所学校从新的一页开始。'
+      : epPer === 'dir' ? '横版 A4，每个学科方向从新的一页开始。'
+      : '横版 A4，整份连续排版。';
+    // 这一页纸会脱离本站，所以封面得自己说清「哪一批、按什么筛的、什么时候核的」
+    var cover = '<div class="sh-cover">' +
+      '<h1>' + esc(cur.name) + ' · 本科录取要求' +
+        (epPer === 'school' ? '（一校一页）' : epPer === 'dir' ? '（按学科方向）' : '') + '</h1>' +
+      '<p class="sh-sub">' + esc(cur.year) + '（' + esc(cur.cycle) + '）　·　' + items.length + ' 个专业' +
+        (epPer === 'none' ? '' : '　·　' + groups.length + ' ' + unit) +
+        '　·　数据核对 2026-09　·　完整可搜索版 mtennnn.cn</p>' +
+      '<p class="sh-scope">筛选：' + esc(scopeBits().join(' ｜ ')) + '</p>' +
+      '<p class="sh-how">' + how +
+        '<b>双面打印请把打印机的翻页方式设为「长边翻页」</b>，否则背面会上下倒过来。</p>' +
+      '</div>';
+    var body = groups.map(function (g, gi) {
+      var meta = g.meta || {};
+      return '<section class="sh-group">' +
+        '<div class="sh-head">' + sealHTML(meta, false) +
+          '<h2>' + esc(meta.zh || cur.name) + '</h2>' +
+          (meta.en ? '<span class="sh-head-en">' + esc(meta.en) + '</span>' : '') +
+          (meta.group ? '<span class="sh-head-grp">' + esc(meta.group) + '</span>' : '') +
+          '<span class="sh-head-n">' + g.items.length + ' 项</span></div>' +
+        (epPer === 'school' && meta.fee ? sheetSummaryHTML(g.items, meta) : '') +
+        sheetTableHTML(g.items,
+          esc(meta.zh || cur.name) + ' · ' + g.items.length + ' 项' +
+          (epPer === 'none' ? '' : ' · 第 ' + (gi + 1) + ' / ' + groups.length + ' ' + unit) +
+          ' · 来源 mtennnn.cn · 数据核对 2026-09') +
+        '</section>';
+    }).join('');
+    return cover + body;
+  }
+  // 横版与分页靠两样东西：
+  // ① 一段运行时挂上的 @page 规则——@page 没法用选择器限定，只能这样临时加、印完撤。
+  //    撤掉之后普通 Ctrl+P 仍是原来的竖版行为，不劫持用户自己的打印。
+  // ② body 上的 sheet-mode——打印时把 <main> 整个藏起来，只留 #sheet（见 styles.css）。
+  var sheetPrinting = false;
+  function releaseSheet() {
+    sheetPrinting = false;
+    document.body.classList.remove('sheet-mode');
+    var host = $('#sheet'); if (host) host.innerHTML = '';
+    var st = document.getElementById('sheet-page-style');
+    if (st) st.remove();
+  }
+  function printSheet() {
+    var items = scopeItemsClean();
+    if (!items.length) { showToast('这个范围现在没有可打印的条目'); return; }
+    var host = $('#sheet'); if (!host) return;
+    host.innerHTML = sheetHTML(items);
+    if (!document.getElementById('sheet-page-style')) {
+      var st = document.createElement('style');
+      st.id = 'sheet-page-style';
+      st.textContent = '@page{size:A4 landscape;margin:9mm}';
+      document.head.appendChild(st);
+    }
+    sheetPrinting = true;
+    document.body.classList.add('sheet-mode');
+    window.print();
+  }
+  // afterprint 只挂一次：Chrome 在打印对话框关闭（无论印了还是取消）后触发它。
+  // 兜底在 beforeprint 里——不是打印册发起的打印，先把上一次的残留清掉，
+  // 否则用户下一次 Ctrl+P 会印出一份空白页。
+  window.addEventListener('afterprint', function () { if (sheetPrinting) releaseSheet(); });
   function openExportPanel(open) {
     var panel = $('#export-panel');
     panel.hidden = !open;
@@ -3522,6 +3841,34 @@
   $('#ep-scope').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-scope]'); if (!b) return;
     epScope = b.dataset.scope; renderExportPanel();
+  });
+  $('#ep-per').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-per]'); if (!b) return;
+    epPer = b.dataset.per; renderExportPanel();
+  });
+  $('#ep-compact').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-compact]'); if (!b) return;
+    epCompact = b.dataset.compact === 'tight'; renderExportPanel();
+  });
+  $('#ep-schools').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-school]'); if (!b) return;
+    var k = b.dataset.school, i = epSchools.indexOf(k);
+    if (i === -1) epSchools.push(k); else epSchools.splice(i, 1);
+    renderExportPanel();
+  });
+  $('#ep-sch-all').addEventListener('click', function () {
+    epSchools = cur.schools.map(function (s) { return s.key; }); renderExportPanel();
+  });
+  $('#ep-sch-none').addEventListener('click', function () {
+    epSchools = []; renderExportPanel();
+  });
+  $('#ep-sheet').addEventListener('click', function () { printSheet(); });
+  // 工具栏那一下是「就按现在屏幕上这批，一校一页印」——范围固定回「当前筛选结果」，
+  // 不跟着导出面板上次停在哪儿走（上次若停在「对比清单」，这一下会印出一份对照表）。
+  // 顺手把面板的选项拨到刚才实际印的那个状态，免得面板显示的与发生的不一致。
+  $('#print-sheet').addEventListener('click', function () {
+    epScope = 'filtered'; epPer = 'school';
+    printSheet();
   });
   $('#ep-cols').addEventListener('change', function (e) {
     var cb = e.target.closest('input[data-col]'); if (!cb) return;
