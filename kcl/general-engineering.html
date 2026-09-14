@@ -14,7 +14,7 @@
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
-<link rel="stylesheet" href="../styles.css?v=11.8">
+<link rel="stylesheet" href="../styles.css?v=11.9">
 <style>
 .pg-main{max-width:900px;margin:0 auto;padding:0 20px 60px}
 .pg-main h1{font-family:var(--serif);font-size:27px;line-height:1.35;margin:22px 0 4px;color:var(--ink)}
@@ -105,13 +105,16 @@
   <!-- 这一页的全部内容都在静态 HTML 里，不靠脚本；按钮是唯一的 JS，
        没脚本时它点了没反应，但正文照样读得完——所以可以放心用一个内联 onclick -->
   <button class="pg-cta ghost" type="button" onclick="window.print()">打印这一页 / 存 PDF</button>
-  <a class="pg-cta ghost" href="../">看全部 408 个专业</a>
+  <!-- 「看全部」原来是「看全部 N 个专业」——那个「全部」会被读成「该校一共这么多」，
+       实际是「本站收录的全部」。与打印册封面、口径说明里的口径保持一致 -->
+  <a class="pg-cta ghost" href="../">看本站收录的全部 408 个专业</a>
 
   <p class="pg-rel"><strong>KCL其他相关专业：</strong>
     <a href="kcl/electronic-engineering.html">电子工程</a> · <a href="kcl/biomedical-engineering-2.html">生物医学工程</a></p>
 
   <p class="pg-note">数据来自官网课程页，最近核对 2026-09。各校条件随申请季更新，
-  正式申请前请以官网最新页面为准。本站只对照各校公布的分数口径，不是录取概率。</p>
+  正式申请前请以官网最新页面为准。本站只对照各校公布的分数口径，不是录取概率；
+  <strong>站点为选编</strong>——只收录各校热门与优势方向的主要课程，不是完整的专业目录。</p>
 </main>
 </body>
 </html>
