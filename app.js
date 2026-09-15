@@ -3459,6 +3459,10 @@
   // 纸张详略：false 详细（完整参照）| true 紧凑（去掉长文本列、QS 只留最好的榜）。
   // 与 epPer 正交——分页决定纸怎么切，详略决定一行占多高，两个一起才谈得上「一所学校一张纸」。
   var epCompact = false;
+  // 纸张用色：true 彩色（校色做标题与分隔线）| false 黑白。
+  // 默认彩色——这是多数人要的那一份，而且**它在单色打印机上会自然退成灰，读起来不受影响**，
+  // 所以默认给彩色没有代价；要拿去复印 / 传真时一键换黑白。
+  var epColor = true;
   // 「指定学校」这个范围专用的勾选。与 #filters-school 的筛选彼此独立：筛选是「现在看什么」，
   // 这里是「这一份印什么」，两者混用会让「筛一所学校印另一所」没法做。
   // null = 用户还没动过，进面板时按当前板块全选（全不选是个合法选择，不能用空数组表示「没动过」）。
@@ -3515,6 +3519,10 @@
     { k: 'full', zh: '详细', title: '含逐专业的科目要求与备注——完整参照，页数多' },
     { k: 'tight', zh: '紧凑', title: '去掉科目要求与备注、QS 只留最好的榜，英文名与中文名同排——一所学校尽量压在一张纸上，适合打印了贴墙' }
   ];
+  var EP_COLORS = [
+    { k: 'color', zh: '彩色', title: '用每所学校的校色做校名、分隔线与摘要卡描边（校印本来就是校色）。单色打印机上这些会自然退成灰，不影响可读' },
+    { k: 'mono', zh: '黑白', title: '全部用黑灰——要复印、传真，或用单色打印机时选这个' }
+  ];
   // 「指定学校」范围下的条数——单独算，不然 counts 表里这一项是空的
   function schoolScopeCount() {
     var want = epSchools || [];
@@ -3548,6 +3556,12 @@
     cHost.innerHTML = EP_COMPACT.map(function (c) {
       var on = epCompact === (c.k === 'tight');
       return '<button type="button" class="ep-btn' + (on ? ' on' : '') + '" data-compact="' + c.k + '"' +
+        ' aria-pressed="' + on + '" title="' + esc(c.title) + '">' + esc(c.zh) + '</button>';
+    }).join('');
+    var kHost = $('#ep-color');
+    kHost.innerHTML = EP_COLORS.map(function (c) {
+      var on = epColor === (c.k === 'color');
+      return '<button type="button" class="ep-btn' + (on ? ' on' : '') + '" data-color="' + c.k + '"' +
         ' aria-pressed="' + on + '" title="' + esc(c.title) + '">' + esc(c.zh) + '</button>';
     }).join('');
 
@@ -3669,12 +3683,16 @@
       if (!e) return '<span class="sh-dash">—</span>';
       var ielts = '<span class="sh-eng1">IELTS ' + esc(engIeltsShort(e)) + '</span>';
       var toefl = '<span class="sh-eng2">TOEFL ' + esc(engPair(e)) + '</span>';
+      // EFL / ESL 各一枚短标签（「ESL 不接受」「EFL 6」这种），复用站点同一套 engShortTag，
+      // 所以纸上与屏幕上的措辞一致。加这一行的理由：大陆学生大多考的是 IGCSE ESL，
+      // 「这所学校认不认 ESL」直接决定他能不能用这个成绩，比 TOEFL 那一行更影响决策
+      var ig = [engShortTag('EFL', igcseValue(e, 'efl')), engShortTag('ESL', igcseValue(e, 'esl'))]
+        .filter(Boolean).join(' · ');
       var tag = e.tag ? '<span class="sh-tag' + (e.scope === 'prog' ? ' prog' : '') + '">' + esc(e.tag) + '</span>' : '';
-      // 详细版分两行（好扫）；紧凑版并成一行——「IELTS 7.5 TOEFL 110」在 19% 宽里放得下，
-      // 省下的这一行直接换成每校少一页。行高是「这一行里最高那格」决定的，所以每省一行都算数
+      var igHtml = ig ? '<span class="sh-eng3">' + esc(ig) + '</span>' : '';
       return c.inline
-        ? '<span class="sh-eng-in">' + ielts + ' ' + toefl + '</span>' + tag
-        : ielts + toefl + tag;
+        ? '<span class="sh-eng-in">' + ielts + ' ' + toefl + ' ' + igHtml + '</span>' + tag
+        : ielts + toefl + igHtml + tag;
     }
     // 紧凑版的 QS 只留最好那个榜：整串榜单在纸上要占两行，
     // 而「这所学校在这个方向排第几」才是选校真正在看的那个数
@@ -3781,7 +3799,9 @@
       '</div>';
     var body = groups.map(function (g, gi) {
       var meta = g.meta || {};
-      return '<section class="sh-group">' +
+      // --school 给彩色模式用（校名、分隔线、摘要卡描边都取它）。按方向分页时方向没有校色，
+      // 退回品牌藏蓝——比随便挑一个颜色更像是有意的
+      return '<section class="sh-group" style="--school:' + esc(meta.color || '#16325c') + '">' +
         '<div class="sh-head">' + sealHTML(meta, false) +
           '<h2>' + esc(meta.zh || cur.name) + '</h2>' +
           (meta.en ? '<span class="sh-head-en">' + esc(meta.en) + '</span>' : '') +
@@ -3814,6 +3834,9 @@
     var items = scopeItemsClean();
     if (!items.length) { showToast('这个范围现在没有可打印的条目'); return; }
     var host = $('#sheet'); if (!host) return;
+    // 色彩模式挂在 #sheet 的类上：黑白与彩色两套规则都在 styles.css 里，
+    // 按类切换，不必为两种色彩各生成一份 DOM
+    host.className = 'sheet' + (epColor ? ' is-color' : '');
     host.innerHTML = sheetHTML(items);
     if (!document.getElementById('sheet-page-style')) {
       var st = document.createElement('style');
@@ -3878,6 +3901,10 @@
   $('#ep-compact').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-compact]'); if (!b) return;
     epCompact = b.dataset.compact === 'tight'; renderExportPanel();
+  });
+  $('#ep-color').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-color]'); if (!b) return;
+    epColor = b.dataset.color === 'color'; renderExportPanel();
   });
   $('#ep-schools').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-school]'); if (!b) return;

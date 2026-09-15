@@ -1208,6 +1208,10 @@ body:not(.rail-open) .cr-body{display:none}
    并掉这一行就等于每所学校少印一页 */
 .sheet .sh-eng-in .sh-eng1,.sheet .sh-eng-in .sh-eng2{display:inline;font-size:7.5pt;margin-top:0}
 .sheet .sh-eng-in .sh-eng2{color:#555}
+/* EFL / ESL 短标签：第三行，字号再小一档。它比 TOEFL 那行更影响决策——
+   大陆学生大多考 IGCSE ESL，「这所学校认不认 ESL」直接决定成绩能不能用 */
+.sheet .sh-eng3{display:block;font-size:6.5pt;color:#666;margin-top:1pt;line-height:1.35}
+.sheet .sh-eng-in .sh-eng3{display:inline;font-size:7pt;margin-top:0}
 .sheet .sh-tag{display:inline-block;font-size:6.5pt;color:#555;border:.5pt solid #bbb;
   border-radius:2pt;padding:0 3pt;margin-top:1pt}
 .sheet .sh-tag.prog{color:#1a4c8b;border-color:#9fc0e0}
@@ -1221,6 +1225,31 @@ body:not(.rail-open) .cr-body{display:none}
    写在 .sh-group 上而不是 .sh-head 上——后者只在 per=school/dir 时才有意义，
    而这条规则只对第二个及以后的组生效，封面自然留在了第一页 */
 .sheet .sh-group + .sh-group{break-before:page;page-break-before:always}
+
+/* 校印在纸上改成「描边 + 文字色」，而不是屏幕上的反白方块。
+   理由是实测出来的：浏览器默认不打印背景色（打印对话框里「背景图形」默认不勾），
+   反白方块于是变成白字白底、整枚消失——不带背景导出 PDF 时，那枚印章的填充图元数是 0。
+   描边与文字色在任何打印设置下都印得出来。默认黑白走深灰，彩色模式才用校色。 */
+.sheet .sh-head .seal{background:transparent;box-shadow:none;color:#333;
+  border:1pt solid currentColor;font-weight:700}
+
+/* ══ 彩色模式（#sheet.is-color）══
+   每条规则都只用「文字色 + 描边」承载校色。原因是上面那条：底色在默认打印设置下
+   根本不会印出来，把颜色只挂在背景上等于没上色。这样即使印在单色打印机上、
+   或者用户没勾「背景图形」，颜色退成灰之后版面依然完整可读。
+   带 color-mix 的那几条只是锦上添花——不支持时整条声明被丢弃，自动退回基础规则。 */
+#sheet.is-color .sh-head .seal{color:var(--school)}
+#sheet.is-color .sh-head{border-bottom-color:var(--school)}
+#sheet.is-color .sh-head h2{color:var(--school)}
+#sheet.is-color .sh-head-grp{color:var(--school);border-color:var(--school)}
+#sheet.is-color .sh-head-n{color:var(--school)}
+#sheet.is-color .sh-tbl th{color:var(--school);border-bottom:1pt solid var(--school);
+  background:color-mix(in srgb, var(--school) 12%, #fff)}
+#sheet.is-color .sh-tbl td{border-color:color-mix(in srgb, var(--school) 22%, #cfcfcf)}
+#sheet.is-color .sh-sum{border-color:var(--school);
+  background:color-mix(in srgb, var(--school) 5%, #fff)}
+#sheet.is-color .sh-sum-v{color:var(--school)}
+#sheet.is-color .sh-tbl tfoot td{border-top-color:var(--school)}
 
 @media print{
   /* 打印册：body 上挂着 sheet-mode 时，只留 #sheet，其余全部让位。
