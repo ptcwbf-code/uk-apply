@@ -132,10 +132,14 @@
     ref: '区间：港中文官方参考收分（非联招），非保证线，热门专业实收更高',
     ger: '门槛：官网未公布分专业分数，仅列大学通用门槛与科目要求；条件见录取信'
   };
+  // UAT-UK 那三种笔试共用一条口径：每年两场（十月 / 一月）二选一，牛剑申请人须考十月场。
+  // 挂在悬停说明上，是因为学生正是在表里看到「TMUA」这一格时才想起问「什么时候考」——
+  // 而本站 17 个 TMUA 专业里 13 个不在牛剑，这一句对他们才算数
+  var UAT_SIT = '· 每年十月、一月两场，二选一；牛剑申请人须考十月场，其余学校两场都可以';
   var TEST_TITLE = {
-    ESAT: 'Engineering and Science Admissions Test（工程与科学入学测试）',
-    TMUA: 'Test of Mathematics for University Admission（大学入学数学测试）',
-    TARA: 'Test of Academic Reasoning for Admissions（入学学术推理测试）',
+    ESAT: 'Engineering and Science Admissions Test（工程与科学入学测试）' + UAT_SIT,
+    TMUA: 'Test of Mathematics for University Admission（大学入学数学测试）' + UAT_SIT,
+    TARA: 'Test of Academic Reasoning for Admissions（入学学术推理测试）' + UAT_SIT,
     STEP: 'Sixth Term Examination Paper（剑桥数学录取后测试）',
     UCAT: 'University Clinical Aptitude Test（医学院临床能力测试）',
     LNAT: 'National Admissions Test for Law（法学入学测试）',
@@ -172,13 +176,24 @@
         { d: '2026-09-01', t: 'UCAS 开放提交申请', src: 'UCAS 官方日历' },
         { d: '2026-09-15', t: 'LNAT 报名截止——申请牛剑者须在此前报名，才能赶在 10 月 15 日前完成考试', src: 'LNAT 官网', u: 'https://lnat.ac.uk/registration/dates-and-deadlines/' },
         { d: '2026-09-16', t: 'UCAT 报名截止（15:00 英国时间）——医学 / 牙医必考，不接受逾期', src: 'UCAT 官网', u: 'https://www.ucat.ac.uk/' },
-        { d: '2026-09-28', t: 'ESAT / TMUA 十月场报名截止（英国时间 18:00，不接受逾期报名）', src: 'UAT-UK 官网与考生手册', u: 'https://esat-tmua.ac.uk/' },
-        { d: '2026-10-12', t: 'ESAT / TMUA 十月场考试（12–16 日；中国内地与港澳：ESAT 12–13 日、TMUA 15–16 日）', src: 'UAT-UK', u: 'https://esat-tmua.ac.uk/' },
+        { d: '2026-09-28', t: 'ESAT / TMUA / TARA 十月场报名截止（英国时间 18:00，不接受逾期报名）', src: 'UAT-UK 官方', u: 'https://esat-tmua.ac.uk/deadlines/' },
+        { d: '2026-10-12', t: 'ESAT / TMUA / TARA 十月场考试（12–16 日；中国内地与港澳：ESAT 12–13 日、TARA 14 日、TMUA 15–16 日）', src: 'UAT-UK 官方', u: 'https://esat-tmua.ac.uk/deadlines/' },
         { d: '2026-10-15', t: '牛津、剑桥全部专业，及多数医学 / 牙医 / 兽医截止（18:00）；LNAT 亦须在此前完成', src: 'UCAS 官方日历', u: 'https://lnat.ac.uk/registration/dates-and-deadlines/' },
-        { d: '2026-11-16', t: 'ESAT / TMUA 成绩公布', src: 'UAT-UK', u: 'https://esat-tmua.ac.uk/' },
+        // 一月场这几条是给「不申牛剑」的人看的：他们走 1 月 13 日的 UCAS 截止，可以只考这一场。
+        // 站上 17 个 TMUA 专业里有 13 个不在牛剑（LSE 8、帝国理工 4、UCL 1），所以这一场并不冷门
+        { d: '2026-10-26', t: 'ESAT / TMUA / TARA 一月场报名开放——不申牛剑的可以只考这一场', src: 'UAT-UK 官方', u: 'https://esat-tmua.ac.uk/deadlines/' },
+        { d: '2026-11-16', t: 'ESAT / TMUA / TARA 十月场成绩公布', src: 'UAT-UK 官方', u: 'https://esat-tmua.ac.uk/deadlines/' },
+        { d: '2026-12-21', t: 'ESAT / TMUA / TARA 一月场报名截止（18:00 英国时间）——不接受任何逾期报名', src: 'UAT-UK 官方', u: 'https://esat-tmua.ac.uk/deadlines/' },
+        { d: '2027-01-04', t: 'ESAT / TMUA / TARA 一月场考试（4–8 日；中国内地与港澳：ESAT 6 日、TARA 7 日、TMUA 8 日）', src: 'UAT-UK 官方', u: 'https://esat-tmua.ac.uk/deadlines/' },
         { d: '2027-01-13', t: '平权审核截止：多数专业（18:00）——此前提交的申请获得同等审核', src: 'UCAS 官方日历' },
         { d: '2027-01-20', t: 'LNAT 报名截止——申请 KCL / LSE / UCL 者（Bristol 与 Durham 的报名截止为 1 月 13 日）', src: 'LNAT 官网', u: 'https://lnat.ac.uk/registration/dates-and-deadlines/' },
+        { d: '2027-02-08', t: 'ESAT / TMUA / TARA 一月场成绩公布', src: 'UAT-UK 官方', u: 'https://esat-tmua.ac.uk/deadlines/' },
         { d: '2027-06-30', t: '逾期申请截止；此后提交的自动进入 Clearing', src: 'UCAS 官方日历' }
+      ],
+      // 时间线之后的一段说明：一月场这条线最容易被漏掉，而它恰好覆盖本站多数用 TMUA 的专业
+      notes: [
+        '**UAT-UK 的三种笔试（ESAT / TMUA / TARA）每年办两场：十月与一月，二选一**——同一个申请季里每种只能考一次，不能两场都考。官方原话是两场「**没有优劣之分**」（按 UCAS 的两个截止日设的），所以什么时候考取决于你什么时候准备好。',
+        '**牛剑申请人必须考十月场**（例外：剑桥设 1 月截止的 mature college、牛津 Astrophoria Foundation Year）。**其余学校（含本站的 LSE / 帝国理工 / UCL）走 1 月 13 日的 UCAS 截止，十月场或一月场都可以**——只要你不在牛剑，考一月场完全来得及，也多出近三个月准备时间。'
       ],
       pending: [
         { t: 'STEP（剑桥数学等，录取后条件）', s: '2027 年 6 月考试，2024 年起由 OCR 主办；属录取后的条件考试，具体日期会写在 offer 上，本站未核到公开时间表', u: 'https://www.ocr.org.uk/students/step-mathematics/' }
@@ -754,7 +769,8 @@
       ]},
       { t: '入学笔试（2027 年入学）', items: [
         '**ESAT**（帝国工科、UCL 电子电气、牛津物理/生物医学、剑桥自然科学/工程等）、**TMUA**（剑桥经济/计算机、牛津计算机/数学、帝国计算机/数学、UCL 经济、LSE 数学类）、**TARA**（UCL 计算机系、牛津经济与管理）、**STEP**（剑桥数学录取后附加）、**UCAT**（剑桥医学）——均见各行“入学笔试”列。',
-        '2027 调整：牛津物理改考 ESAT、计算机/数学改考 TMUA、经济与管理考 TARA；LSE 经济类 2026 起必考 TMUA。'
+        '2027 调整：牛津物理改考 ESAT、计算机/数学改考 TMUA、经济与管理考 TARA；LSE 经济类 2026 起必考 TMUA。',
+        '**每年两场，二选一**：ESAT / TMUA / TARA 在十月、一月各一场，同一申请季里每种只能考一次，不能两场都考。牛剑申请人必须考十月场（例外：剑桥设 1 月截止的 mature college、牛津 Astrophoria Foundation Year）；**不申牛剑的可以只考一月场**——LSE / 帝国理工 / UCL 走 1 月 13 日的 UCAS 截止，官方也明说两场「没有优劣之分」。一月场报名 10 月 26 日开放、12 月 21 日截止，考试 2027 年 1 月 4–8 日（中国内地与港澳：ESAT 6 日、TARA 7 日、TMUA 8 日）。'
       ]},
       { t: '课程结构（按名字找课）', items: [
         '**剑桥**：生物、化学、物理统一在 Natural Sciences 下招生，申请时选 Biological 或 Physical 流；统计学路线在 Mathematics 内。',
