@@ -2722,7 +2722,10 @@
   $('#groups').addEventListener('click', function (e) {
     var b = e.target.closest('button.cmp'); if (!b) return;
     var key = b.dataset.key;
-    if (compare.has(key)) compare.delete(key);
+    // 先记下这一次是「加入」还是「移出」——只有新加入才脉冲对照栏、才给首次指引。
+    // 移出时不该闪，否则用户会以为又加进去了
+    var added = !compare.has(key);
+    if (!added) compare.delete(key);
     else {
       if (compare.size >= CMP_MAX) { showToast('已达对比上限 ' + CMP_MAX + ' 项。请先移除一些，再加入新的。', 4200); return; }
       compare.add(key);
@@ -2739,6 +2742,9 @@
     }
     updateCompareBar();
     saveCompare();
+    // 放在 updateCompareBar 之后：rail-on 是在那里面才挂上的，
+    // 早一步调用会对着一个还没显示的栏脉冲
+    if (added) railNudge();
   });
   // 英语详情：统一用抽屉竖排展示
   // （表格单元格只有约 90px 宽、且要横向滚动，无论如何都不适合直接铺开）
@@ -2884,8 +2890,39 @@
   $('#cr-toggle').addEventListener('click', function () {
     railPicked = document.body.classList.contains('rail-open') ? '0' : '1';
     try { localStorage.setItem(RAIL_STORE, railPicked); } catch (e) {}
+    hideRailTip();          // 用户已经找到它了，指引不必再挂着
     syncRail();
   });
+  // 加入对比之后，把目光引到对照栏。
+  // 此前这个动作的全部反馈都指向「行」——按钮变字、所在行闪一下——没有一条回答
+  // 「刚选中的东西去哪了」，而对照栏正是那个答案。站上本来就有同一套语言
+  //（行的 .flash、板块徽章的 .pulse），这里补的是缺掉的那条因果链。
+  var TIP_STORE = 'ukapply.rail.tip.v1';
+  var railTipSeen = false;
+  try { railTipSeen = localStorage.getItem(TIP_STORE) === '1'; } catch (e) {}
+  function hideRailTip() {
+    var t = $('#cr-tip'); if (t) t.hidden = true;
+    clearTimeout(railNudge._tip);
+  }
+  function railNudge() {
+    // 窄屏没有对照栏——那里是底部那条深色栏，它自己够醒目，不需要提示
+    if (!document.body.classList.contains('rail-on')) return;
+    var rail = $('#cmp-rail'); if (!rail) return;
+    rail.classList.remove('pulse'); void rail.offsetWidth; rail.classList.add('pulse');
+    clearTimeout(railNudge._t);
+    railNudge._t = setTimeout(function () { rail.classList.remove('pulse'); }, 1750);   // 动画是 .85s × 2 拍，别提前掐掉
+    // 首次加入才给指引，且只在折叠态——已展开时清单就在眼前，再指是啰嗦
+    if (!railTipSeen && !document.body.classList.contains('rail-open')) {
+      var tip = $('#cr-tip');
+      if (tip) {
+        tip.hidden = false;
+        railTipSeen = true;
+        try { localStorage.setItem(TIP_STORE, '1'); } catch (e) {}
+        clearTimeout(railNudge._tip);
+        railNudge._tip = setTimeout(hideRailTip, 7000);
+      }
+    }
+  }
   $('#cr-open').addEventListener('click', openCompare);
   $('#cr-clear').addEventListener('click', clearCompare);
   $('#cr-list').addEventListener('click', function (e) {

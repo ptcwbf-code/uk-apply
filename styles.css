@@ -976,6 +976,36 @@ body:not(.rail-open) .cr-body{display:none}
 .cr-foot{display:flex;gap:8px;padding:10px 13px;border-top:1px solid var(--line);background:var(--panel)}
 .cr-foot .btn{flex:1 1 auto;text-align:center;justify-content:center;display:flex}
 
+/* ── 加入对比后把目光引到对照栏 ──
+   此前这个动作的反馈全都指向「行」（按钮变字、所在行闪一下），没有一条指向对照栏；
+   而折叠态它只是右边缘一条窄标签，很容易被错过。下面三件事一起补：脉冲、加权重、首次指引。 */
+:root{--rail-ring:rgba(22,50,92,.42)}
+@keyframes ua-rail-pulse{
+  0%  {box-shadow:var(--sh-2),0 0 0 0 var(--rail-ring)}
+  55% {box-shadow:var(--sh-2),0 0 0 12px rgba(22,50,92,0)}
+  100%{box-shadow:var(--sh-2),0 0 0 0 rgba(22,50,92,0)}
+}
+/* 两拍：单拍在余光里容易漏掉，拍多了又烦 */
+.cmp-rail.pulse{animation:ua-rail-pulse .85s ease-out 2}
+
+/* 折叠态加权重：藏蓝描边 + 数字提到正文字号。**只加在折叠态**——
+   展开后它是常驻面板，一直这么重会抢正文的注意力 */
+body.rail-on:not(.rail-open) .cmp-rail{border-color:var(--navy)}
+body.rail-on:not(.rail-open) .cr-toggle{color:var(--navy);font-weight:650}
+body.rail-on:not(.rail-open) .cr-tg-n{font-size:var(--fs-3)}
+body.rail-on:not(.rail-open) .cr-toggle:hover{background:var(--navy);color:#fff}
+body.rail-on:not(.rail-open) .cr-toggle:hover .cr-tg-n{color:#fff}
+
+/* 首次加入对比时的一次性指引：只在折叠态出现（展开时清单就在眼前），
+   7 秒后自动收起，存 localStorage 所以此后永不再现。
+   放在 aside 外面（栏有 overflow:hidden 会裁掉它）。 */
+.cr-tip{position:fixed;right:312px;top:104px;z-index:71;margin:0;max-width:210px;
+  padding:9px 12px;background:var(--navy);color:#fff;border-radius:var(--r);
+  font-size:var(--fs-2);line-height:1.6;box-shadow:var(--sh-2);animation:ua-fade-in .22s ease-out}
+.cr-tip::after{content:"";position:absolute;right:-5px;top:15px;width:10px;height:10px;
+  background:inherit;transform:rotate(45deg)}
+body:not(.rail-on) .cr-tip,body.rail-open .cr-tip{display:none}
+
 /* ══ 对比栏与弹层 ══ */
 .comparebar{position:fixed;left:50%;bottom:18px;transform:translate(-50%,14px);opacity:0;width:max-content;
   background:linear-gradient(180deg,#1a3a68,#132a4c);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:var(--r-lg);
@@ -1083,6 +1113,9 @@ body:not(.rail-open) .cr-body{display:none}
   .toast,.overlay,.overlay-box,.comparebar,.card,.chip,.btn,.seg-btn,.region-tab,button.cmp,.to-top{transition:none}
   .chip:active,.btn:active,.seg-btn:active,.region-tab:active,button.cmp:active{transform:none}
   .card:hover{transform:none}
+  /* 对照栏的脉冲与指引淡入一并关掉。关掉后指引仍会出现（只是不做淡入），
+     它是首次使用的必要信息，不能连出现都省掉 */
+  .cmp-rail.pulse,.cr-tip{animation:none}
 }
 
 /* ══ 导出面板（范围 + 列） ══ */
@@ -1135,6 +1168,9 @@ body:not(.rail-open) .cr-body{display:none}
     --hl:rgba(217,181,102,.30);
     --diff-bg:rgba(217,181,102,.17);
     --flash:rgba(217,181,102,.30);
+    /* 对照栏脉冲的光晕：浅色主题用藏蓝，深色下换成亮蓝才看得见
+       （关键帧里淡出那一帧是全透明的，两种主题共用，不用改） */
+    --rail-ring:rgba(90,150,240,.55);
     --toast-bg:#e7ecf4; --toast-fg:#0e131b;   /* 深色底上把提示条反过来，才跳得出来 */
     --mast-a:#1a2942; --mast-b:#0d1524;
     /* 判定色在深底上要整体提亮，否则砖红会糊进背景。同浅色：只有「低于」上色 */
