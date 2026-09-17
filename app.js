@@ -2579,7 +2579,7 @@
     ov.hidden = false;
     void ov.offsetWidth;        // 先确立初始样式，再上 show 才能触发过渡
     ov.classList.add('show');
-    $('#g-al').focus();
+    $('#g-al').focus({ preventScroll: true });
   }
   function closeGradeSheet() {
     var ov = $('#grade-sheet');
@@ -2626,7 +2626,7 @@
     e.preventDefault();
     var btn = [$('#tab-uk'), $('#tab-hk')][next];
     switchRegion(next === 1 ? 'hk' : 'uk');
-    btn.focus();     // 焦点跟着选中项走，键盘用户不会掉到页面别处
+    btn.focus({ preventScroll: true });   // 焦点跟着选中项走，键盘用户不会掉到页面别处
   });
   $('#reset').addEventListener('click', function () {
     activeSchools = []; activeDirs = []; testSel = 'ALL'; q = ''; groupBy = 'school'; sortKey = 'default';
@@ -2799,7 +2799,7 @@
     ov.hidden = false;
     void ov.offsetWidth;
     ov.classList.add('show');
-    $('#eng-sheet-close').focus();
+    $('#eng-sheet-close').focus({ preventScroll: true });
   }
   function closeEngSheet() {
     var ov = $('#eng-sheet');
@@ -2983,7 +2983,7 @@
     ov.hidden = false;
     void ov.offsetWidth;
     ov.classList.add('show');
-    $('#report-copy').focus();
+    $('#report-copy').focus({ preventScroll: true });
   }
   function closeReportSheet() {
     var ov = $('#report-sheet');
@@ -3335,7 +3335,12 @@
     ov.hidden = false;
     void ov.offsetWidth;   // 强制重排确立初始样式，再上 show 才能触发过渡（不用 rAF：后台标签页里 rAF 不触发）
     ov.classList.add('show');
-    $('#compare-close').focus();
+    // preventScroll 不能省：弹层是 overflow:hidden，**但它仍是个滚动容器**。
+    // 关闭按钮在标题栏最右端，只要内容比盒子宽一点，浏览器为了把获得焦点的它滚进视野，
+    // 就会把整个弹层横向滚走——而 overflow:hidden 没有滚动条，用户滚不回来，
+    // 看到的就是「表格左边被裁掉了」。移动端曾经因此只能看到半张表（见 styles.css 里
+    // .overlay-tools 那条规则）。站上其它弹层的 focus() 也都带了这个参数。
+    $('#compare-close').focus({ preventScroll: true });
   }
   // 对比表排序：与表头同一套比较器与方向规则
   $('#cmp-sort').addEventListener('click', function (e) {

@@ -1105,10 +1105,16 @@ body:not(.rail-on) .cr-tip,body.rail-open .cr-tip{display:none}
   .eng-sheet{align-items:flex-end;padding:0}
   .eng-sheet .overlay-box{width:100%;max-width:100%;max-height:82vh;border-radius:var(--r-lg) var(--r-lg) 0 0}
   .eng-sheet-body{max-height:calc(82vh - 62px);padding:14px 16px}
-  /* 对比弹层标题栏：窄屏下排序键换行，别把关闭按钮挤出去 */
+  /* 对比弹层标题栏：窄屏下排序键与动作换行，别把关闭按钮挤出去。
+     原先只写了 justify-content，**漏了 flex-wrap**——四个控件（排序键 / 分组 / 导出 / 关闭）
+     在 375px 上合起来 408px，不换行就横向溢出；而 .overlay-head 与 .overlay-box 都是
+     overflow 可见 + hidden，这点溢出一路冒上去，把整个弹层撑成一个**能横向滚动的盒子**。
+     弹层打开时会 focus 关闭按钮，浏览器为了把它滚进视野就把盒子横向滚了约 96px，
+     于是表格左边被裁掉、又没有滚动条能滚回来——用户看到的就是「只能看到一部分」。 */
   .overlay-head{flex-wrap:wrap;gap:8px;padding:12px 14px}
-  .overlay-tools{margin-left:0;width:100%;justify-content:space-between}
-  .cmp-sort{margin-right:auto}
+  .overlay-tools{flex-wrap:wrap;margin-left:0;width:100%;gap:8px;justify-content:flex-start}
+  .overlay-tools .overlay-close{margin-left:auto}   /* 关闭按钮始终顶到行尾 */
+  .cmp-sort{margin-right:0}
   .cs-btn{padding:6px 11px}
 }
 
