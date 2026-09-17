@@ -3287,7 +3287,10 @@
       var test = p.test ? esc(p.test) : '—';
       var offer = OFFER_ZH[p.offer] || p.offer;
       var key = (it.rc === 'hk' ? 'hk:' : 'uk:') + it.idx;
-      return '<tr><td class="c0" style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + esc(s.zh) + '</span><span class="sub-line">' + esc((isHK ? '香港' : '英国') + ' · ' + s.en) + '</span></td>' +
+      // 大学那格的副标题拆成两截：前面「英国 / 香港」，后面英文校名。窄屏只留前半截
+      // （见 styles.css 里 .c0 .sub-en）——跨地区混选时「这行是英国还是香港」是这条副标题
+      // **独有**的信息，英文校名则与上面那行中文校名重复，而它在窄屏这列里要折成三四行小字。
+      return '<tr><td class="c0" style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + esc(s.zh) + '</span><span class="sub-line">' + esc(isHK ? '香港' : '英国') + '<span class="sub-en"> · ' + esc(s.en) + '</span></span></td>' +
         '<td class="c1"><span class="lead-line">' + esc(p.zh) + '</span><span class="sub-line">' + esc(p.en) + '</span></td>' +
         // 入学年份逐行写死：跨板块混选时这一列就是防读错的
         '<td class="cycle-cell"><span class="cy">' + esc(cycleShort(it.rc)) + '</span>' +
