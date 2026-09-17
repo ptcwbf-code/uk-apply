@@ -2390,6 +2390,7 @@
       // 对比栏在窄屏会换行变高，提示条的抬升量要跟着重算
       syncTableOverflow(); syncCmpBarLift();
       syncRail();   // 右栏的显隐取决于宽度，拖过阈值要跟着变
+      syncCmpSticky();   // 表格宽度变了，吸左那两列的偏移量得重新量
       // 用户没手动挑过视图时，跟着屏幕宽度走（手机横竖屏切换、桌面拖窗口都算）
       if (!viewPicked && view !== defaultView()) { view = defaultView(); syncControlsChrome(); apply(); }
     }, 150);
@@ -3244,6 +3245,15 @@
       '<span class="pss-tip">UCAS 本科一般只能填 5 个志愿，建议 1–2 冲刺、2–3 匹配、1–2 保底' +
       (c.partial ? '；带 <b>*</b> 的项你只填了部分科目，未填的按 A 计' : '') + '</span>';
   }
+  // 对比表里「专业」列要吸在第一列右侧，偏移量得是第一列的**实际**宽度。
+  // 列宽是百分比（随表格宽度变），写死必然错位——所以量一次写进 CSS 变量。
+  // 弹层隐藏时量出来是 0，所以 openCompare 里展开之后还要再量一次。
+  function syncCmpSticky() {
+    var t = $('#compare-table'); if (!t) return;
+    var th = t.querySelector('thead th.c0');
+    if (!th) { t.style.removeProperty('--cmp-w0'); return; }
+    t.style.setProperty('--cmp-w0', Math.round(th.getBoundingClientRect().width) + 'px');
+  }
   function renderCompareTable() {
     var items = cmpItems();
     // 逐列比对：全都一样的列没必要细看，把有差异的列标出来，省掉逐格对眼
@@ -3277,8 +3287,8 @@
       var test = p.test ? esc(p.test) : '—';
       var offer = OFFER_ZH[p.offer] || p.offer;
       var key = (it.rc === 'hk' ? 'hk:' : 'uk:') + it.idx;
-      return '<tr><td style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + esc(s.zh) + '</span><span class="sub-line">' + esc((isHK ? '香港' : '英国') + ' · ' + s.en) + '</span></td>' +
-        '<td><span class="lead-line">' + esc(p.zh) + '</span><span class="sub-line">' + esc(p.en) + '</span></td>' +
+      return '<tr><td class="c0" style="border-left:3px solid ' + s.color + '"><span class="lead-line">' + esc(s.zh) + '</span><span class="sub-line">' + esc((isHK ? '香港' : '英国') + ' · ' + s.en) + '</span></td>' +
+        '<td class="c1"><span class="lead-line">' + esc(p.zh) + '</span><span class="sub-line">' + esc(p.en) + '</span></td>' +
         // 入学年份逐行写死：跨板块混选时这一列就是防读错的
         '<td class="cycle-cell"><span class="cy">' + esc(cycleShort(it.rc)) + '</span>' +
           '<span class="cy-sub">' + esc(REGIONS[it.rc].cycle) + '</span></td>' +
@@ -3307,10 +3317,26 @@
       rows = items.map(cmpRow).join('');
     }
     function th(i, label, extra) {
-      return '<th scope="col"' + (extra || '') + (varies[i] ? ' class="diff"' : '') + '>' + label + '</th>';
+      // c0 / c1 是给「横向吸住」用的（见 styles.css 里 #compare-table .c0 那段）
+      var cls = ((varies[i] ? 'diff ' : '') + (i === 0 ? 'c0' : i === 1 ? 'c1' : '')).trim();
+      return '<th scope="col"' + (extra || '') + (cls ? ' class="' + cls + '"' : '') + '>' + label + '</th>';
+    }
+    // 对比表的列宽权重。这张表原先同时有**两个**毛病：
+    // ① 没有 colgroup 且 table-layout:fixed → 13 列均分。窄屏每列只有 58px，
+    //    「生物化学（分子与细胞生物学）」被压成一字一行；
+    // ② 均分把「官网」（一个 78px 的链接）和「操作」（上移/下移/移出三个 32px 按钮）
+    //    也压到 58px——这两列**在改动前就在横向溢出**，不是新问题。
+    // 权重按各列内容的实际需要给；配合 styles.css 里 #compare-table 的 min-width，
+    // 13 列才真的放得下（不设 min-width 时无论怎么分配都必然有列溢出）。
+    var CMP_COL_W = [90, 150, 80, 86, 80, 86, 70, 70, 100, 80, 100, 112, 136];
+    var CMP_W_TOTAL = CMP_COL_W.reduce(function (s, v) { return s + v; }, 0);
+    function cmpColgroup() {
+      return '<colgroup>' + CMP_COL_W.map(function (w) {
+        return '<col style="width:' + (w / CMP_W_TOTAL * 100).toFixed(3) + '%">';
+      }).join('') + '</colgroup>';
     }
     var anyDiff = Object.keys(varies).some(function (k) { return varies[k]; });
-    $('#compare-table').innerHTML =
+    $('#compare-table').innerHTML = cmpColgroup() +
       '<thead><tr>' + th(0, '大学') + th(1, '专业') + th(2, '入学') + th(3, '代码/学制') + th(4, 'A-Level') + th(5, 'IB（45 分制）') +
       th(6, '笔试 / 面试') + th(7, '成绩口径') + th(8, '英语要求') + th(9, 'QS2026 学科') + th(10, '备注') + th(11, '官网') +
       th(12, '操作') + '</tr></thead><tbody>' + rows + '</tbody>';
@@ -3324,6 +3350,7 @@
         note.textContent = '底色标出的是各专业有差异的列：' + names.join('、') + '；其余列所有专业一致。';
       } else note.hidden = true;
     }
+    syncCmpSticky();   // 列宽是百分比，每次重排都要重新量一次第一列的宽度
   }
   function openCompare() {
     if (!compare.size) return;
@@ -3335,6 +3362,7 @@
     ov.hidden = false;
     void ov.offsetWidth;   // 强制重排确立初始样式，再上 show 才能触发过渡（不用 rAF：后台标签页里 rAF 不触发）
     ov.classList.add('show');
+    syncCmpSticky();   // renderCompareTable 时弹层还是 hidden，量出来是 0；展开后必须再量一次
     // preventScroll 不能省：弹层是 overflow:hidden，**但它仍是个滚动容器**。
     // 关闭按钮在标题栏最右端，只要内容比盒子宽一点，浏览器为了把获得焦点的它滚进视野，
     // 就会把整个弹层横向滚走——而 overflow:hidden 没有滚动条，用户滚不回来，

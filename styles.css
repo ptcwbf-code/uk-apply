@@ -799,6 +799,26 @@ a.al:hover,button.al:hover{color:var(--navy);text-decoration-color:var(--navy-2)
 #compare-overlay .tbl .pos,
 #compare-overlay .tbl .t-offer{background:transparent}
 
+/* ══ 对比表：首两列（大学 / 专业）横向吸住 ══
+   这张表有 13 列，窄屏上往右滑看 A-Level / 雅思时，左边「这一行是哪所学校哪个专业」
+   会一起滑走——滑过第三列就不知道在看谁了。把前两列钉在左边即可。
+   两个前提，缺一不可：
+   ① 列宽得有份量（见 app.js 的 CMP_COL_W）。原先 table-layout:fixed 且**没有 colgroup**，
+      13 列均分、窄屏每列只有 58px，「生物化学（分子与细胞生物学）」被压成一字一行；
+   ② 吸住的格子必须**不透明**，否则滑动时下面的内容会透出来。而 --wash-under 是 3.5% 的
+      半透明色，所以「低于要求」那行要用半透明色**叠在卡片色上**的双层背景，不能直接给 wash。 */
+#compare-table{min-width:1180px}
+#compare-table .c0{position:sticky;left:0;z-index:2}
+#compare-table .c1{position:sticky;left:var(--cmp-w0,120px);z-index:2}
+#compare-table tbody .c0,#compare-table tbody .c1{background:var(--card)}
+#compare-table tbody tr.is-under .c0,#compare-table tbody tr.is-under .c1{
+  background:linear-gradient(var(--wash-under),var(--wash-under)),var(--card)}
+#compare-table tbody tr:hover .c0,#compare-table tbody tr:hover .c1{background:var(--panel)}
+/* 表头那两格要同时吸顶（top 见 .tbl thead th）与吸左，层级得压过普通行 */
+#compare-table thead th.c0,#compare-table thead th.c1{z-index:4}
+/* 右边缘一条细线：让「这两列是钉住的」这件事看得出来 */
+#compare-table .c1{box-shadow:1px 0 0 var(--line-2)}
+
 /* ══ 冲 / 稳 / 保 ══
    把成绩判定翻成选校语言。与判定徽章同一套规则：只有「冲刺」上色，
    「匹配 / 保底」走墨色——不然一屏里全是彩色胶囊。 */.pos{display:inline-block;padding:0 6px;border-radius:4px;font-size:var(--fs-1);font-weight:650;line-height:1.7;
