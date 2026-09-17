@@ -201,14 +201,35 @@
       srcNote: '日期来源：UCAS 官方日历、各校官网、UAT-UK 官网与考生手册、UCAT 官网、LNAT 官网（2026-09 核对）。各校与考试局每年调整，正式申请前请再核对一次。'
     },
     hk: {
-      items: [],
-      notes: [
-        '本板块数据为 **2026 入学轮次**：该轮申请已在 2025 年底至 2026 年初结束。',
-        '**2027 入学轮次**（2026 年底开放）的各校 non-JUPAS 截止日期尚未公布；公布后这里会补上具体日期。',
-        '香港没有像 UCAS 那样的统一申请平台，**八校各自独立招生**，A-Level / IB 申请人走各校的 non-JUPAS（国际资历）通道，因此有八个不同的截止日期。',
-        '节奏上的大致规律：秋季开放申请，**11 月前后为早轮、次年 1 月上旬为主轮**，早轮提交通常更有利——但每年日期都不同，务必以各校官网为准。'
+      // 2027 年 9 月入学（27fall）轮次。**年份口径要留意**：香港板块的专业要求目前仍是
+      // 2026 入学轮次公布的口径（各校 2027 轮尚未更新），而这条时间线是 2027 轮——
+      // 2026 轮已经结束，现在要申的就是 2027 轮，所以倒计时按 2027 轮走。
+      //
+      // 八校独立招生、各有各的截止日（英国那边九校共用 UCAS 日历，所以那边没有 uni 字段），
+      // 因此每条都带 uni，渲染时标出是哪一所——否则一串日期读不出所以然。
+      // 目前只有 HKU / HKUST / 岭南公布了 2027 轮日期（2026-09 核自各自官网），其余五校公布后补。
+      items: [
+        { d: '2026-09-23', uni: 'hku', t: '申请开放（国际 / 非联招 2027 轮）', src: 'HKU 官网', u: 'https://admissions.hku.hk/apply/international-qualifications' },
+        { d: '2026-10-01', uni: 'hkust', t: '网上申请系统开放', src: 'HKUST 官网', u: 'https://join.hkust.edu.hk/admissions/international-qualifications' },
+        { d: '2026-10-08', uni: 'lingnan', t: '申请开放', src: '岭南官网', u: 'https://www.ln.edu.hk/admissions/ug/apply-now/overseas-and-mainland-applicants-holding-international-qualifications' },
+        { d: '2026-11-25', uni: 'hku', t: '第一轮评审截止（香港时间中午 12:00）', src: 'HKU 官网', u: 'https://admissions.hku.hk/apply/international-qualifications' },
+        { d: '2026-11-25', uni: 'hkust', t: '优先轮（Priority Round）申请截止', src: 'HKUST 官网', u: 'https://join.hkust.edu.hk/admissions/international-qualifications' },
+        { d: '2026-11-30', uni: 'lingnan', t: '早轮截止', src: '岭南官网', u: 'https://www.ln.edu.hk/admissions/ug/apply-now/overseas-and-mainland-applicants-holding-international-qualifications' },
+        { d: '2026-12-01', uni: 'hku', t: '提交预估 / 实考成绩与推荐材料（第一轮评审用，由推荐人提交）', src: 'HKU 官网', u: 'https://admissions.hku.hk/apply/international-qualifications' },
+        { d: '2026-12-31', uni: 'hkust', t: '公布录取（官网写 Late Dec 2026）', src: 'HKUST 官网', u: 'https://join.hkust.edu.hk/admissions/international-qualifications' },
+        { d: '2027-02-28', uni: 'lingnan', t: '主轮截止', src: '岭南官网', u: 'https://www.ln.edu.hk/admissions/ug/apply-now/overseas-and-mainland-applicants-holding-international-qualifications' },
+        { d: '2027-06-30', uni: 'lingnan', t: '非本地生最终轮截止', src: '岭南官网', u: 'https://www.ln.edu.hk/admissions/ug/apply-now/overseas-and-mainland-applicants-holding-international-qualifications' },
+        { d: '2027-06-30', uni: 'hkust', t: '申请关闭', src: 'HKUST 官网', u: 'https://join.hkust.edu.hk/admissions/international-qualifications' },
+        { d: '2027-08-25', uni: 'hku', t: '申请关闭（香港时间中午 12:00）', src: 'HKU 官网', u: 'https://admissions.hku.hk/apply/international-qualifications' }
       ],
-      srcNote: '本板块暂无经官方核实的日期，所以不做倒计时。上一轮的截止日期可作节奏参考，但不能当成本轮日期使用。'
+      notes: [
+        '**年份口径**：这条时间线是 **2027 年 9 月入学（27fall）**；而下方表里的**专业要求仍是 2026 入学轮次**公布的口径（各校 2027 轮尚未更新）。两者年份不同，**别混用**。',
+        '**八校独立招生、各有各的截止日**（香港没有 UCAS 那样的统一平台，A-Level / IB 申请人走各校的 non-JUPAS 国际资历通道），所以上面每条都标了校名。目前只有 **HKU / HKUST / 岭南**公布了 2027 轮日期，其余五校官网仍挂着 2026 轮——公布后会补上。',
+        '**早提交通常更有利**：港中文官方明说早轮没选上会自动进入常规轮、与所有其他申请人同等竞争，所以早申是多一次机会、落空没有惩罚。HKU 有「第一轮评审」、HKUST 有「优先轮」，同理。',
+        '**岭南的最终轮分本地生与非本地生**：本地生 7 月 31 日、**非本地生（内地生适用）6 月 30 日**——上面列的是后者，别按错的那条准备。',
+        'HKU 官网另注明：入围者可能在 11 月至次年 1 月被邀面试；拿到 offer 后办签证请预留 8–10 周。'
+      ],
+      srcNote: '日期核自各校官网（2026-09 核对）：HKU 国际资历申请页、HKUST 国际资历申请页、岭南「Overseas, Mainland & Transfer Applicants Holding International Qualifications」页（注意岭南另有本地生页面，最终轮日期不同）。未列入的学校表示其 2027 轮日期尚未公布，不代表没有截止日。各校每年调整，正式申请前请再核对一次。'
     }
   };
   function daysTo(iso) {
@@ -231,6 +252,17 @@
   // 留三周才够学生安排考试与准备
   var TL_SOON = 21;
   // 倒计时是打开页面时现算的：静态页也能给出「还剩几天」，不必每次改数据
+  // 每条的校名标签。香港八校各有各的截止日（英国九校共用 UCAS 日历，那边没有 uni 字段），
+  // 不标学校的话一串日期读不出所以然。
+  // **只用校色点 + 校名，不用校印**：校印对「港大 / 岭南」这类中文校名就是校名本身
+  //（拉丁校名更是原名），并排会出现「港大港大」。校色在这里的作用是让同一所学校的几条
+  // 一眼归堆，要读的信息是名字。
+  function tlUniChip(key) {
+    var s = key ? allSchoolByKey[key] : null;
+    if (!s) return '';
+    return '<span class="tl-uni" style="--c:' + esc(s.color || '#9aa3b8') + '">' +
+      '<i class="tl-ud" aria-hidden="true"></i>' + esc(s.zh) + '</span>';
+  }
   function renderTimeline() {
     var host = $('#timeline-body'), nx = $('#tl-next');
     if (!host) return;
@@ -242,11 +274,15 @@
     if (nx) {
       if (next) {
         var n = daysTo(next.d);
+        // 带学校时要把校名念出来：香港八校各有各的截止日，「下一个：11 月 25 日 第一轮评审截止」
+        // 不说是哪一所等于没说。英国那边没有 uni，维持原样
+        var ns = next.uni ? allSchoolByKey[next.uni] : null;
         nx.className = 'tl-next' + (n <= TL_SOON ? ' urgent' : '');
-        nx.textContent = '下一个：' + fmtDate(next.d) + ' ' + next.t.replace(/（[^）]*）/g, '') + '（' + daysWord(n) + '）';
+        nx.textContent = '下一个：' + fmtDate(next.d) + ' ' + (ns ? ns.zh + ' ' : '') +
+          next.t.replace(/（[^）]*）/g, '') + '（' + daysWord(n) + '）';
       } else {
         nx.className = 'tl-next';
-        nx.textContent = rc === 'hk' ? '上一轮已结束，下一轮日期尚未公布' : '本季关键日期均已过';
+        nx.textContent = '本季关键日期均已过';
       }
     }
     var out = '';
@@ -255,7 +291,7 @@
         var n = daysTo(it.d), past = n < 0, soon = n >= 0 && n <= TL_SOON;
         return '<li class="' + (past ? 'past' : '') + (soon ? ' soon' : '') + '">' +
           '<span class="tl-d">' + esc(fmtDate(it.d)) + '</span>' +
-          '<span class="tl-c"><span class="tl-t">' + esc(it.t) + '</span>' +
+          '<span class="tl-c"><span class="tl-t">' + tlUniChip(it.uni) + esc(it.t) + '</span>' +
           '<span class="tl-m">' + daysWord(n) + ' · ' + esc(it.src || '') +
           (it.u ? ' · <a href="' + esc(it.u) + '" target="_blank" rel="noopener noreferrer">官网</a>' : '') +
           '</span></span></li>';

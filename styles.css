@@ -277,6 +277,14 @@ h1{margin:0;font-family:var(--serif-zh);font-size:clamp(26px,3.4vw,38px);line-he
 .tl-d{flex:none;width:72px;font-family:var(--mono);font-size:var(--fs-2);font-weight:650;color:var(--ink-2)}
 .tl-c{display:flex;flex-direction:column;gap:2px;min-width:0}
 .tl-t{font-size:var(--fs-3);line-height:1.6;color:var(--ink);text-wrap:pretty}
+/* 校名标签：香港八校各有各的截止日，不标出是哪一所，一串日期读不出所以然。
+   用「校色点 + 校名」而不是校印——校印的文字对中文校名就是校名本身，并排会重复
+   （见 app.js 里 tlUniChip 的注释） */
+.tl-uni{display:inline-flex;align-items:center;gap:5px;margin-right:6px;padding:1px 8px;
+  border-radius:999px;background:var(--card);border:1px solid var(--line-2);
+  font-size:var(--fs-1);font-weight:650;color:var(--ink-2);white-space:nowrap;vertical-align:1.5px}
+.tl-ud{flex:none;width:7px;height:7px;border-radius:50%;background:var(--c,#9aa3b8);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 .tl-m{font-size:var(--fs-2);color:var(--mut);line-height:1.6}
 .tl-m a{color:var(--navy-2);text-decoration:underline;text-underline-offset:2px}
 .tl-notes{margin:13px 0 0;padding-left:18px}
