@@ -1116,6 +1116,24 @@ body:not(.rail-on) .cr-tip,body.rail-open .cr-tip{display:none}
   .overlay-tools .overlay-close{margin-left:auto}   /* 关闭按钮始终顶到行尾 */
   .cmp-sort{margin-right:0}
   .cs-btn{padding:6px 11px}
+  /* 对比弹层：手机上把空间尽量还给表格。
+     桌面那套控件原样搬过来，标题栏要占 233px（5 个排序键折成两行 73px、
+     「按冲刺·匹配·保底分组」长文案 46px、导出与关闭 46px，加标题 33px）——
+     715px 高的弹层里只剩 422px 能看表，而表本身有 925px 高，等于只能看半张。
+     三件事一起做：贴底满高（拿回上下各 24px 的留白）、排序键收成一行横滑、
+     分组按钮去掉长文案。 */
+  #compare-overlay{align-items:flex-end;padding:0}
+  #compare-overlay .overlay-box{width:100%;max-width:100%;max-height:94vh;
+    border-radius:var(--r-lg) var(--r-lg) 0 0}
+  #compare-overlay .overlay-head{padding:10px 14px;gap:6px 8px}
+  /* 5 个排序键折成两行要 73px，改成一行横滑——末尾露出的半截即暗示还能滑 */
+  #compare-overlay .cmp-sort{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px;
+    scrollbar-width:none}
+  #compare-overlay .cmp-sort::-webkit-scrollbar{display:none}
+  #compare-overlay .cmp-sort .cs-btn{flex:0 0 auto}
+  .cg-lg{display:none}          /* 「按冲刺·匹配·保底」这截只在桌面显示，窄屏只剩「分组」 */
+  /* 表格区吃掉剩下的全部高度，横竖都交给它自己滚 */
+  #compare-overlay .tblwrap{flex:1 1 auto;min-height:0}
 }
 
 /* 板块切换的跨淡。默认时长（250ms）在这么大一页上有点拖，收短一点；
