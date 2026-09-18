@@ -2410,6 +2410,10 @@
     if (scClear) scClear.hidden = !(activeDirs.length || activeSchools.length || testSel !== 'ALL' || q);
     if (!list.length) {
       $('#empty').hidden = false;
+      // 空结果这一路不走分块渲染，但上一次分块渲染可能正插到一半：作废它并把标记摘掉，
+      // 否则 #groups 会永远挂着 data-rendering，等它的人就一直等下去
+      renderToken++;
+      $('#groups').removeAttribute('data-rendering');
       $('#groups').innerHTML = '';
       syncTableOverflow();
       renderEmptyHelp();
@@ -2429,7 +2433,7 @@
       return { p: p, idx: idxMap[cur.programs.indexOf(p)], buckets: groupOf(p) };
     });
 
-    var out = document.createElement('div');
+    var jobs = [];
     keyOrder.forEach(function (k) {
       var pairs = [];
       entries.forEach(function (e) {
@@ -2441,26 +2445,60 @@
       var groupItems = pairs.map(function (x) { return x.p; });
       var groupIdx = pairs.map(function (x) { return x.idx; });
       var meta = groupMeta(k);
-      out.insertAdjacentHTML('beforeend',
-        view === 'table' ? tableGroupHTML(groupItems, groupIdx, meta, showSchool, k) : cardGroupHTML(groupItems, groupIdx, meta, showSchool, k));
+      // 每组只留一个「待插入」的闭包，HTML 串留到该时间片里现拼——否则会先把 239 行的
+      // 字符串全拼完才开始插，那正是要切开的开销
+      jobs.push(function (host) {
+        host.insertAdjacentHTML('beforeend',
+          view === 'table' ? tableGroupHTML(groupItems, groupIdx, meta, showSchool, k)
+                           : cardGroupHTML(groupItems, groupIdx, meta, showSchool, k));
+      });
     });
 
-    $('#groups').innerHTML = '';
-    $('#groups').appendChild(out);
-    clearRowCursor();   // 行是新建的，键盘光标不能留在已消失的节点上
-    syncTableOverflow();
-    // 内容整体换过就淡入一次；先移除再加，确保连续两次渲染也能重放
-    if (doAnim) {
-      var g = $('#groups');
-      g.classList.remove('anim'); void g.offsetWidth; g.classList.add('anim');
-    }
+    var host = $('#groups');
+    var out = document.createElement('div');
     $('#result-count').textContent = list.length;
     var sc = $('#scope-count'); if (sc) sc.textContent = list.length;
+    renderListChunked(host, out, jobs, function () {
+      host.innerHTML = '';
+      host.appendChild(out);
+      clearRowCursor();   // 行是新建的，键盘光标不能留在已消失的节点上
+      syncTableOverflow();
+      // 内容整体换过就淡入一次；先移除再加，确保连续两次渲染也能重放
+      if (doAnim) { host.classList.remove('anim'); void host.offsetWidth; host.classList.add('anim'); }
+    });
     var scope = [];
     if (activeDirs.length) scope.push(activeDirs.map(function (d) { return cur.dirs[d].zh; }).join('、'));
     if (activeSchools.length) scope.push(activeSchools.map(function (k) { return schoolByKey[k].zh; }).join('、'));
     if (testSel !== 'ALL') scope.push(testSel === 'NONE' ? '无笔试' : testSel === 'YES' ? '需笔试' : testSel);
     $('#result-context').textContent = scope.length ? '· 当前范围：' + scope.join(' / ') : '';
+  }
+
+  // 分块渲染：一次把 239 行（约 1.8 万个节点）建出来会把主线程占住小一秒——慢手机上
+  // 「切视图」那颗按钮的 INP 就是它（线上 RUM 量到 776ms）。这里把这段活切成时间片，
+  // 每片不超过约 40ms，片与片之间让出一帧：点击之后浏览器马上就能画一帧（按钮的新状态
+  // 先亮起来），滚动、下一次筛选也插得进来。
+  //
+  // **仍然建在游离的 div 上，最后一次性换入**，这一点是量出来的：直接往活动 DOM 里分片
+  // 插，每一片都要重算样式、重排一次，整段总开销翻倍（实测长任务合计 4229ms → 7630ms）。
+  // 游离节点不参与布局，分片只切「建节点」这段，总开销与从前一致。
+  //
+  // 让位用 rAF + setTimeout 而不是单纯 setTimeout：rAF 保证浏览器真的画了一帧，
+  // 单纯 setTimeout 可能连着跑两个任务都不画。
+  // 渲染期间 #groups 上挂 data-rendering，需要完整 DOM 的地方（自检、跳转定位）据此等待；
+  // renderToken 用来作废被打断的那次——新渲染把旧的顶掉，不然会换上一半旧的。
+  var renderToken = 0;
+  function renderListChunked(host, out, jobs, done) {
+    var token = ++renderToken;
+    host.setAttribute('data-rendering', '1');
+    var i = 0;
+    (function step() {
+      if (token !== renderToken) return;          // 已被更新的一次渲染顶掉
+      var t0 = Date.now();
+      while (i < jobs.length && Date.now() - t0 < 40) jobs[i++](out);
+      if (i < jobs.length) return requestAnimationFrame(function () { setTimeout(step, 0); });
+      done();
+      host.removeAttribute('data-rendering');
+    })();
   }
 
   // ── 交互事件 ──
@@ -2658,11 +2696,20 @@
   });
   $('#sort-chip').addEventListener('click', function () { sortKey = 'default'; apply(); });
   // 学校速跳：长表里直接跳到某校（吸顶分组头会接管定位，所以只滚到该组顶端即可）
+  // 分块渲染期间，要跳的那个组可能还没建出来——等一下再看（最多约 2 秒，超了就放弃，
+  // 别为一个落空的点击空转下去）。
+  function jumpToSchool(key, tries) {
+    var sec = document.querySelector('#groups .group[data-key="' + key + '"]');
+    if (!sec) {
+      if (tries > 0 && $('#groups').hasAttribute('data-rendering'))
+        requestAnimationFrame(function () { jumpToSchool(key, tries - 1); });
+      return;
+    }
+    window.scrollTo({ top: sec.getBoundingClientRect().top + window.scrollY - 6, behavior: prefersReduced() ? 'auto' : 'smooth' });
+  }
   $('#jumpbar').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-jump]'); if (!b) return;
-    var sec = document.querySelector('#groups .group[data-key="' + b.dataset.jump + '"]');
-    if (!sec) return;
-    window.scrollTo({ top: sec.getBoundingClientRect().top + window.scrollY - 6, behavior: prefersReduced() ? 'auto' : 'smooth' });
+    jumpToSchool(b.dataset.jump, 120);
   });
   // 回到顶部
   var toTop = $('#to-top');
