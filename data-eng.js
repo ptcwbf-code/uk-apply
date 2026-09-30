@@ -586,6 +586,18 @@ const ENG_PROG = {
    "eslFlag": "yes"
   },
   {
+   "en": "Biomedical Engineering",
+   "band": "Level 1",
+   "ielts": "6.5（各项6.0）",
+   "toeflOld": "92",
+   "toeflNew": "4.5（各项4.0）",
+   "gcse": "GCSE English Language 4 + Merit（口语）",
+   "eslGrade": "ESL 可（最高到 L2）",
+   "ibEnglish": "IB English A 5；English B HL5 或 SL6",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
    "en": "Economics",
    "band": "Level 2",
    "ielts": "7.0（各项6.5）",
