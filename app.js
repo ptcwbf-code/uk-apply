@@ -207,28 +207,45 @@
       //
       // 八校独立招生、各有各的截止日（英国那边九校共用 UCAS 日历，所以那边没有 uni 字段），
       // 因此每条都带 uni，渲染时标出是哪一所——否则一串日期读不出所以然。
-      // 目前只有 HKU / HKUST / 岭南公布了 2027 轮日期（2026-09 核自各自官网），其余五校公布后补。
+      // 八校 2027 轮日期**均已核到官网**（2026-09）。留意各校把本地生与非本地生分成两套日程：教大、城大、浸会都有各自的 local / non-local 页，本站一律取**非本地（国际资历）**那套，照抄本地生的截止日会错。
       items: [
         { d: '2026-09-23', uni: 'hku', t: '申请开放（国际 / 非联招 2027 轮）', src: 'HKU 官网', u: 'https://admissions.hku.hk/apply/international-qualifications' },
+        { d: '2026-09-23', uni: 'polyu', t: '申请开始（国际资历通道）', src: '理大官网', u: 'https://www.polyu.edu.hk/study/ug/admissions/international-other-qualifications' },
+        { d: '2026-09-24', uni: 'cityu', t: '申请开放', src: '城大官网', u: 'https://www.cityu.edu.hk/admo/admissions/international-admissions' },
         { d: '2026-10-01', uni: 'hkust', t: '网上申请系统开放', src: 'HKUST 官网', u: 'https://join.hkust.edu.hk/admissions/international-qualifications' },
+        { d: '2026-10-02', uni: 'cuhk', t: '申请开放', src: '港中文官网', u: 'https://admission.cuhk.edu.hk/application/overseas-other-qualifications-non-local-international-team/important-dates/' },
+        { d: '2026-10-02', uni: 'hkbu', t: '申请开放（非本地非内地申请人轮次）', src: '浸会官网', u: 'https://iss.hkbu.edu.hk/amsappl_nj/eventcalendar.jsf' },
         { d: '2026-10-08', uni: 'lingnan', t: '申请开放', src: '岭南官网', u: 'https://www.ln.edu.hk/admissions/ug/apply-now/overseas-and-mainland-applicants-holding-international-qualifications' },
+        { d: '2026-11-12', uni: 'cuhk', t: '早轮（Advance Offer Round）申请截止（香港时间 23:59）', src: '港中文官网', u: 'https://admission.cuhk.edu.hk/application/overseas-other-qualifications-non-local-international-team/important-dates/' },
+        { d: '2026-11-15', uni: 'cityu', t: '早轮申请截止', src: '城大官网', u: 'https://www.cityu.edu.hk/admo/admissions/international-admissions' },
+        { d: '2026-11-16', uni: 'eduhk', t: '早轮申请截止', src: '教大官网', u: 'https://www.apply.eduhk.hk/ug/zh-hant/nonlocal_dates' },
+        { d: '2026-11-16', uni: 'hkbu', t: '早轮申请截止（香港时间 23:59）', src: '浸会官网', u: 'https://iss.hkbu.edu.hk/amsappl_nj/eventcalendar.jsf' },
+        { d: '2026-11-17', uni: 'polyu', t: '早轮申请截止', src: '理大官网', u: 'https://www.polyu.edu.hk/study/ug/admissions/international-other-qualifications' },
         { d: '2026-11-25', uni: 'hku', t: '第一轮评审截止（香港时间中午 12:00）', src: 'HKU 官网', u: 'https://admissions.hku.hk/apply/international-qualifications' },
         { d: '2026-11-25', uni: 'hkust', t: '优先轮（Priority Round）申请截止', src: 'HKUST 官网', u: 'https://join.hkust.edu.hk/admissions/international-qualifications' },
         { d: '2026-11-30', uni: 'lingnan', t: '早轮截止', src: '岭南官网', u: 'https://www.ln.edu.hk/admissions/ug/apply-now/overseas-and-mainland-applicants-holding-international-qualifications' },
         { d: '2026-12-01', uni: 'hku', t: '提交预估 / 实考成绩与推荐材料（第一轮评审用，由推荐人提交）', src: 'HKU 官网', u: 'https://admissions.hku.hk/apply/international-qualifications' },
         { d: '2026-12-31', uni: 'hkust', t: '公布录取（官网写 Late Dec 2026）', src: 'HKUST 官网', u: 'https://join.hkust.edu.hk/admissions/international-qualifications' },
+        { d: '2027-01-06', uni: 'eduhk', t: '首轮申请截止', src: '教大官网', u: 'https://www.apply.eduhk.hk/ug/zh-hant/nonlocal_dates' },
+        { d: '2027-01-07', uni: 'cuhk', t: '常规轮（Regular Round）申请截止（香港时间 23:59）', src: '港中文官网', u: 'https://admission.cuhk.edu.hk/application/overseas-other-qualifications-non-local-international-team/important-dates/' },
+        { d: '2027-01-15', uni: 'cityu', t: '主轮申请截止', src: '城大官网', u: 'https://www.cityu.edu.hk/admo/admissions/international-admissions' },
+        { d: '2027-02-01', uni: 'hkbu', t: '主轮申请截止（香港时间 23:59）', src: '浸会官网', u: 'https://iss.hkbu.edu.hk/amsappl_nj/eventcalendar.jsf' },
+        { d: '2027-02-11', uni: 'polyu', t: '主轮申请截止', src: '理大官网', u: 'https://www.polyu.edu.hk/study/ug/admissions/international-other-qualifications' },
         { d: '2027-02-28', uni: 'lingnan', t: '主轮截止', src: '岭南官网', u: 'https://www.ln.edu.hk/admissions/ug/apply-now/overseas-and-mainland-applicants-holding-international-qualifications' },
+        { d: '2027-05-07', uni: 'eduhk', t: '次轮申请截止', src: '教大官网', u: 'https://www.apply.eduhk.hk/ug/zh-hant/nonlocal_dates' },
+        { d: '2027-05-14', uni: 'polyu', t: '延长轮申请截止（仅限国际生）', src: '理大官网', u: 'https://www.polyu.edu.hk/study/ug/admissions/international-other-qualifications' },
+        { d: '2027-05-31', uni: 'hkbu', t: '延长轮申请截止（香港时间 23:59）', src: '浸会官网', u: 'https://iss.hkbu.edu.hk/amsappl_nj/eventcalendar.jsf' },
         { d: '2027-06-30', uni: 'lingnan', t: '非本地生最终轮截止', src: '岭南官网', u: 'https://www.ln.edu.hk/admissions/ug/apply-now/overseas-and-mainland-applicants-holding-international-qualifications' },
         { d: '2027-06-30', uni: 'hkust', t: '申请关闭', src: 'HKUST 官网', u: 'https://join.hkust.edu.hk/admissions/international-qualifications' },
-        { d: '2027-08-25', uni: 'hku', t: '申请关闭（香港时间中午 12:00）', src: 'HKU 官网', u: 'https://admissions.hku.hk/apply/international-qualifications' }
+        { d: '2027-08-25', uni: 'hku', t: '申请关闭（香港时间中午 12:00）', src: 'HKU 官网', u: 'https://admissions.hku.hk/apply/international-qualifications' },
       ],
       notes: [
         '**年份口径**：这条时间线是 **2027 年 9 月入学（27fall）**；而下方表里的**专业要求仍是 2026 入学轮次**公布的口径（各校 2027 轮尚未更新）。两者年份不同，**别混用**。',
-        '**八校独立招生、各有各的截止日**（香港没有 UCAS 那样的统一平台，A-Level / IB 申请人走各校的 non-JUPAS 国际资历通道），所以上面每条都标了校名。目前只有 **HKU / HKUST / 岭南**公布了 2027 轮日期，其余五校官网仍挂着 2026 轮——公布后会补上。',
+        '**八校独立招生、各有各的截止日**（香港没有 UCAS 那样的统一平台，A-Level / IB 申请人走各校的 non-JUPAS 国际资历通道），所以上面每条都标了校名。**八校 2027 轮日期已全部核到官网**（2026-09）。留意**各校把本地生与非本地生分成两套日程**：教大、城大、浸会各有各的 local / non-local 页，**本站一律取非本地（国际资历）那一套**——照抄本地生的截止日会错。',
         '**早提交通常更有利**：港中文官方明说早轮没选上会自动进入常规轮、与所有其他申请人同等竞争，所以早申是多一次机会、落空没有惩罚。HKU 有「第一轮评审」、HKUST 有「优先轮」，同理。',
         'HKU 官网另注明：入围者可能在 11 月至次年 1 月被邀面试；拿到 offer 后办签证请预留 8–10 周。'
       ],
-      srcNote: '日期核自各校官网（2026-09 核对）：HKU 国际资历申请页、HKUST 国际资历申请页、岭南「Overseas, Mainland & Transfer Applicants」页。未列入的学校表示其 2027 轮日期尚未公布，不代表没有截止日。各校每年调整，正式申请前请再核对一次。'
+      srcNote: '日期核自各校官网（2026-09 核对）：HKU 国际资历申请页、HKUST 国际资历申请页、岭南「Overseas, Mainland & Transfer Applicants」页、港中文「Overseas / Other Qualifications」重要日期页、理大「International / Other Qualifications」页、教大「海外／國際資歷：招生日程」页、城大「International Admissions」页、浸会 non-JUPAS 申请日历（非本地非内地申请人轮次）。八校一律取非本地生口径。各校每年调整，正式申请前请再核对一次。'
     }
   };
   function daysTo(iso) {

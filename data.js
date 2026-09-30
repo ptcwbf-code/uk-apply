@@ -712,6 +712,12 @@ const PROGRAMS = [
     alevelNote: '数学 A*；物理或高数优先', offer: 'typical', note: 'IET 认证；ESAT',
     url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/electronic-and-electrical-engineering-beng' },
 
+  { school: 'ucl', dirs: ['eng', 'bio'], zh: '生物医学工程', en: 'Biomedical Engineering',
+    degree: 'BEng · 3 年（另 4 年 MEng）', alevel: 'A*AA', ib: '39（HL 19、数学+物理 7,6）', test: '',
+    alevelNote: '数学与物理必修，A* 落其一；生物可替代物理，但须 GCSE 物理 A/7；第三门建议生物/化学/计算机/工程', offer: 'typical',
+    note: '无笔试；GCSE 英语+数学 C/4；UCAS HC60（MEng 为 H160）',
+    url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/courses/biomedical-engineering-beng' },
+
   { school: 'ucl', dirs: ['econ'], zh: '经济学', en: 'Economics',
     degree: 'BSc (Econ) · 3 年', alevel: 'A*AA', ib: '39（HL 数学 7）', test: 'TMUA',
     alevelNote: '数学必修且 A*', offer: 'typical', note: '2027 起须考 TMUA；不收重考',
