@@ -1,6 +1,6 @@
 // QS World University Rankings by Subject 2026（QS2026 学科排名）
 // 数据来源：QS 官方 2026 学科榜（2026-03 发布），2026-09 抓取；名次含并列（形如 "=4"）与区间（形如 "51-100"）
-// 收录范围：本站覆盖的 17 所大学，且只收录**前 200 名**以内（含 51-100 / 101-150 / 151-200 等区间段）
+// 收录范围：本站覆盖的 18 所大学，且只收录**前 200 名**以内（含 51-100 / 101-150 / 151-200 等区间段）
 // 200 名之后的区间段（201-250、251-300…）未收录 —— 故表内“—”表示未进前 200，不代表该校完全未上榜
 
 const QS_YEAR = 2026;
@@ -546,5 +546,40 @@ const QS_RANKS = {
  "lingnan": {
   "communication-media-studies": "151-200",
   "philosophy": "151-200"
+ }
+,
+ "bristol": {
+  "accounting-finance": "=93",
+  "anthropology": "51-100",
+  "biological-sciences": "=84",
+  "business-management-studies": "151-200",
+  "chemistry": "=62",
+  "civil-structural-engineering": "51-100",
+  "communication-media-studies": "101-150",
+  "computer-science-information-systems": "=111",
+  "data-science-artificial-intelligence": "101-200",
+  "dentistry": "51-150",
+  "economics-econometrics": "108",
+  "education-training": "=44",
+  "electrical-electronic-engineering": "151-200",
+  "english-language-literature": "42",
+  "environmental-sciences": "=100",
+  "geography": "15",
+  "history": "51-100",
+  "law-legal-studies": "=54",
+  "mathematics": "83",
+  "mechanical-aeronautical-manufacturing-engineering": "=66",
+  "medicine": "58",
+  "modern-languages": "59",
+  "performing-arts": "51-100",
+  "pharmacy-pharmacology": "=85",
+  "philosophy": "41",
+  "physics-astronomy": "=114",
+  "politics": "82",
+  "psychology": "=55",
+  "social-policy-administration": "18",
+  "sociology": "=67",
+  "sports-related-subjects": "51-100",
+  "statistics-operational-research": "51-100"
  }
 };

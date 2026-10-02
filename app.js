@@ -1,4 +1,4 @@
-/* UK·HK 本科录取要求速查 — 逻辑 3.0（英国九校 + 香港八校 双板块；对比清单可跨板块混选） */
+/* UK·HK 本科录取要求速查 — 逻辑 3.0（英国十校 + 香港八校 双板块；对比清单可跨板块混选） */
 (function () {
   'use strict';
 
@@ -151,10 +151,10 @@
   // 跨板块混选进同一张对比表时，这是最容易被读错的一处，必须每行都带着。
   var REGIONS = {
     uk: {
-      name: '英国九校', short: 'UK', schools: SCHOOLS, programs: PROGRAMS, dirs: DIRS,
+      name: '英国十校', short: 'UK', schools: SCHOOLS, programs: PROGRAMS, dirs: DIRS,
       testIsExam: true, testHead: '入学笔试',
       year: '2027 年 9 月入学', cycle: '2026–27 申请季',
-      sub: '牛剑 · G5 · 王爱曼华 · 2027 年入学（A-level / IB / 入学笔试）'
+      sub: '牛剑 · G5 · 王爱曼华布 · 2027 年入学（A-level / IB / 入学笔试）'
     },
     hk: {
       name: '香港八校', short: 'HK', schools: HKSCHOOLS, programs: HKPROGRAMS, dirs: DIRS,
@@ -205,7 +205,7 @@
       // 2026 入学轮次公布的口径（各校 2027 轮尚未更新），而这条时间线是 2027 轮——
       // 2026 轮已经结束，现在要申的就是 2027 轮，所以倒计时按 2027 轮走。
       //
-      // 八校独立招生、各有各的截止日（英国那边九校共用 UCAS 日历，所以那边没有 uni 字段），
+      // 八校独立招生、各有各的截止日（英国那边十校共用 UCAS 日历，所以那边没有 uni 字段），
       // 因此每条都带 uni，渲染时标出是哪一所——否则一串日期读不出所以然。
       // 八校 2027 轮日期**均已核到官网**（2026-09）。留意各校把本地生与非本地生分成两套日程：教大、城大、浸会都有各自的 local / non-local 页，本站一律取**非本地（国际资历）**那套，照抄本地生的截止日会错。
       items: [
@@ -268,7 +268,7 @@
   // 留三周才够学生安排考试与准备
   var TL_SOON = 21;
   // 倒计时是打开页面时现算的：静态页也能给出「还剩几天」，不必每次改数据
-  // 每条的校名标签。香港八校各有各的截止日（英国九校共用 UCAS 日历，那边没有 uni 字段），
+  // 每条的校名标签。香港八校各有各的截止日（英国十校共用 UCAS 日历，那边没有 uni 字段），
   // 不标学校的话一串日期读不出所以然。
   // **只用校色点 + 校名，不用校印**：校印对「港大 / 岭南」这类中文校名就是校名本身
   //（拉丁校名更是原名），并排会出现「港大港大」。校色在这里的作用是让同一所学校的几条
@@ -1100,6 +1100,8 @@
       if (rg && /Grade/.test(rg)) return prefix + rg.replace(/^接受：/, '');   // 曼大等：按课程给出 Grade 8 / Grade B
       if (rg && /^不接受/.test(rg)) return '不接受';
       if (rg && /未列/.test(rg)) return '未列';
+      // 布里斯托：ESL 等级由课程所属 Profile 直接给定（如 A*/9、B/6），不是从 GCSE 档位推的
+      if (rg && /^[0-9A-E*]+(?:\/[0-9A-E]+)?$/.test(rg)) return prefix + rg;
       if (note) return prefix + note;                       // 港校：显式等级（如 B（5））
       var gEsl = parseIgcseGrade(e);
       if (gEsl) return prefix + gEsl + ((e.rule && e.rule.zh === 'UCL') ? '（ESL 最高只到 Level 2）' : '');
@@ -1318,7 +1320,7 @@
     add('科目要求', p.alevelNote);
     add('备注', p.note);
     add('学科方向', p.dirs.map(function (d) { return reg.dirs[d].zh; }).join('、'));
-    // 院校分组：SCHOOLS 上的 group（G5·牛剑 / 王爱曼华 / 港八）是学生真会打的词，
+    // 院校分组：SCHOOLS 上的 group（G5·牛剑 / 王爱曼华布 / 港八）是学生真会打的词，
     // 但它只画在分组标签上，不索引就等于搜「牛剑」「G5」返回空
     add('院校分组', s.group);
     if (p.test) add(reg.testIsExam ? '入学笔试' : '面试 / 附加甄选', p.test + ' ' + (TEST_TITLE[p.test] || ''));
@@ -3791,7 +3793,7 @@
   //
   // 为什么分页做成了「版式」而不是「选择」：要印九所学校的全部专业时，选择单位本来就
   // 该是学校、或者干脆不用选（本板块全部 × 每校一页），而对比清单是专业级、上限 30 项，
-  // 装不下英国板块的 239 项——「各学校全部专业一起」这个操作之所以别扭，根子在这里。
+  // 装不下英国板块的 274 项——「各学校全部专业一起」这个操作之所以别扭，根子在这里。
   // 范围照旧交给 scopeItems()，这一段只管「怎么排」。
   //
   // w 是「份」不是像素，各自合计 100，按比例分掉 A4 横版的可用宽度。
@@ -3963,14 +3965,14 @@
     // 属于屏幕上的提示（见 index.html 里导出面板那行 .ep-note）；印在纸上只会让
     // 这份文件显得像一张打印稿。至于版面怎么排——看一眼纸就知道，不必写出来。
     // scopeBits() 的第一项固定是「板块 · 入学年份（申请季）」，上面那行副标题已经写了。
-    // 直接用它会让没加任何筛选时的封面出现「筛选：英国九校 · 2027 年 9 月入学…」——
+    // 直接用它会让没加任何筛选时的封面出现「筛选：英国十校 · 2027 年 9 月入学…」——
     // 前半截是刚说过的话。所以切掉第一项；切完为空就整行不印（没筛就没筛）。
     // 「搜索：经济」前面再套「筛选：」会变成「筛选：搜索：经济」，两层冒号，
     // 在纸上改写成「关键词“经济”」才读得顺（这一步只影响纸面，不动 renderPrintMeta 那行）。
     var scope = scopeBits().slice(1).map(function (b) {
       return b.indexOf('搜索：') === 0 ? '关键词“' + b.slice(3) + '”' : b;
     });
-    // 「239 个专业」单看会被读成「这所学校一共 239 个专业」——本站是**选编**，
+    // 「274 个专业」单看会被读成「这所学校一共 239 个专业」——本站是**选编**，
     // 这个数字是收录数，不是各校的专业总数。口径取自源报告自己的标题
     //（「英国七校热门专业…汇总」「香港五校热门本科…」「牛剑热门方向…」），
     // 方向清单就是站上那套学科方向分类，不另造说法。
@@ -4130,7 +4132,7 @@
     var cols = CSV_COLS.filter(function (c) { return csvCols[c.k]; });
     if (!cols.length) { showToast('至少要勾选一列'); return; }
     var tag = epScope === 'all' ? '全部' : epScope === 'compare' ? '对比' : '筛选';
-    var fname = (curRc() === 'uk' ? 'UK_英国九校' : 'HK_香港八校') + '_' + tag + '_' + items.length + '项.csv';
+    var fname = (curRc() === 'uk' ? 'UK_英国十校' : 'HK_香港八校') + '_' + tag + '_' + items.length + '项.csv';
     downloadCSV(csvText(items), fname);
     showToast('已导出 ' + items.length + ' 行 × ' + cols.length + ' 列：' + fname);
     openExportPanel(false);

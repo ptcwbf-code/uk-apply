@@ -1,4 +1,4 @@
-// 英国九校本科录取要求速查 —— 数据（2026-09 抓取核对，面向 2027 年 9 月入学申请季）
+// 英国十校本科录取要求速查 —— 数据（2026-09 抓取核对，2026-10 补入布里斯托；面向 2027 年 9 月入学申请季）
 // 方向编码：bio=生化医药化学 / physics=物理 / eng=工程 / econ=经济管理金融会计 / cs=计算机数据AI / stats=统计数学精算 / edu=教育 / social=社科传媒人文
 // 成绩口径见"术语与口径说明"：典型（典型录取水平）/ 最低 / 区间；剑桥为各学院最低 offer 水平
 
@@ -8,10 +8,11 @@ const SCHOOLS = [
   { key: 'imperial',  zh: '帝国理工', en: 'Imperial College London', group: 'G5', mark: '帝', color: '#162d5c', checked: '2026-09', fee: { label: '国际生学费', amt: '£42,700–58,600', year: '2026', note: '按院系：商 £42,700、理工 £45,500、医学 £58,600', url: 'https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/undergraduate-tuition-fees/2026-27/faculty-of-engineering/' }},
   { key: 'lse',       zh: 'LSE',    en: 'London School of Economics', group: 'G5', mark: 'LSE', color: '#a61c5b', checked: '2026-09', fee: { label: '国际生学费', amt: '£28,900–39,900', year: '2026/27', note: '按专业分档，入学年份锁定', url: 'https://www.lse.ac.uk/study-at-lse/undergraduate/fees-and-funding' }},
   { key: 'ucl',       zh: 'UCL',    en: 'University College London', group: 'G5', mark: 'UCL', color: '#511c5c', checked: '2026-09', fee: { label: '国际生学费', amt: '£33,300–48,600', year: '2027/28', note: '按专业分档；医学 £57,300。区间为本站收录专业', url: 'https://www.ucl.ac.uk/study/prospective-students/undergraduate/fees-and-funding' }},
-  { key: 'kcl',       zh: 'KCL',    en: "King's College London", group: '王爱曼华', mark: 'KCL', color: '#3a5da8', checked: '2026-09', fee: { label: '国际生学费', amt: '£30,750–45,400', year: '2026/27', note: '按专业分档；医学 £60,200。区间为本站收录专业', url: 'https://www.kcl.ac.uk/study/undergraduate/fees-and-funding/tuition-fees' }},
-  { key: 'manchester',zh: '曼大',   en: 'University of Manchester', group: '王爱曼华', mark: '曼', color: '#73172d', checked: '2026-09', fee: { label: '国际生学费', amt: '£27,800–39,900', year: '2026/27', note: '按专业分档。区间为本站收录专业', url: 'https://www.manchester.ac.uk/study/undergraduate/fees-and-funding/' }},
-  { key: 'edinburgh', zh: '爱丁堡', en: 'University of Edinburgh', group: '王爱曼华', mark: '爱', color: '#1e2d3d', checked: '2026-09', fee: { label: '国际生学费', amt: '£29,600–38,900', year: '2026-27', note: '分档；医学 £54,650、兽医 £41,700', url: 'https://registryservices.ed.ac.uk/tuition-fees/find/undergraduate/2026-2027/full-time-new-students' }},
-  { key: 'warwick',   zh: '华威',   en: 'University of Warwick',  group: '王爱曼华', mark: '华', color: '#4b1e64', checked: '2026-09', fee: { label: '国际生学费', amt: '£27,870–35,530', year: '2026-27', note: '课堂类 / 实验类两档；2027-28 未定', url: 'https://warwick.ac.uk/study/undergraduate/fees-and-funding/course-costs/' }}
+  { key: 'kcl',       zh: 'KCL',    en: "King's College London", group: '王爱曼华布', mark: 'KCL', color: '#3a5da8', checked: '2026-09', fee: { label: '国际生学费', amt: '£30,750–45,400', year: '2026/27', note: '按专业分档；医学 £60,200。区间为本站收录专业', url: 'https://www.kcl.ac.uk/study/undergraduate/fees-and-funding/tuition-fees' }},
+  { key: 'manchester',zh: '曼大',   en: 'University of Manchester', group: '王爱曼华布', mark: '曼', color: '#73172d', checked: '2026-09', fee: { label: '国际生学费', amt: '£27,800–39,900', year: '2026/27', note: '按专业分档。区间为本站收录专业', url: 'https://www.manchester.ac.uk/study/undergraduate/fees-and-funding/' }},
+  { key: 'edinburgh', zh: '爱丁堡', en: 'University of Edinburgh', group: '王爱曼华布', mark: '爱', color: '#1e2d3d', checked: '2026-09', fee: { label: '国际生学费', amt: '£29,600–38,900', year: '2026-27', note: '分档；医学 £54,650、兽医 £41,700', url: 'https://registryservices.ed.ac.uk/tuition-fees/find/undergraduate/2026-2027/full-time-new-students' }},
+  { key: 'warwick',   zh: '华威',   en: 'University of Warwick',  group: '王爱曼华布', mark: '华', color: '#4b1e64', checked: '2026-09', fee: { label: '国际生学费', amt: '£27,870–35,530', year: '2026-27', note: '课堂类 / 实验类两档；2027-28 未定', url: 'https://warwick.ac.uk/study/undergraduate/fees-and-funding/course-costs/' }},
+  { key: 'bristol',   zh: '布里斯托', en: 'University of Bristol',   group: '王爱曼华布', mark: '布', color: '#b01c2e', checked: '2026-10', fee: { label: '国际生学费', amt: '£26,500–34,700', year: '2027', note: '按专业分档：课堂类 £26,500、实验 / 工科类 £32,500–34,700。区间为本站收录专业', url: 'https://www.bristol.ac.uk/study/undergraduate/fees-funding/' }}
 ];
 
 const DIRS = {
@@ -33,6 +34,8 @@ const DIRS = {
 const PROGRAMS = [
 
   // ═══════════ 牛津 Oxford（standard：课程页标准要求；均需线上面试） ═══════════
+
+  
 
   
 
@@ -84,6 +87,7 @@ const PROGRAMS = [
     degree: 'BA / MMath · 3 或 4 年', alevel: 'A*A*A', ib: '39（HL 766，7 在 HL 数学）', test: 'TMUA',
     alevelNote: '数学 + 高数均 A*（同 CS 的不开高数替代路径）', offer: 'standard', note: '申请即联合 Math & Stats，第四学期末分纯数 / 数统路线',
     url: 'https://www.ox.ac.uk/admissions/undergraduate/courses/course-listing/mathematics' },
+
 
 
 
@@ -239,6 +243,7 @@ const PROGRAMS = [
 
 
 
+
   // ═══════════ 剑桥 Cambridge（Minimum offer level=多数学院标准条件，实际录取普遍更高；offer 由各学院发出） ═══════════
   { school: 'cambridge', dirs: ['bio', 'physics'], zh: '自然科学（生物/化学/物理均在此一门）', en: 'Natural Sciences',
     degree: 'BA (Hons) / MSci · 3 或 4 年', alevel: 'A*A*A', ib: '41–42（HL 776）', test: 'ESAT',
@@ -279,6 +284,7 @@ const PROGRAMS = [
     degree: 'BA (Hons) · 3 年', alevel: 'A*AA', ib: '41–42（HL 776）', test: '',
     alevelNote: '无必修科目（推荐经济与数学）', offer: 'college', note: '商科直申课程；官方课程名已更新为 Environment, Law and Economics；无考试，部分学院要书面作品',
     url: 'https://www.undergraduate.study.cam.ac.uk/courses/environment-law-economics-ba-hons' },
+
 
 
 
@@ -449,6 +455,7 @@ const PROGRAMS = [
 
 
 
+
   // ═══════════ 帝国理工 Imperial（/2027/ 版官方页；工程系普遍 ESAT，数学/计算机 TMUA） ═══════════
   { school: 'imperial', dirs: ['bio'], zh: '医学生物科学', en: 'Medical Biosciences',
     degree: 'BSc · 3 年', alevel: 'AAA', ib: '38（HL 生物 6 + 相关科 6）', test: '',
@@ -533,6 +540,7 @@ const PROGRAMS = [
 
 
 
+
   // ═══════════ LSE（社科院校，本页收录经管与数学类；多门须 TMUA） ═══════════
   { school: 'lse', dirs: ['econ'], zh: '经济学', en: 'Economics',
     degree: 'BSc · 3 年', alevel: 'A*AA', ib: '39（HL 766、数学 7）', test: 'TMUA',
@@ -588,6 +596,7 @@ const PROGRAMS = [
     degree: 'BSc · 3 年', alevel: 'A*AA', ib: '39（HL 766、数学 AA 7）', test: 'TMUA',
     alevelNote: '数学 A*；高数若开设须 A', offer: 'typical', note: 'TMUA 鼓励',
     url: 'https://www.lse.ac.uk/study-at-lse/undergraduate/bsc-mathematics-statistics-and-business' },
+
 
 
 
@@ -672,6 +681,7 @@ const PROGRAMS = [
     offer: 'typical',
     note: 'UCAS LV25；政府系；contextual A-level AAB / IB 37',
     url: 'https://www.lse.ac.uk/study-at-lse/undergraduate/bsc-politics-and-philosophy' },
+
 
 
 
@@ -1005,6 +1015,7 @@ const PROGRAMS = [
 
 
 
+
   // ═══════════ KCL（成绩在 /requirements 子页） ═══════════
   { school: 'kcl', dirs: ['bio'], zh: '生物医学', en: 'Biomedical Science',
     degree: 'BSc · 3 年', alevel: 'AAA', ib: '36（HL 生物+化学各 6）', test: '',
@@ -1315,6 +1326,7 @@ const PROGRAMS = [
 
 
 
+
   // ═══════════ 曼大 Manchester（2027 页；CS 已较 2026 下调） ═══════════
   { school: 'manchester', dirs: ['bio'], zh: '生物化学', en: 'Biochemistry',
     degree: 'BSc · 3 年', alevel: 'AAA–AAB', ib: '35（HL 6,6,5）', test: '',
@@ -1345,6 +1357,7 @@ const PROGRAMS = [
     degree: 'MEng · 4 年', alevel: 'AAA', ib: '36（HL 6,6,6、数学仅 AA）', test: '',
     alevelNote: '数学 + 化学或物理', offer: 'typical', note: '',
     url: 'https://www.manchester.ac.uk/study/undergraduate/courses/2027/03848/meng-chemical-engineering/' },
+
 
   // qs 钉空：本站收录的 37 个学科里没有「材料科学」，不钉就会退回整块工程方向桶，
   // 挂上一串化学工程 / 电子电气 / 土木的名次——对这个专业是误导。
@@ -1523,6 +1536,7 @@ const PROGRAMS = [
     offer: 'typical',
     note: 'UCAS PV10；与历史学联合荣誉；电影以史论与批评为主（非制作）；曼大电影研究均以联合荣誉形式开设，另可搭配 History of Art / East Asian Studies / Middle Eastern Studies 等',
     url: 'https://www.manchester.ac.uk/study/undergraduate/courses/2027/11793/ba-film-studies-and-history/' },
+
 
 
 
@@ -1921,6 +1935,7 @@ const PROGRAMS = [
 
 
 
+
   // ═══════════ 华威 Warwick（2027 官方页） ═══════════
   { school: 'warwick', dirs: ['bio'], zh: '生物医学', en: 'Biomedical Sciences',
     degree: 'BSc · 3 年', alevel: 'AAB / AAA', ib: '34 / 36', test: '',
@@ -2116,6 +2131,450 @@ const PROGRAMS = [
     offer: 'typical',
     note: 'UCAS QW26；由 Film & Television Studies 与 English and Comparative Literary Studies 合办；可选与 London Film School 合作的电影制作模块或毕业论文',
     url: 'https://warwick.ac.uk/study/undergraduate/courses/ba-film-literature/' },
+
+
+  // ── 布里斯托（2027 入学，2026-10 采集） ──
+  { school: 'bristol',
+    dirs: ['bio'],
+    zh: '生物化学',
+    en: 'Biochemistry',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18，化学 6 + 另一门 6）',
+    alevelNote: '化学必修 + 另一门核心科学/数学（生物、高数、人类生物、数学、物理）',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/biochemistry/bsc-biochemistry/' },
+
+  { school: 'bristol',
+    dirs: ['bio'],
+    zh: '生物学',
+    en: 'Biology',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18，生物 6 + 另一门 6）',
+    alevelNote: '生物必修 + 另一门科学相关科目（化学、CS、经济、环境科学、地理、地质、数学、物理、心理学、统计等）',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/biological-sciences/bsc-biology/' },
+
+  { school: 'bristol',
+    dirs: ['bio'],
+    zh: '生物医学',
+    en: 'Biomedical Sciences',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18，化学 6 + 另一门 6）',
+    alevelNote: '化学必修 + 另一门核心科学/数学（生物、高数、人类生物、数学、物理）',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/biomedical-sciences/bsc-biomedical-sciences/' },
+
+  { school: 'bristol',
+    dirs: ['bio'],
+    zh: '化学',
+    en: 'Chemistry',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18，化学 6）',
+    alevelNote: '化学必修',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/chemistry/bsc-chemistry/' },
+
+  { school: 'bristol',
+    dirs: ['bio'],
+    zh: '药理学',
+    en: 'Pharmacology',
+    degree: 'BSc · 3 年',
+    alevel: 'AAB',
+    ib: '34（HL 17，化学与另一门 6,5）',
+    alevelNote: '化学必修 + 生物（或人类生物）/物理/数学（或高数）之一',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/pharmacology/bsc-pharmacology/' },
+
+  { school: 'bristol',
+    dirs: ['physics'],
+    zh: '物理',
+    en: 'Physics',
+    degree: 'BSc · 3 年',
+    alevel: 'A*AA',
+    ib: '38（HL 18，数学与物理 7,6）',
+    alevelNote: '数学 + 物理必修；A* 须在数学与物理',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/physics/bsc-physics/' },
+
+  { school: 'bristol',
+    dirs: ['eng'],
+    zh: '航空航天工程',
+    en: 'Aerospace Engineering',
+    degree: 'MEng · 4 年',
+    alevel: 'A*AA',
+    ib: '38（HL 18，数学 6）',
+    alevelNote: '数学必修；优先考虑再修高数/物理/化学/生物/CS 中两门者',
+    test: '',
+    offer: 'typical',
+    note: 'BEng 3 年 / MEng 4 年，此处为 MEng（本硕连读）',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/aerospace/meng-aerospace-engineering/' },
+
+  { school: 'bristol',
+    dirs: ['eng'],
+    zh: '机械工程',
+    en: 'Mechanical Engineering',
+    degree: 'MEng · 4 年',
+    alevel: 'A*AA',
+    ib: '38（HL 18，数学与一门 7,6）',
+    alevelNote: '数学 + 高数/物理/化学/生物/CS 之一（两门 A* 任序）；申请量大时优先考虑含数学修满三门者',
+    test: '',
+    offer: 'typical',
+    note: 'BEng 3 年 / MEng 4 年，此处为 MEng',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/mechanical-engineering/meng-mechanical-engineering/' },
+
+  { school: 'bristol',
+    dirs: ['eng'],
+    zh: '电子与电气工程',
+    en: 'Electrical and Electronic Engineering',
+    degree: 'MEng · 4 年',
+    alevel: 'AAA',
+    ib: '36（HL 18，数学 6）',
+    alevelNote: '数学必修',
+    test: '',
+    offer: 'typical',
+    note: 'BEng 3 年 / MEng 4 年，此处为 MEng',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/electrical-electronic-engineering/meng-electrical-and-electronic-engineering/' },
+
+  { school: 'bristol',
+    dirs: ['eng'],
+    zh: '土木工程',
+    en: 'Civil Engineering',
+    degree: 'MEng · 4 年',
+    alevel: 'A*AA',
+    ib: '38（HL 18，数学与科学相关 7,6）',
+    alevelNote: '数学 + 一门科学相关科目（生物、化学、CS、高数、地理、地质、物理、电子、设计与技术）',
+    test: '',
+    offer: 'typical',
+    note: 'BEng 3 年 / MEng 4 年，此处为 MEng',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/civil-engineering/meng-civil-engineering/' },
+
+  { school: 'bristol',
+    dirs: ['eng'],
+    zh: '工程数学',
+    en: 'Engineering Mathematics',
+    degree: 'MEng · 4 年',
+    alevel: 'AAA',
+    ib: '36（HL 18，数学 6）',
+    alevelNote: '数学必修',
+    test: '',
+    offer: 'typical',
+    note: 'BEng 3 年 / MEng 4 年，此处为 MEng；布里斯托的工程与应用数学系',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/engineering-maths/meng-engineering-mathematics/' },
+
+  { school: 'bristol',
+    dirs: ['econ'],
+    zh: '经济学',
+    en: 'Economics',
+    degree: 'BSc · 3 年',
+    alevel: 'A*AA',
+    ib: '38（HL 18，数学 6 HL 或 7 SL）',
+    alevelNote: '数学必修',
+    test: '',
+    offer: 'typical',
+    note: '另有 BA Economics，数学要求较低',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/economics/bsc-economics/' },
+
+  { school: 'bristol',
+    dirs: ['econ'],
+    zh: '经济与金融',
+    en: 'Economics and Finance',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18，数学 6 HL 或 7 SL）',
+    alevelNote: '数学必修',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/economics/bsc-economics-and-finance/' },
+
+  { school: 'bristol',
+    dirs: ['econ'],
+    zh: '会计与金融',
+    en: 'Accounting and Finance',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18，数学 6 HL 或 7 SL）',
+    alevelNote: '数学必修',
+    test: '',
+    offer: 'typical',
+    note: '另有 4 年含实习 / 海外交换版',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/accounting-finance/bsc-accounting-and-finance/' },
+
+  { school: 'bristol',
+    dirs: ['econ'],
+    zh: '商业与管理',
+    en: 'Business and Management',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA / A*AB',
+    ib: '36（HL 18）',
+    alevelNote: '无必修科目',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/business-and-management/bsc-business-and-management/' },
+
+  { school: 'bristol',
+    dirs: ['econ', 'stats'],
+    zh: '商业分析',
+    en: 'Business Analytics',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA / A*AB',
+    ib: '36（HL 18）',
+    alevelNote: '无必修科目；官网建议有数学基础',
+    test: '',
+    offer: 'typical',
+    note: '商学院数据方向',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/business-and-management/bsc-business-analytics/' },
+
+  { school: 'bristol',
+    dirs: ['cs'],
+    zh: '计算机科学',
+    en: 'Computer Science',
+    degree: 'BSc · 3 年',
+    alevel: 'A*AA',
+    ib: '38（HL 18，数学 7）',
+    alevelNote: '数学必修，须 A*',
+    test: '',
+    offer: 'typical',
+    note: 'BSc 3 年 / MEng 4 年',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/computer-science/bsc-computer-science/' },
+
+  { school: 'bristol',
+    dirs: ['cs'],
+    zh: '计算机科学与人工智能',
+    en: 'Computer Science with Artificial Intelligence',
+    degree: 'BSc · 3 年',
+    alevel: 'A*AA',
+    ib: '38（HL 18，数学 7）',
+    alevelNote: '数学必修，须 A*',
+    test: '',
+    offer: 'typical',
+    note: 'BSc 3 年 / MEng 4 年',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/computer-science/bsc-computer-science-with-artificial-intelligence/' },
+
+  { school: 'bristol',
+    dirs: ['stats'],
+    zh: '数学',
+    en: 'Mathematics',
+    degree: 'BSc · 3 年',
+    alevel: 'A*A*A',
+    ib: '40（HL 18，数学 7 + 另一门 6）',
+    alevelNote: '数学 A* + 另一门数学相关科目 A；或数学与高数两个 A*（任序）',
+    test: '',
+    offer: 'typical',
+    note: 'STEP 成绩可计入替代 offer；另有 MSci 4 年',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/maths/bsc-mathematics/' },
+
+  { school: 'bristol',
+    dirs: ['stats'],
+    zh: '数学与统计',
+    en: 'Mathematics with Statistics',
+    degree: 'BSc · 3 年',
+    alevel: 'A*A*A',
+    ib: '40（HL 18，数学 7 + 另一门 6）',
+    alevelNote: '数学 A* + 另一门数学相关科目 A；或数学与高数两个 A*（任序）',
+    test: '',
+    offer: 'typical',
+    note: 'STEP 成绩可计入替代 offer',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/maths/bsc-mathematics-with-statistics/' },
+
+  { school: 'bristol',
+    dirs: ['cs', 'stats'],
+    zh: '数据科学',
+    en: 'Data Science',
+    degree: 'BSc · 3 年',
+    alevel: 'A*AA',
+    ib: '38（HL 18，数学 7 + 另一门 6）',
+    alevelNote: '数学 A* + 另一门数学相关科目 A；或数学与高数两个 A*（任序）',
+    test: '',
+    offer: 'typical',
+    note: 'STEP 成绩可计入替代 offer',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/maths/bsc-data-science/' },
+
+  { school: 'bristol',
+    dirs: ['edu'],
+    zh: '教育学',
+    en: 'Education Studies',
+    degree: 'BSc · 3 年',
+    alevel: 'ABB',
+    ib: '32（HL 16）',
+    alevelNote: '无必修科目',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/education/bsc-education-studies/' },
+
+  { school: 'bristol',
+    dirs: ['social'],
+    zh: '法律',
+    en: 'Law',
+    degree: 'LLB · 3 年',
+    alevel: 'A*AA / A*A*B',
+    ib: '38（HL 18）',
+    alevelNote: '无必修科目；官网看重论文类科目',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/law/llb-law/' },
+
+  { school: 'bristol',
+    dirs: ['social'],
+    zh: '政治与国际关系',
+    en: 'Politics and International Relations',
+    degree: 'BSc · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18，论文类科目 6）',
+    alevelNote: '一门论文类科目必修',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/politics-international-relations/bsc-politics-and-international-relations/' },
+
+  { school: 'bristol',
+    dirs: ['social'],
+    zh: '社会学',
+    en: 'Sociology',
+    degree: 'BSc · 3 年',
+    alevel: 'ABB',
+    ib: '32（HL 16，论文类科目 5）',
+    alevelNote: '一门论文类科目必修',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/sociology/bsc-sociology/' },
+
+  { school: 'bristol',
+    dirs: ['social'],
+    zh: '犯罪学',
+    en: 'Criminology',
+    degree: 'BSc · 3 年（6 年非全日制）',
+    alevel: 'AAB',
+    ib: '34（HL 17）',
+    alevelNote: '无必修科目',
+    test: '',
+    offer: 'typical',
+    note: '3 年全日制 / 6 年非全日制',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/criminology/bsc-criminology/' },
+
+  { school: 'bristol',
+    dirs: ['social'],
+    zh: '心理学',
+    en: 'Psychology',
+    degree: 'BSc · 3 年',
+    alevel: 'A*AA',
+    ib: '38（HL 18，科学相关科目 6）',
+    alevelNote: '一门科学相关科目必修（生物、化学、CS、高数、地理、数学、物理、心理学、统计）',
+    test: '',
+    offer: 'typical',
+    note: '英国心理学会（BPS）认证',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/psychology/bsc-psychology/' },
+
+  { school: 'bristol',
+    dirs: ['social'],
+    zh: '地理',
+    en: 'Geography',
+    degree: 'BSc · 3 年',
+    alevel: 'AAB',
+    ib: '34（HL 17）',
+    alevelNote: '无必修科目',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/geography/bsc-geography/' },
+
+  { school: 'bristol',
+    dirs: ['arts'],
+    zh: '英语',
+    en: 'English',
+    degree: 'BA · 3 年',
+    alevel: 'AAB',
+    ib: '34（HL 17）',
+    alevelNote: '无必修科目',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/english/ba-english/' },
+
+  { school: 'bristol',
+    dirs: ['arts'],
+    zh: '历史',
+    en: 'History',
+    degree: 'BA · 3 年',
+    alevel: 'AAA',
+    ib: '36（HL 18）',
+    alevelNote: '无必修科目',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/history/ba-history/' },
+
+  { school: 'bristol',
+    dirs: ['arts'],
+    zh: '现代语言',
+    en: 'Modern Languages',
+    degree: 'BA · 4 年',
+    alevel: 'ABB',
+    ib: '32（HL 16，现代语言 5）',
+    alevelNote: '一门现代语言必修；未修 A-level 现代语言者，可用 CEFR B1 的独立语言资格替代',
+    test: '',
+    offer: 'typical',
+    note: '4 年（含一年海外）',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/modern-languages/ba-modern-languages/' },
+
+  { school: 'bristol',
+    dirs: ['arts'],
+    zh: '哲学',
+    en: 'Philosophy',
+    degree: 'BA · 3 年（6 年非全日制）',
+    alevel: 'AAA',
+    ib: '36（HL 18）',
+    alevelNote: '无必修科目',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/philosophy/ba-philosophy/' },
+
+  { school: 'bristol',
+    dirs: ['arts'],
+    zh: '音乐',
+    en: 'Music',
+    degree: 'BA · 3 年（6 年非全日制）',
+    alevel: 'AAB',
+    ib: '34（HL 17，音乐 5）',
+    alevelNote: '音乐必修；未修 A-level 音乐者可用乐理 / 演奏 6 级（Pass）替代',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/music/ba-music/' },
+
+  { school: 'bristol',
+    dirs: ['media'],
+    zh: '电影与电视',
+    en: 'Film and Television',
+    degree: 'BA · 3 年',
+    alevel: 'AAB',
+    ib: '34（HL 17）',
+    alevelNote: '无必修科目',
+    test: '',
+    offer: 'typical',
+    note: '',
+    url: 'https://www.bristol.ac.uk/study/undergraduate/2027/film-television/ba-film-and-television/' },
 
 ];
 

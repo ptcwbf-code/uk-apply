@@ -2596,6 +2596,518 @@ const SUBJ_REQ = {
   "starIn": null,
   "approx": false
  },
+ "bristol|Biochemistry": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "化学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [
+   {
+    "n": 1,
+    "of": [
+     "生物",
+     "化学",
+     "物理",
+     "数学",
+     "高数"
+    ],
+    "min": null
+   }
+  ],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Biology": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "生物"
+    ],
+    "min": null
+   },
+   {
+    "any": [
+     "生物",
+     "化学",
+     "物理"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Biomedical Sciences": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "化学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [
+   {
+    "n": 1,
+    "of": [
+     "生物",
+     "化学",
+     "物理",
+     "数学",
+     "高数"
+    ],
+    "min": null
+   }
+  ],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Chemistry": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "化学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Pharmacology": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "化学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [
+   {
+    "n": 1,
+    "of": [
+     "数学",
+     "物理",
+     "生物"
+    ],
+    "min": null
+   }
+  ],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Physics": {
+  "kind": "partial",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   },
+   {
+    "any": [
+     "物理"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": [
+   "数学",
+   "物理"
+  ],
+  "approx": false,
+  "unknown": 1
+ },
+ "bristol|Aerospace Engineering": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Mechanical Engineering": {
+  "kind": "partial",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [
+   {
+    "n": 1,
+    "of": [
+     "高数",
+     "物理",
+     "化学",
+     "生物",
+     "计算机"
+    ],
+    "min": null
+   }
+  ],
+  "excl": [],
+  "starIn": null,
+  "approx": false,
+  "unknown": 1
+ },
+ "bristol|Electrical and Electronic Engineering": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Civil Engineering": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   },
+   {
+    "any": [
+     "生物",
+     "化学",
+     "物理"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Engineering Mathematics": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Economics": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Economics and Finance": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Accounting and Finance": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Business and Management": {
+  "kind": "none"
+ },
+ "bristol|Business Analytics": {
+  "kind": "none"
+ },
+ "bristol|Computer Science": {
+  "kind": "partial",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false,
+  "unknown": 1
+ },
+ "bristol|Computer Science with Artificial Intelligence": {
+  "kind": "partial",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false,
+  "unknown": 1
+ },
+ "bristol|Mathematics": {
+  "kind": "partial",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": "A*"
+   },
+   {
+    "any": [
+     "数学"
+    ],
+    "min": "A"
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false,
+  "unknown": 1
+ },
+ "bristol|Mathematics with Statistics": {
+  "kind": "partial",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": "A*"
+   },
+   {
+    "any": [
+     "数学"
+    ],
+    "min": "A"
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false,
+  "unknown": 1
+ },
+ "bristol|Data Science": {
+  "kind": "partial",
+  "need": [
+   {
+    "any": [
+     "数学"
+    ],
+    "min": "A*"
+   },
+   {
+    "any": [
+     "数学"
+    ],
+    "min": "A"
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false,
+  "unknown": 1
+ },
+ "bristol|Education Studies": {
+  "kind": "none"
+ },
+ "bristol|Law": {
+  "kind": "none"
+ },
+ "bristol|Politics and International Relations": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "历史",
+     "英语文学",
+     "英语语言",
+     "政治",
+     "哲学",
+     "宗教研究",
+     "古典文明",
+     "戏剧",
+     "艺术史"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Sociology": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "历史",
+     "英语文学",
+     "英语语言",
+     "政治",
+     "哲学",
+     "宗教研究",
+     "古典文明",
+     "戏剧",
+     "艺术史"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Criminology": {
+  "kind": "none"
+ },
+ "bristol|Psychology": {
+  "kind": "rules",
+  "need": [
+   {
+    "any": [
+     "生物",
+     "化学",
+     "物理"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false
+ },
+ "bristol|Geography": {
+  "kind": "none"
+ },
+ "bristol|English": {
+  "kind": "none"
+ },
+ "bristol|History": {
+  "kind": "none"
+ },
+ "bristol|Modern Languages": {
+  "kind": "partial",
+  "need": [
+   {
+    "any": [
+     "现代语言"
+    ],
+    "min": null
+   },
+   {
+    "any": [
+     "现代语言"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false,
+  "unknown": 1
+ },
+ "bristol|Philosophy": {
+  "kind": "none"
+ },
+ "bristol|Music": {
+  "kind": "partial",
+  "need": [
+   {
+    "any": [
+     "音乐"
+    ],
+    "min": null
+   }
+  ],
+  "pick": [],
+  "excl": [],
+  "starIn": null,
+  "approx": false,
+  "unknown": 1
+ },
+ "bristol|Film and Television": {
+  "kind": "none"
+ },
  "hku|MBBS": {
   "kind": "rules",
   "need": [

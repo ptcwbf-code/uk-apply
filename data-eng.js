@@ -1,7 +1,7 @@
 // 英语要求数据（English language requirements）
 // 结构：ENG_RULES[school] = 校级口径（IELTS/TOEFL/GCSE/IGCSE-ESL/IB/GCE + note + url）
-//      ENG_PROG[school]  = 逐专业记录（仅帝国、UCL、KCL、曼大、爱丁堡、华威 6 校有；其余 11 校为全校统一）
-// 数据核对：2026-09-10；来源：各校官网课程页 / 官方总表（详见 ENGLISH-req-feasibility-17uni.md）
+//      ENG_PROG[school]  = 逐专业记录（仅帝国、UCL、KCL、曼大、爱丁堡、华威、布里斯托 7 校有；其余 11 校为全校统一）
+// 数据核对：2026-09-10（布里斯托 2026-10 补入）；来源：各校官网课程页 / 官方总表（详见 ENGLISH-req-feasibility-17uni.md）
 
 const ENG_RULES = {
  "imperial": {
@@ -92,6 +92,21 @@ const ENG_RULES = {
   "igcseTypeNote": {
    "efl": "",
    "esl": "不接受"
+  }
+ },
+ "bristol": {
+  "zh": "布里斯托",
+  "scope": "mixed",
+  "url": "https://www.bristol.ac.uk/study/language-requirements/",
+  "note": "本科按 A–H 八个 Profile 分档，每门课程页写明该专业属于哪一档（本站逐专业收录）。成绩须两年内、单次考试取得，不接受拼分。",
+  "gcse": "GCSE English Language：Profile A/B 需 B/6，C/E/G 需 C/4（另有 D/F/H 三档未收录）",
+  "igcseESL": "IGCSE 第二语言（ESL）：Profile A 不接受；B 需 A*/9；C/G 需 A/7；E/H 需 B/6；F 需 C/4",
+  "ibEnglish": "IB English B：A 需 HL7；B/G 需 SL7 或 HL6；C 需 SL/HL6；E/H 需 SL6 或 HL5",
+  "gceEnglish": "官网未单列 A-Level English（以 GCSE / IGCSE 与考试类为准）",
+  "eslFlag": "cond",
+  "igcseTypeNote": {
+   "efl": "",
+   "esl": ""
   }
  },
  "oxford": {
@@ -2320,6 +2335,416 @@ const ENG_PROG = {
    "ibEnglish": "",
    "extra": "",
    "eslFlag": "no"
+  }
+ ],
+ "bristol": [
+  {
+   "en": "Biochemistry",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Biology",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Biomedical Sciences",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Chemistry",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Pharmacology",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Physics",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Aerospace Engineering",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Mechanical Engineering",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Electrical and Electronic Engineering",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Civil Engineering",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Engineering Mathematics",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Economics",
+   "band": "Profile G",
+   "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
+   "toeflOld": "88（读24 听22 说22 写22）",
+   "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
+   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
+   "eslGrade": "A/7",
+   "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Economics and Finance",
+   "band": "Profile G",
+   "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
+   "toeflOld": "88（读24 听22 说22 写22）",
+   "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
+   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
+   "eslGrade": "A/7",
+   "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Accounting and Finance",
+   "band": "Profile G",
+   "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
+   "toeflOld": "88（读24 听22 说22 写22）",
+   "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
+   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
+   "eslGrade": "A/7",
+   "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Business and Management",
+   "band": "Profile G",
+   "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
+   "toeflOld": "88（读24 听22 说22 写22）",
+   "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
+   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
+   "eslGrade": "A/7",
+   "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Business Analytics",
+   "band": "Profile G",
+   "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
+   "toeflOld": "88（读24 听22 说22 写22）",
+   "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
+   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
+   "eslGrade": "A/7",
+   "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Computer Science",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Computer Science with Artificial Intelligence",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Mathematics",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Mathematics with Statistics",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Data Science",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Education Studies",
+   "band": "Profile B",
+   "ielts": "7.0（写作 7.0，其余各项 6.5）",
+   "toeflOld": "95（读22 听21 说23 写24）",
+   "toeflNew": "5.0（写作 5.0，其余 4.5）",
+   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
+   "eslGrade": "A*/9",
+   "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Law",
+   "band": "Profile B",
+   "ielts": "7.0（写作 7.0，其余各项 6.5）",
+   "toeflOld": "95（读22 听21 说23 写24）",
+   "toeflNew": "5.0（写作 5.0，其余 4.5）",
+   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
+   "eslGrade": "A*/9",
+   "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Politics and International Relations",
+   "band": "Profile C",
+   "ielts": "6.5（各项 6.5）",
+   "toeflOld": "88（读22 听21 说23 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
+   "eslGrade": "A/7",
+   "ibEnglish": "English A: Literature 5（SL/HL）；English B 6（SL/HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Sociology",
+   "band": "Profile C",
+   "ielts": "6.5（各项 6.5）",
+   "toeflOld": "88（读22 听21 说23 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
+   "eslGrade": "A/7",
+   "ibEnglish": "English A: Literature 5（SL/HL）；English B 6（SL/HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Criminology",
+   "band": "Profile C",
+   "ielts": "6.5（各项 6.5）",
+   "toeflOld": "88（读22 听21 说23 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
+   "eslGrade": "A/7",
+   "ibEnglish": "English A: Literature 5（SL/HL）；English B 6（SL/HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Psychology",
+   "band": "Profile B",
+   "ielts": "7.0（写作 7.0，其余各项 6.5）",
+   "toeflOld": "95（读22 听21 说23 写24）",
+   "toeflNew": "5.0（写作 5.0，其余 4.5）",
+   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
+   "eslGrade": "A*/9",
+   "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Geography",
+   "band": "Profile E",
+   "ielts": "6.5（各项 6.0）",
+   "toeflOld": "88（读20 听19 说22 写22）",
+   "toeflNew": "4.5（各项 4.5）",
+   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
+   "eslGrade": "B/6",
+   "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "English",
+   "band": "Profile A",
+   "ielts": "7.5（各项 7.0）",
+   "toeflOld": "103（读24 听22 说25 写24）",
+   "toeflNew": "5.5（各项 5）",
+   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
+   "eslGrade": "不接受",
+   "ibEnglish": "English A: Literature 6（SL/HL）；English B 7（HL）",
+   "extra": "",
+   "eslFlag": "no"
+  },
+  {
+   "en": "History",
+   "band": "Profile B",
+   "ielts": "7.0（写作 7.0，其余各项 6.5）",
+   "toeflOld": "95（读22 听21 说23 写24）",
+   "toeflNew": "5.0（写作 5.0，其余 4.5）",
+   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
+   "eslGrade": "A*/9",
+   "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Modern Languages",
+   "band": "Profile B",
+   "ielts": "7.0（写作 7.0，其余各项 6.5）",
+   "toeflOld": "95（读22 听21 说23 写24）",
+   "toeflNew": "5.0（写作 5.0，其余 4.5）",
+   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
+   "eslGrade": "A*/9",
+   "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Philosophy",
+   "band": "Profile B",
+   "ielts": "7.0（写作 7.0，其余各项 6.5）",
+   "toeflOld": "95（读22 听21 说23 写24）",
+   "toeflNew": "5.0（写作 5.0，其余 4.5）",
+   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
+   "eslGrade": "A*/9",
+   "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Music",
+   "band": "Profile B",
+   "ielts": "7.0（写作 7.0，其余各项 6.5）",
+   "toeflOld": "95（读22 听21 说23 写24）",
+   "toeflNew": "5.0（写作 5.0，其余 4.5）",
+   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
+   "eslGrade": "A*/9",
+   "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
+  },
+  {
+   "en": "Film and Television",
+   "band": "Profile B",
+   "ielts": "7.0（写作 7.0，其余各项 6.5）",
+   "toeflOld": "95（读22 听21 说23 写24）",
+   "toeflNew": "5.0（写作 5.0，其余 4.5）",
+   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
+   "eslGrade": "A*/9",
+   "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
+   "extra": "",
+   "eslFlag": "yes"
   }
  ],
  "cuhk": [
