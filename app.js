@@ -834,9 +834,10 @@
         '苏格兰（爱丁堡）本科一般四年，经管授 MA (Hons)（本科荣誉学位）；MEng/MSci/MMath/MBiochem 为本科直申本硕贯通。'
       ]},
       { t: '英语要求（IELTS / TOEFL / IGCSE-ESL）', items: [
-        '**逐专业 or 校级**：帝国、UCL、KCL、曼大、爱丁堡、华威 6 校按专业（或档位）发布，表中标「逐专业」；点该行的「英语要求详情」（手机可直接点开）即可看 IELTS / TOEFL 旧新制 / GCSE / IGCSE-ESL / IB / GCE 全部值；牛津、剑桥、LSE 为**全校统一**，标「校级」。',
+        '**逐专业 or 校级**：帝国、UCL、KCL、曼大、爱丁堡、华威、布里斯托 7 校按专业（或档位）发布，表中标「逐专业」；点该行的「英语要求详情」（手机可直接点开）即可看 IELTS / TOEFL 旧新制 / IGCSE 第一·第二语言 / IB / GCE 全部值；牛津、剑桥、LSE 为**全校统一**，标「校级」。',
         '**常见量级**：牛津 7.5（各项 7.0）｜剑桥 7.5｜LSE 7.0（各项 7.0）｜帝国 Standard 6.5 / Higher 7.0｜UCL Level 1–5（6.5 → 8.0）｜KCL Band B 7.0 / Band D 6.5｜曼大 6.0–7.0｜爱丁堡 6.5（商科 7.0）｜华威 Band A 6.0 / C 7.0。',
-        '**IGCSE 英语分两类，表内分两行列**：**EFL＝第一语言（First Language）**，**ESL＝第二语言（Second Language）**。优先级：**IELTS / TOEFL 为第一选择，EFL 次之、ESL 再次**（部分学校不接受 ESL）。表中 EFL / ESL 一栏给的是**该专业档位对应的具体成绩**（如 UCL Level 4 → EFL 6 + Distinction；曼大 EEE → ESL 不接受）。',
+        '**IGCSE 英语分两类，表内分两行列**：**EFL＝第一语言（First Language）**，**ESL＝第二语言（Second Language）**。优先级：**IELTS / TOEFL 为第一选择，EFL 次之、ESL 再次**（部分学校不接受 ESL）。表中 EFL / ESL 一栏给的是**该专业档位对应的具体等级**（如 UCL Level 4 → EFL B + 口语 Distinction；曼大 IELTS 6.5 档 → ESL 8）。',
+        '**只列 IGCSE，不列 GCSE**：本站面向持 IGCSE 的申请人，所以英语资历一栏不收 GCSE。等级一律用官网写的**字母等级**（B、A*、C + 口语 Merit）；官网只给数字的保留数字（曼大第二语言的 Grade 8 / 7、UCL 的 Oxford AQA 档），不代替学校做换算。',,
         '**TOEFL 分制变更**：2026-01-21 起改 1–6 分制，表内同时给旧制与新制两个值；多数学校不接受拼分（MyBest / One Skill Retake），且要求同一次考试出分。',
         '**豁免**：在英语国家完成学位或达到指定年限的英语授课，可申请豁免（各校规定不同，以官网为准）。'
       ]},
@@ -866,7 +867,7 @@
         '**港大**：官网按专业公布参考下限（表内“下限”）；A-Level 计分**不计中文、英文语文科及 EPQ 等非学术科目**；英文 IELTS 6.5 / TOEFL 93。',
         '**港中文**：官网公布参考收分区间（表内“区间”）；英文 IELTS 6.0 / TOEFL 80；中文要求对修读非本地课程的申请人可经院长酌情豁免。',
         '**港科大**：GCE AL 3 门合格；IB 文凭。英文 IELTS 6.0。',
-        '**城大**：GCE AL 3 门各 ≥E；IB 文凭。英文 GCSE English Language / Literature 达 C/4，或 IELTS 6.5 / TOEFL 79。',
+        '**城大**：GCE AL 3 门各 ≥E；IB 文凭。英文 IGCSE English（Language / Literature）达 C，或 IELTS 6.5 / TOEFL 79。',
         '**理大**：国际生档 GCE AL 3 门各 ≥B；IB 文凭（近年录取典型 ≥32）。英文 IELTS 6.0 / TOEFL 80。',
         '**浸会**：GCE AL 3 门各 ≥E（或 2 AL + 2 ASL）；IB 文凭。英文 IELTS 6.0 / TOEFL 79；中医、中药及部分文学士主修另须认可中文资历。',
         '**教育**：GCE AL 3 门各 ≥D（或 2 AL + 2 ASL）；IB 文凭（官网未设最低分）。英文 IELTS 6.0 / TOEFL 80；部分课程另须认可中文资历。',
@@ -875,7 +876,7 @@
       ]},
       { t: 'DSE 并非必需（A-Level / IB 单独可申）', items: [
         '香港八大 UGC 课程基本都接受 A-Level 或 IB 直申（non-JUPAS Year 1 / 国际生通道），本板块全部课程均可仅凭 AL 或 IB 申请，无需 HKDSE。',
-        '**英文是硬门槛**：城大要求 GCSE English Language / Literature 达 C/4（非英文授课资历另需 IELTS 6.5 / TOEFL 79）；理大 IELTS 6.0 / TOEFL 80；港科 IELTS 6.0；港大、港中文亦各有英文要求并以 GCSE/GCE/IB 英语等级或 IELTS 达标。',
+        '**英文是硬门槛**：城大要求 IGCSE English（Language / Literature）达 C（非英文授课资历另需 IELTS 6.5 / TOEFL 79）；理大 IELTS 6.0 / TOEFL 80；港科 IELTS 6.0；港大、港中文亦各有英文要求并以 IGCSE / GCE / IB 英语等级或 IELTS 达标。',
         '本表列出的是“大学通用门槛 + 分课程科目要求”；热门专业实际录取显著高于门槛。'
       ]},
       { t: '招生结构与申请方式', items: [
@@ -897,8 +898,8 @@
       ]},
       { t: '英语要求（多为校级统一）', items: [
         '**港校一般不按专业设英语线**（表中标「校级」）：港大 IELTS 6.5 / TOEFL 93；港中文 6.0 / 80（**例外：环球商业 GBS 要 7.0 / 100**）；港科大 6.0 / 80；城大 6.5 / 79；理大 6.0 / 80；浸会 6.0 / 79；教大 6.0 / 80；岭南 6.0 / 79。',
-        '**可用中学英语成绩替代**：GCE / GCSE English、IGCSE English、IB English 均可（等级要求点「英语要求详情」查看）；**城大**明确要求 GCSE English Language / Literature C/4，或 IELTS 6.5 / TOEFL 79。',
-        '**IGCSE ESL**：港大、港科大、城大、浸会**接受但要求更高**（多为 B / 5 级）；港中文、理大、教大、岭南官网未区分 ESL/EFL。',
+        '**可用中学英语成绩替代**：GCE / IGCSE English、IB English 均可（等级要求点「英语要求详情」查看）；**城大**明确要求 IGCSE English（Language / Literature）C，或 IELTS 6.5 / TOEFL 79。',
+        '**IGCSE ESL**：港大、港科大、城大、浸会**接受但要求更高**（均需 B；港大把 IGCSE 的 B 记作 5、C 记作 4，与英国学校 B=6 的等效表不同）；港中文、理大、教大、岭南官网未区分 ESL/EFL。',
         '**同一次考试**：港大等明确要求 IELTS / TOEFL 在同一次考试达到、成绩两年内有效；不接受 IELTS Indicator / One Skill Retake 等。'
       ]},
       { t: 'QS 学科排名（参考）', items: [
@@ -987,18 +988,17 @@
       return {
         scope: 'prog', tag: rec.tag || '逐专业', band: rec.band || '',
         ielts: rec.ielts || rule.ielts, toeflOld: rec.toeflOld || rule.toeflOld, toeflNew: rec.toeflNew || rule.toeflNew,
-        gcse: rec.gcse || rule.gcse, igcseEFL: rec.igcseEFL || rule.igcseEFL,
-        igcseESL: rec.igcseESL || rule.igcseESL,
-        eslFlag: rec.eslFlag || rule.eslFlag || 'unknown', eslGrade: rec.eslGrade || '',
+        efl: rec.efl || rule.efl, esl: rec.esl || rule.esl,
         ibEnglish: rec.ibEnglish || rule.ibEnglish, gceEnglish: rule.gceEnglish,
-        note: rec.extra || '', rule: rule, progUrl: p ? p.url : ''
+        // 备注优先用该专业自己的补充，没有就退回学校口径（UCL 的「共 Level 1–5 五档」这类
+        // 学校级说明也要显示，不然逐专业那几校的口径就看不到了）
+        note: rec.extra || rule.note || '', rule: rule, progUrl: p ? p.url : ''
       };
     }
     return {
       scope: 'school', tag: '校级', band: '',
       ielts: rule.ielts, toeflOld: rule.toeflOld, toeflNew: rule.toeflNew,
-      gcse: rule.gcse, igcseEFL: rule.igcseEFL, igcseESL: rule.igcseESL, ibEnglish: rule.ibEnglish, gceEnglish: rule.gceEnglish,
-      eslFlag: rule.eslFlag || 'unknown', eslGrade: '',
+      efl: rule.efl, esl: rule.esl, ibEnglish: rule.ibEnglish, gceEnglish: rule.gceEnglish,
       note: rule.note || '', rule: rule, progUrl: p ? p.url : ''
     };
   }
@@ -1006,7 +1006,7 @@
     if (!e) return '';
     return '英语要求（' + e.tag + '）：IELTS ' + (e.ielts || '—') +
       '；TOEFL 旧制 ' + (e.toeflOld || '—') + '；TOEFL 新制 ' + (e.toeflNew || '—') +
-      '；GCSE ' + (e.gcse || '—') + '；IGCSE-ESL ' + (e.igcseESL || '—') +
+      '；IGCSE 第一语言 ' + igcseValue(e, 'efl') + '；IGCSE 第二语言 ' + igcseValue(e, 'esl') +
       '；IB English ' + (e.ibEnglish || '—') + '；GCE English ' + (e.gceEnglish || '—') +
       (e.note ? '；备注 ' + e.note : '');
   }
@@ -1067,52 +1067,16 @@
            chip('ESL', engShortTag('ESL', eslFull), eslFull);
   }
   // ── IGCSE 英语（EFL 第一语言 / ESL 第二语言）──
-  // 从该校的 GCSE/IGCSE 档位文字里解析出等级（各校写法不同，按优先级匹配）
-  function parseIgcseGrade(e) {
-    var t = String((e && e.gcse) || '').split('（')[0].split('；')[0].trim();
-    if (!t || /官网未列|官网未区分|随 Level|随专业/.test(t)) return '';
-    var m;
-    if ((m = t.match(/(\d)\s*\/\s*([A-D])(?![A-Za-z])/))) return m[1] + '/' + m[2];
-    if ((m = t.match(/([A-D])\s*\/\s*(\d)/))) return m[1] + '/' + m[2];
-    if ((m = t.match(/Band\s*[A-C]\s*\/\s*[A-C]\s*需\s*(\d\s*\/\s*[A-D])/i))) return m[1].replace(/\s+/g, '');
-    if ((m = t.match(/(?:English|Language)[^0-9A-D]*?([A-D])(?![A-Za-z])/))) return m[1];
-    if ((m = t.match(/(?:English|Grade)[^0-9]*?(\d)(?![0-9])/))) {
-      var q = (t.match(/(Merit|Distinction|Pass)/i) || [])[1];
-      return m[1] + (q ? ' + ' + q : '');
-    }
-    return '';
-  }
+  // 站上只列 IGCSE，不列 GCSE（大陆考生不考 GCSE）。数据里 english.efl / esl 存的就是官网
+  // 写的那个等级——官网写字母就是字母（B、A*、C + 口语 Merit），只给数字的就保留数字
+  // （曼大第二语言的 Grade 8 / 7，UCL 的 Oxford AQA 档）。这里**不做任何换算**：
+  // 把数字换成字母等于替学校下结论，比不给更糟。
   function igcseValue(e, kind) {
-    var note = ((e && e.rule && e.rule.igcseTypeNote) || {})[kind] || '';
-    var isStatus = /不接受|官网未列|官网未区分/.test(note);
-    var prefix = kind === 'efl' ? 'IGCSE First Language ' : 'IGCSE Second Language ';
-    if (isStatus) {
-      // 状态词：不接受 / 官网未列 / 官网未区分
-      if (kind === 'esl' && e && e.eslGrade && /Grade/.test(e.eslGrade)) {
-        return prefix + e.eslGrade.replace(/^接受：/, '');
-      }
-      return note;
-    }
-    if (kind === 'esl') {
-      // UCL：Level 1–2 接受、Level 3 起不接受（具体等级同 GCSE 档）
-      if (e && e.eslFlag === 'no') return '不接受';
-      var rg = (e && e.eslGrade) || '';
-      if (rg && /Grade/.test(rg)) return prefix + rg.replace(/^接受：/, '');   // 曼大等：按课程给出 Grade 8 / Grade B
-      if (rg && /^不接受/.test(rg)) return '不接受';
-      if (rg && /未列/.test(rg)) return '未列';
-      // 布里斯托：ESL 等级由课程所属 Profile 直接给定（如 A*/9、B/6），不是从 GCSE 档位推的
-      if (rg && /^[0-9A-E*]+(?:\/[0-9A-E]+)?$/.test(rg)) return prefix + rg;
-      if (note) return prefix + note;                       // 港校：显式等级（如 B（5））
-      var gEsl = parseIgcseGrade(e);
-      if (gEsl) return prefix + gEsl + ((e.rule && e.rule.zh === 'UCL') ? '（ESL 最高只到 Level 2）' : '');
-      return (e && e.eslFlag === 'cond') ? '有条件接受' : '—';
-    }
-    // EFL：等级来自 gcse 档位解析，或显式 note
-    var g = parseIgcseGrade(e);
-    var oral = (String((e && e.gcse) || '').match(/口语\s*(Merit|Distinction)/) || [])[0];
-    if (g) return prefix + g + (oral ? '（' + oral + '）' : '');
-    if (note) return prefix + note;
-    return '官网未列';
+    var v = String((e && (kind === 'efl' ? e.efl : e.esl)) || '').trim();
+    if (!v) return '未列';
+    // 状态词与「按档位（见各行）」这类兜底文案自成一句，不加前缀
+    if (/^(不接受|有条件|未列|未区分|官网|按)/.test(v)) return v;
+    return (kind === 'efl' ? 'IGCSE First Language ' : 'IGCSE Second Language ') + v;
   }
   // 英语详情的字段只在这里定义一次：表格的展开行与卡片的折叠列表共用同一份
   function engDetailItems(e) {
@@ -1125,7 +1089,6 @@
       ['TOEFL 新制', e.toeflNew || '—'],
       ['EFL（第一语言）', igcseValue(e, 'efl')],
       ['ESL（第二语言）', igcseValue(e, 'esl')],
-      ['GCSE / IGCSE 英语', e.gcse || ''],
       ['IB English', e.ibEnglish || '—'],
       ['GCE English', e.gceEnglish || '—'],
       ['备注', e.note || ''],
@@ -1332,7 +1295,6 @@
       if (e.ielts) { add('英语要求', 'IELTS ' + e.ielts); add('英语要求', '雅思 ' + e.ielts); }
       if (e.toeflOld) { add('英语要求', 'TOEFL ' + e.toeflOld); add('英语要求', '托福 ' + e.toeflOld); }
       if (e.toeflNew) add('英语要求', 'TOEFL 新制 ' + e.toeflNew);
-      if (e.gcse) add('英语要求', 'GCSE ' + e.gcse);
       if (e.ibEnglish) add('英语要求', 'IB English ' + e.ibEnglish);
       if (e.gceEnglish) add('英语要求', 'GCE English ' + e.gceEnglish);
       add('英语要求', igcseValue(e, 'efl'));
@@ -3614,7 +3576,7 @@
       alevelNote: p.alevelNote || '', ib: p.ib || '', test: p.test || '—',
       offer: OFFER_ZH[p.offer] || p.offer,
       ielts: e.ielts || '', toeflOld: e.toeflOld || '', toeflNew: e.toeflNew || '',
-      gcse: e.gcse || '', igcseESL: e.igcseESL || '', ibEng: e.ibEnglish || '', gceEng: e.gceEnglish || '',
+      efl: e.efl || '', esl: e.esl || '', ibEng: e.ibEnglish || '', gceEng: e.gceEnglish || '',
       engTag: e.tag || '',
       qs: qsListFor(p).map(function (x) { return (QS_SUBJECT_ZH[x.sub] || x.sub) + ' #' + rankText(x.rank); }).join('；') || '—',
       note: p.note || '', url: p.url
@@ -3627,7 +3589,7 @@
     { k: 'degree', h: '代码/学制', base: 1 }, { k: 'alevel', h: 'A-Level', base: 1 }, { k: 'alevelNote', h: '科目/要求', base: 1 },
     { k: 'ib', h: 'IB', base: 1 }, { k: 'test', h: '笔试 / 面试', base: 1 }, { k: 'offer', h: '成绩口径', base: 1 },
     { k: 'ielts', h: '英语-IELTS' }, { k: 'toeflOld', h: '英语-TOEFL旧' }, { k: 'toeflNew', h: '英语-TOEFL新' },
-    { k: 'gcse', h: '英语-GCSE' }, { k: 'igcseESL', h: '英语-IGCSE-ESL' }, { k: 'ibEng', h: '英语-IB' },
+    { k: 'efl', h: '英语-IGCSE第一语言' }, { k: 'esl', h: '英语-IGCSE第二语言' }, { k: 'ibEng', h: '英语-IB' },
     { k: 'gceEng', h: '英语-GCE' }, { k: 'engTag', h: '英语口径' },
     { k: 'qs', h: 'QS2026 学科排名', base: 1 }, { k: 'note', h: '备注', base: 1 }, { k: 'url', h: '官网链接', base: 1 }
   ];

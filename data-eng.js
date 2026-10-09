@@ -1,6 +1,7 @@
 // 英语要求数据（English language requirements）
-// 结构：ENG_RULES[school] = 校级口径（IELTS/TOEFL/GCSE/IGCSE-ESL/IB/GCE + note + url）
+// 结构：ENG_RULES[school] = 校级口径（IELTS/TOEFL/IGCSE-EFL/ESL/IB/GCE + note + url）
 //      ENG_PROG[school]  = 逐专业记录（仅帝国、UCL、KCL、曼大、爱丁堡、华威、布里斯托 7 校有；其余 11 校为全校统一）
+// english.efl / english.esl = IGCSE 英语（第一 / 第二语言）的要求；只收 IGCSE、不列 GCSE，等级用官网写的字母
 // 数据核对：2026-09-10（布里斯托 2026-10 补入）；来源：各校官网课程页 / 官方总表（详见 ENGLISH-req-feasibility-17uni.md）
 
 const ENG_RULES = {
@@ -8,106 +9,71 @@ const ENG_RULES = {
   "zh": "帝国理工",
   "scope": "mixed",
   "url": "https://www.imperial.ac.uk/study/apply/english-language/",
-  "note": "全校只有 Standard / Higher 两档分数，由各课程页单独声明，不按院系；学校资格（GCSE/IGCSE/IB/A-level）两档同分，差异只在考试类。",
-  "gcse": "GCSE English Language 6（Home 学生 5；医学 6）",
-  "igcseESL": "只认 IGCSE First Language B/6；ESL 不接受",
+  "note": "全校只有 Standard / Higher 两档分数，由各课程页单独声明，不按院系；学校资格（IGCSE/IB/A-level）两档同分，差异只在考试类。",
+  "efl": "B",
+  "esl": "不接受",
   "ibEnglish": "IB English A 4；English B HL 5 / SL 6",
-  "gceEnglish": "GCE AS/A-Level English Language C（两档同分）",
-  "eslFlag": "no",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": "不接受"
-  }
+  "gceEnglish": "GCE AS/A-Level English Language C（两档同分）"
  },
  "ucl": {
   "zh": "UCL",
   "scope": "mixed",
   "url": "https://www.ucl.ac.uk/prospective-students/undergraduate/how-apply/english-language-requirements/",
-  "note": "共 Level 1–5 五档，每门专业页标 English language level for this programme is: Level X；同方向内会跳档，必须逐专业查。",
-  "gcse": "随 Level 变化（见各行）",
-  "igcseESL": "EFL 可覆盖全部 Level；ESL 最高到 Level 2（个别考局到 L3），L3–L5 明确 Not acceptable",
+  "note": "共 Level 1–5 五档，每门专业页标 English language level for this programme is: Level X；同方向内会跳档，必须逐专业查。　IGCSE 一栏按 CAIE / Edexcel 的考纲；Oxford AQA 另有以数字等级的写法，UCL 页面按考纲分列。",
+  "efl": "按 Level（见各行）",
+  "esl": "按 Level（见各行）",
   "ibEnglish": "随 Level 变化（L1/L2 A 5；L3 A 6；L4 A HL6 或 SL7；L5 A HL7、B 不接受）",
-  "gceEnglish": "官网认可清单未列 A-Level English",
-  "eslFlag": "cond",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": ""
-  }
+  "gceEnglish": "官网认可清单未列 A-Level English"
  },
  "kcl": {
   "zh": "KCL",
   "scope": "mixed",
   "url": "https://www.kcl.ac.uk/study/undergraduate/how-to-apply/english-language-requirements",
   "note": "本科用 Band A / B / D（C 仅研究生、E 无人用）；Band 由「学院归属 + 具名课单」决定，页面本身不写 Band。",
-  "gcse": "GCSE English Language B/6（三档相同）",
-  "igcseESL": "接受 ESL 但需 A/7；First Language 仅需 B/6；EFL 不接受",
+  "efl": "B",
+  "esl": "A",
   "ibEnglish": "IB English A HL4/SL5；English B HL5/SL7（三档相同）",
-  "gceEnglish": "GCE AS/A-Level English Language C（三档相同）",
-  "eslFlag": "yes",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": "A/7"
-  }
+  "gceEnglish": "GCE AS/A-Level English Language C（三档相同）"
  },
  "manchester": {
   "zh": "曼大",
   "scope": "mixed",
   "url": "https://www.manchester.ac.uk/study/international/admissions/language-requirements/",
-  "note": "官网总页只给典型档，各专业分数在 2027 课程页各自写明（6.0–7.0 不等）。",
-  "gcse": "随专业（4/C 或 B/6，见各行）",
-  "igcseESL": "有条件接受 ESL：仅限 CAIE / Oxford AQA / Pearson Edexcel 三家；6.5 档课程需 Grade 8、6.0 档需 Grade 7、7.0 档课程不接受",
-  "ibEnglish": "MYP / IB English 按官网 GCSE 换算表对应",
-  "gceEnglish": "官网未列 A-Level English",
-  "eslFlag": "cond",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": ""
-  }
+  "note": "官网总页只给典型档，各专业分数在 2027 课程页各自写明（6.0–7.0 不等）。　IGCSE 第二语言只认 CAIE / Oxford AQA / Pearson 三家，不接受 LRN 与 English as an Additional Language。",
+  "efl": "C",
+  "esl": "按课程档位（见各行）",
+  "ibEnglish": "MYP / IB English 按官网换算表对应",
+  "gceEnglish": "官网未列 A-Level English"
  },
  "edinburgh": {
   "zh": "爱丁堡",
   "scope": "mixed",
   "url": "https://study.ed.ac.uk/undergraduate/entry-requirements/english-language",
-  "note": "总页声明 requirements vary between degrees；逐课程 /entry-requirements 页各写；实测两档（6.5 与商科 7.0）。",
-  "gcse": "GCSE English at C/4",
-  "igcseESL": "第一或第二语言均接受；不接受 IGCSE/CIE English (as an Additional Language) 与 IGCSE English Literature",
+  "note": "总页声明 requirements vary between degrees；逐课程 /entry-requirements 页各写；实测两档（6.5 与商科 7.0）。　IGCSE 第一 / 第二语言均接受；不接受 English as an Additional Language 与英语文学。",
+  "efl": "C",
+  "esl": "C",
   "ibEnglish": "IB English A/B：SL 5 或 HL 4（ab initio 不接受）",
-  "gceEnglish": "AS/A-Level English（Language / Lang&Lit / Literature）C",
-  "eslFlag": "yes",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": ""
-  }
+  "gceEnglish": "AS/A-Level English（Language / Lang&Lit / Literature）C"
  },
  "warwick": {
   "zh": "华威",
   "scope": "mixed",
   "url": "https://warwick.ac.uk/study/undergraduate/applying/english-language-requirements/",
-  "note": "Band A/B/C 三档；每门课程页写 This course requires: Band X；Band C 四门另有 GCSE 加码。",
-  "gcse": "GCSE English Language：Band A/B 需 4/C；Band C 需 6/B",
-  "igcseESL": "ESL 不接受；First Language：A/B 档 C、C 档 B",
+  "note": "Band A/B/C 三档；每门课程页写 This course requires: Band X；Band C 四门另有英语加码（本站已折进 EFL 一栏）。",
+  "efl": "C",
+  "esl": "不接受",
   "ibEnglish": "IB English A HL4/SL4（C 档 HL5/SL5）；English B HL4/SL5（C 档 HL5/SL6）",
-  "gceEnglish": "GCE A-Level English C（C 档 B）",
-  "eslFlag": "no",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": "不接受"
-  }
+  "gceEnglish": "GCE A-Level English C（C 档 B）"
  },
  "bristol": {
   "zh": "布里斯托",
   "scope": "mixed",
   "url": "https://www.bristol.ac.uk/study/language-requirements/",
   "note": "本科按 A–H 八个 Profile 分档，每门课程页写明该专业属于哪一档（本站逐专业收录）。成绩须两年内、单次考试取得，不接受拼分。",
-  "gcse": "GCSE English Language：Profile A/B 需 B/6，C/E/G 需 C/4（另有 D/F/H 三档未收录）",
-  "igcseESL": "IGCSE 第二语言（ESL）：Profile A 不接受；B 需 A*/9；C/G 需 A/7；E/H 需 B/6；F 需 C/4",
+  "efl": "按 Profile（见各行）",
+  "esl": "按 Profile（见各行）",
   "ibEnglish": "IB English B：A 需 HL7；B/G 需 SL7 或 HL6；C 需 SL/HL6；E/H 需 SL6 或 HL5",
-  "gceEnglish": "官网未单列 A-Level English（以 GCSE / IGCSE 与考试类为准）",
-  "eslFlag": "cond",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": ""
-  }
+  "gceEnglish": "官网未单列 A-Level English（以 IGCSE 与考试类为准）"
  },
  "oxford": {
   "zh": "牛津",
@@ -116,17 +82,11 @@ const ENG_RULES = {
   "ielts": "7.5（各项不低于 7.0）",
   "toeflOld": "110（听22 读24 说25 写24）",
   "toeflNew": "2026-01-21 起的新版考试暂不受理",
-  "gcse": "GCSE English Language B/6 + 口语 Merit",
-  "igcseESL": "不接受（只认 First Language：B/6 + 口语达标）",
+  "efl": "B",
+  "esl": "不接受",
   "ibEnglish": "English B HL 7",
   "gceEnglish": "官网未列 A-Level English",
-  "note": "全校统一一档，不分专业；条件须在 offer 当年 7 月 31 日前达到，不接受拼分。",
-  "gcseNote": "",
-  "eslFlag": "no",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": "不接受"
-  }
+  "note": "IGCSE 第一语言另需口语测试 grade 2；第二语言不接受。全校统一一档，不分专业；条件须在 offer 当年 7 月 31 日前达到，不接受拼分。"
  },
  "cambridge": {
   "zh": "剑桥",
@@ -135,17 +95,11 @@ const ENG_RULES = {
   "ielts": "7.5（各项不低于 7.0）；面试阶段建议 6.5（各项 6.0）",
   "toeflOld": "官网现行页已不列 TOEFL",
   "toeflNew": "—",
-  "gcse": "官网未列 GCSE/IGCSE English",
-  "igcseESL": "官网未列",
+  "efl": "未列",
+  "esl": "未列",
   "ibEnglish": "官网未列",
   "gceEnglish": "官网未列",
-  "note": "全校统一；最终语言条件由发出 offer 的学院个案决定。",
-  "gcseNote": "",
-  "eslFlag": "unknown",
-  "igcseTypeNote": {
-   "efl": "官网未列",
-   "esl": "官网未列"
-  }
+  "note": "全校统一；最终语言条件由发出 offer 的学院个案决定。"
  },
  "lse": {
   "zh": "LSE",
@@ -154,17 +108,11 @@ const ENG_RULES = {
   "ielts": "7.0（各项 7.0）",
   "toeflOld": "100（写27 读25 听24 说24）",
   "toeflNew": "5.5（各项 5）",
-  "gcse": "GCSE English Language B/6",
-  "igcseESL": "不接受（只认 IGCSE First Language）",
+  "efl": "B",
+  "esl": "不接受",
   "ibEnglish": "English A：HL 任意 / SL ≥6；English B：HL 7",
   "gceEnglish": "官网未列 A-Level English",
-  "note": "本科全校统一（Standard/Higher 分档仅适用于研究生）。",
-  "gcseNote": "",
-  "eslFlag": "no",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": "不接受"
-  }
+  "note": "只认 IGCSE First Language；第二语言不接受。本科全校统一（Standard/Higher 分档仅适用于研究生）。"
  },
  "hku": {
   "zh": "港大",
@@ -173,17 +121,11 @@ const ENG_RULES = {
   "ielts": "6.5（同一次考试、两年内）",
   "toeflOld": "93",
   "toeflNew": "—",
-  "gcse": "GCSE/GCEO English Language C（9-1 制 4）",
-  "igcseESL": "接受：Second Language 需 B（5）；First Language 只需 C（4）",
+  "efl": "C",
+  "esl": "B",
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/AL English Language 或 Literature C",
-  "note": "全校统一（官方 API 逐个专业比对，55 个专业取值完全一致）。",
-  "gcseNote": "",
-  "eslFlag": "yes",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": "B（5）"
-  }
+  "note": "港大把 IGCSE 的 B 记作 5、C 记作 4（与英国学校 B=6 的等效表不同）。全校统一（官方 API 逐个专业比对，55 个专业取值完全一致）。"
  },
  "cuhk": {
   "zh": "港中文",
@@ -192,17 +134,11 @@ const ENG_RULES = {
   "ielts": "6.0",
   "toeflOld": "80",
   "toeflNew": "4.5（2026-01-21 起）",
-  "gcse": "GCSE/IGCSE/GCE-OL Grade C / 4",
-  "igcseESL": "官网未区分 ESL/EFL（只写 GCSE/IGCSE）",
+  "efl": "未区分",
+  "esl": "未区分",
   "ibEnglish": "IB English 4（官网未区分 A/B）",
   "gceEnglish": "GCE-AL/AS English E",
-  "note": "全校统一；例外：环球商业 GBS 需 IELTS 7.0 / TOEFL 100。",
-  "gcseNote": "",
-  "eslFlag": "unknown",
-  "igcseTypeNote": {
-   "efl": "官网未区分",
-   "esl": "官网未区分"
-  }
+  "note": "全校统一；例外：环球商业 GBS 需 IELTS 7.0 / TOEFL 100。"
  },
  "hkust": {
   "zh": "港科大",
@@ -211,17 +147,11 @@ const ENG_RULES = {
   "ielts": "6.0",
   "toeflOld": "80（一次考试）",
   "toeflNew": "4.5（2026-01-21 起）",
-  "gcse": "GCSE/GCE O-Level English Language 或 Literature 4/C；GCE AS/A English E",
-  "igcseESL": "接受：Second Language 需 5/B（First Language 4/C）",
+  "efl": "C",
+  "esl": "B",
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
-  "note": "全校统一；专业维度不含英语要求（官方接口确认）。",
-  "gcseNote": "",
-  "eslFlag": "yes",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": "5/B"
-  }
+  "note": "全校统一；专业维度不含英语要求（官方接口确认）。"
  },
  "cityu": {
   "zh": "城大",
@@ -230,17 +160,11 @@ const ENG_RULES = {
   "ielts": "6.5",
   "toeflOld": "79（不收 MyBest）",
   "toeflNew": "—",
-  "gcse": "GCSE/GCE O-Level English Language 或 Literature C/4",
-  "igcseESL": "接受：Second Language 需 B/5（First Language C/4）",
+  "efl": "C",
+  "esl": "B",
   "ibEnglish": "English B SL 5",
   "gceEnglish": "GCE AL/IAL 或 AS/IAS English E",
-  "note": "全校统一；例外：BBA Business Economics 需 IELTS 7.0（法律 LLB、兽医学 BVM 等未收录专业亦有更高要求）。",
-  "gcseNote": "",
-  "eslFlag": "yes",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": "B/5"
-  }
+  "note": "全校统一；例外：BBA Business Economics 需 IELTS 7.0（法律 LLB、兽医学 BVM 等未收录专业亦有更高要求）。"
  },
  "polyu": {
   "zh": "理大",
@@ -249,17 +173,11 @@ const ENG_RULES = {
   "ielts": "6.0（一次考试）",
   "toeflOld": "80",
   "toeflNew": "—",
-  "gcse": "GCSE/IGCSE/GCE O-Level English C/4；GCE AS/A-Level English E",
-  "igcseESL": "官网未列 ESL/EFL（只写 English / English Language / English Literature）",
+  "efl": "未区分",
+  "esl": "未区分",
   "ibEnglish": "IB English 或 English Literature（HL/SL）4",
   "gceEnglish": "GCE AS/A-Level English E",
-  "note": "全校统一；抽查 10 个专业（含护理/物理治疗/放射/医疗化验）均无更高门槛。",
-  "gcseNote": "",
-  "eslFlag": "unknown",
-  "igcseTypeNote": {
-   "efl": "官网未区分",
-   "esl": "官网未区分"
-  }
+  "note": "全校统一；抽查 10 个专业（含护理/物理治疗/放射/医疗化验）均无更高门槛。"
  },
  "hkbu": {
   "zh": "浸会",
@@ -268,17 +186,11 @@ const ENG_RULES = {
   "ielts": "6.0",
   "toeflOld": "79（不收 MyBest）",
   "toeflNew": "—",
-  "gcse": "GCSE/GCE O-Level English / English Language / English Literature C/4",
-  "igcseESL": "接受：Second Language 需 B/5；First Language C/4",
+  "efl": "C",
+  "esl": "B",
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
-  "note": "全校统一；中医/中药/中文类专业另需中文资历（非英语要求）。",
-  "gcseNote": "",
-  "eslFlag": "yes",
-  "igcseTypeNote": {
-   "efl": "",
-   "esl": "B/5"
-  }
+  "note": "全校统一；中医/中药/中文类专业另需中文资历（非英语要求）。"
  },
  "eduhk": {
   "zh": "教育",
@@ -287,17 +199,11 @@ const ENG_RULES = {
   "ielts": "6.0",
   "toeflOld": "80（新制 4）",
   "toeflNew": "4（2026-01-21 起）",
-  "gcse": "GCSE/IGCSE/GCE O-Level English C/4",
-  "igcseESL": "官网未区分 ESL/EFL",
+  "efl": "未区分",
+  "esl": "未区分",
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
-  "note": "全校统一；英文教育双学位（JS8004）有“高英语水平”定性要求，但官网未设更高分数。",
-  "gcseNote": "",
-  "eslFlag": "unknown",
-  "igcseTypeNote": {
-   "efl": "官网未区分",
-   "esl": "官网未区分"
-  }
+  "note": "全校统一；英文教育双学位（JS8004）有“高英语水平”定性要求，但官网未设更高分数。"
  },
  "lingnan": {
   "zh": "岭南",
@@ -306,17 +212,11 @@ const ENG_RULES = {
   "ielts": "6.0",
   "toeflOld": "79",
   "toeflNew": "—",
-  "gcse": "GCSE/IGCSE English / English Language / English Literature C/4",
-  "igcseESL": "官网未列 ESL/EFL",
+  "efl": "未列",
+  "esl": "未列",
   "ibEnglish": "English A（HL/SL）4；English B：HL 4 / SL 5",
   "gceEnglish": "GCE AS/A-Level English E",
-  "note": "全校统一（国际资格版与本地 non-JUPAS 版同一张表）。",
-  "gcseNote": "",
-  "eslFlag": "unknown",
-  "igcseTypeNote": {
-   "efl": "官网未列",
-   "esl": "官网未列"
-  }
+  "note": "全校统一（国际资格版与本地 non-JUPAS 版同一张表）。"
  }
 };
 
@@ -328,11 +228,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100（各项≥22）",
    "toeflNew": "5.0（各项≥5.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Biochemistry",
@@ -340,11 +239,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100（各项≥22）",
    "toeflNew": "5.0（各项≥5.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Biological Sciences",
@@ -352,11 +250,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100（各项≥22）",
    "toeflNew": "5.0（各项≥5.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Chemistry",
@@ -364,11 +261,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100（各项≥22）",
    "toeflNew": "5.0（各项≥5.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Physics",
@@ -376,11 +272,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100（各项≥22）",
    "toeflNew": "5.0（各项≥5.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Aeronautical Engineering",
@@ -388,11 +283,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.5）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Mechanical Engineering",
@@ -400,11 +294,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.5）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Electrical and Electronic Engineering",
@@ -412,11 +305,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100（各项≥22）",
    "toeflNew": "5.0（各项≥5.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Civil Engineering",
@@ -424,11 +316,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.5）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Chemical Engineering",
@@ -436,11 +327,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.5）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Design Engineering",
@@ -448,11 +338,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.5）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Biomedical Engineering",
@@ -460,11 +349,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100（各项≥22）",
    "toeflNew": "5.0（各项≥5.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Economics, Finance and Data Science",
@@ -472,11 +360,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100（各项≥22）",
    "toeflNew": "5.0（各项≥5.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Computing (MEng)",
@@ -484,11 +371,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.5）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Computing (BEng)",
@@ -496,11 +382,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.5）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Mathematics",
@@ -508,11 +393,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100（各项≥22）",
    "toeflNew": "5.0（各项≥5.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   }
  ],
  "ucl": [
@@ -522,11 +406,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "IB English A：HL6 或 SL7；English B HL7",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Biochemistry",
@@ -534,11 +417,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "IB English A：HL6 或 SL7；English B HL7",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Chemistry",
@@ -546,11 +428,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Physics",
@@ -558,11 +439,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "C + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Mechanical Engineering",
@@ -570,11 +450,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "C + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Civil Engineering",
@@ -582,11 +461,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "C + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Electronic and Electrical Engineering",
@@ -594,11 +472,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Biomedical Engineering",
@@ -606,11 +483,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "C + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Economics",
@@ -618,11 +494,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Management Science",
@@ -630,11 +505,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "IB English A：HL6 或 SL7；English B HL7",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Computer Science (BSc)",
@@ -642,11 +516,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "C + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Computer Science (MEng)",
@@ -654,11 +527,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5（各项4.0）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "C + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL5 或 SL6",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Data Science",
@@ -666,11 +538,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Statistics",
@@ -678,11 +549,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Statistics with Economics and Finance",
@@ -690,11 +560,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 L2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "IB English A 5；English B HL6 或 SL7",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Education, Society and Culture BA",
@@ -702,11 +571,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项7.0）",
    "toeflOld": "100",
    "toeflNew": "5.0（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Early Childhood Education BA",
@@ -714,11 +582,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 Level 2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Psychology with Education BSc",
@@ -726,11 +593,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项7.0）",
    "toeflOld": "100",
    "toeflNew": "5.0（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Psychology BSc",
@@ -738,11 +604,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项7.0）",
    "toeflOld": "100",
    "toeflNew": "5.0（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Sociology BSc",
@@ -750,11 +615,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项7.0）",
    "toeflOld": "100",
    "toeflNew": "5.0（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Law LLB",
@@ -762,11 +626,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Politics and International Relations BSc",
@@ -774,11 +637,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Geography BSc",
@@ -786,11 +648,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 Level 2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Anthropology BSc",
@@ -798,11 +659,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 Level 2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Philosophy BA",
@@ -810,11 +670,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Philosophy and Economics BA",
@@ -822,11 +681,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Social Sciences BSc",
@@ -834,11 +692,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项7.0）",
    "toeflOld": "100",
    "toeflNew": "5.0（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Sociology and Politics of Science BSc",
@@ -846,11 +703,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 Level 2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "European Social and Political Studies BA",
@@ -858,11 +714,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "History of Art BA",
@@ -870,11 +725,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 Level 2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Comparative Literature BA",
@@ -882,11 +736,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "History BA",
@@ -894,11 +747,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项7.0）",
    "toeflOld": "109",
    "toeflNew": "5.5（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Linguistics BA",
@@ -906,11 +758,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项7.0）",
    "toeflOld": "100",
    "toeflNew": "5.0（各项5.0）",
-   "gcse": "GCSE English Language 6 + Distinction",
-   "eslGrade": "ESL 不接受",
+   "efl": "B + 口语 Distinction",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Media BA",
@@ -918,11 +769,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "96",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE English Language 4 + Merit（口语）",
-   "eslGrade": "ESL 可（最高到 Level 2）",
+   "efl": "C + 口语 Merit",
+   "esl": "B + 口语 Merit",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   }
  ],
  "kcl": [
@@ -932,11 +782,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Biochemistry",
@@ -944,11 +793,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Pharmacy",
@@ -956,11 +804,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Physics",
@@ -968,11 +815,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "General Engineering",
@@ -980,11 +826,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Electronic Engineering",
@@ -992,11 +837,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Biomedical Engineering",
@@ -1004,11 +848,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Economics",
@@ -1016,11 +859,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Economics and Management",
@@ -1028,11 +870,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Business Management",
@@ -1040,11 +881,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Computer Science",
@@ -1052,11 +892,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Artificial Intelligence",
@@ -1064,11 +903,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Mathematics with Statistics",
@@ -1076,11 +914,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Mathematics",
@@ -1088,11 +925,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Social Sciences BA",
@@ -1100,11 +936,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "English Language and Linguistics BA",
@@ -1112,11 +947,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Liberal Arts BA",
@@ -1124,11 +958,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "War Studies BA",
@@ -1136,11 +969,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "International Relations BA",
@@ -1148,11 +980,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Psychology BSc",
@@ -1160,11 +991,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Law LLB",
@@ -1172,11 +1002,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Political Economy BA/BSc",
@@ -1184,11 +1013,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Geography BA",
@@ -1196,11 +1024,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "International Development BA",
@@ -1208,11 +1035,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Global Health & Social Science BA",
@@ -1220,11 +1046,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Philosophy BA",
@@ -1232,11 +1057,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "History BA",
@@ -1244,11 +1068,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Ancient History BA",
@@ -1256,11 +1079,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Comparative Literature BA",
@@ -1268,11 +1090,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "English BA",
@@ -1280,11 +1101,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 可（需 A/7）",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Film Studies BA",
@@ -1292,11 +1112,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写作25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 须 A；IGCSE First Language 须 B",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Digital Media and Culture BA",
@@ -1304,11 +1123,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100（写作25，其余23）",
    "toeflNew": "5.0（各项4.5）",
-   "gcse": "GCSE English Language B/6",
-   "eslGrade": "IGCSE ESL 须 A；IGCSE First Language 须 B",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   }
  ],
  "manchester": [
@@ -1318,11 +1136,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.5）",
    "toeflOld": "—",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language 4/C",
-   "eslGrade": "未列具体等级（通用提示）",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "unknown"
+   "extra": ""
   },
   {
    "en": "Physics",
@@ -1330,11 +1147,10 @@ const ENG_PROG = {
    "ielts": "6.0（各项≥5.5）",
    "toeflOld": "—",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language 4/C",
-   "eslGrade": "未列；另需 IGCSE Oral Exam 1/2 级",
+   "efl": "C",
+   "esl": "7",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "unknown"
+   "extra": ""
   },
   {
    "en": "Mechanical Engineering",
@@ -1342,11 +1158,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.5）",
    "toeflOld": "90（各项≥22）",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE/IGCSE English Language 4/C",
-   "eslGrade": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Electrical and Electronic Engineering",
@@ -1354,11 +1169,10 @@ const ENG_PROG = {
    "ielts": "7.0（写作7.0、其余6.5）",
    "toeflOld": "100（写作25、其余22）",
    "toeflNew": "5.0（写作5.0、其余4.5）",
-   "gcse": "GCSE/IGCSE English Language B/6（English Literature 不可替代）",
-   "eslGrade": "不接受",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Aerospace Engineering",
@@ -1366,11 +1180,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.5）",
    "toeflOld": "90（各项≥22）",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE/IGCSE English Language 4/C",
-   "eslGrade": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Chemical Engineering",
@@ -1378,11 +1191,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.5）",
    "toeflOld": "90（各项≥22）",
    "toeflNew": "4.5（各项4.5）",
-   "gcse": "GCSE/IGCSE English Language 4/C",
-   "eslGrade": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Materials Science and Engineering",
@@ -1390,11 +1202,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language 4/C",
-   "eslGrade": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Economics",
@@ -1402,11 +1213,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language C",
-   "eslGrade": "接受：Grade B",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Accounting and Finance (BAEcon)",
@@ -1414,11 +1224,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language C",
-   "eslGrade": "接受：Grade B",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Accounting (BSc)",
@@ -1426,11 +1235,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6）",
    "toeflOld": "—",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language B/6",
-   "eslGrade": "未列具体等级",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "unknown"
+   "extra": ""
   },
   {
    "en": "Management",
@@ -1438,11 +1246,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6）",
    "toeflOld": "—",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language B/6",
-   "eslGrade": "未列具体等级",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "unknown"
+   "extra": ""
   },
   {
    "en": "Computer Science",
@@ -1450,11 +1257,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.5）",
    "toeflOld": "90（各项≥22）",
    "toeflNew": "4.5（各项≥4.5）",
-   "gcse": "GCSE/IGCSE English Language C/4（English Literature 不可替代）",
-   "eslGrade": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Data Science and Economics (BAEcon)",
@@ -1462,11 +1268,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language C",
-   "eslGrade": "接受：Grade B",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Mathematics and Statistics",
@@ -1474,11 +1279,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language C/4",
-   "eslGrade": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Mathematics",
@@ -1486,11 +1290,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6.0）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "未列",
-   "gcse": "GCSE/IGCSE English Language C/4",
-   "eslGrade": "接受：Grade 8；仅限 CAIE / Oxford AQA / Pearson Edexcel",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "BSocSc Sociology",
@@ -1498,11 +1301,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "",
-   "gcse": "GCSE/iGCSE English Language C/4",
-   "eslGrade": "iGCSE English (Second Language) Grade B",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "BA Criminology",
@@ -1510,11 +1312,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "",
-   "gcse": "GCSE/iGCSE English Language C/4",
-   "eslGrade": "iGCSE English (Second Language) Grade B",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "BSocSc Politics and International Relations",
@@ -1522,11 +1323,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "",
-   "gcse": "GCSE/iGCSE English Language C/4",
-   "eslGrade": "iGCSE English (Second Language) Grade B",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "LLB Law",
@@ -1534,11 +1334,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "",
    "toeflNew": "",
-   "gcse": "GCSE/iGCSE English Language C/4（及数学 C/4）",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "BSc Psychology",
@@ -1546,11 +1345,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "",
    "toeflNew": "",
-   "gcse": "GCSE/IGCSE English Language B/6",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "BSc Education",
@@ -1558,11 +1356,10 @@ const ENG_PROG = {
    "ielts": "6.5（写作≥6.5，其余各项≥6.0）",
    "toeflOld": "",
    "toeflNew": "",
-   "gcse": "GCSE/iGCSE English Language C/4",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "BSocSc Social Anthropology",
@@ -1570,11 +1367,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥6）",
    "toeflOld": "90（各项≥20）",
    "toeflNew": "",
-   "gcse": "GCSE/iGCSE English Language C/4",
-   "eslGrade": "iGCSE English (Second Language) Grade B",
+   "efl": "C",
+   "esl": "8",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "LLB Law with Criminology",
@@ -1582,11 +1378,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "",
    "toeflNew": "",
-   "gcse": "GCSE/iGCSE English Language C/4（及数学 C/4）",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Digital Media, Culture and Society BA",
@@ -1594,11 +1389,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "GCSE/iGCSE English Language B/6；English Literature 不接受",
-   "eslGrade": "如持 ESL iGCSE，可能需另提供等效英语资历或在 iGCSE 取得更高等级",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   },
   {
    "en": "Film Studies and History BA",
@@ -1606,11 +1400,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "GCSE/iGCSE English Language B/6；English Literature 不接受",
-   "eslGrade": "如持 ESL iGCSE，可能需另提供等效英语资历或在 iGCSE 取得更高等级",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "cond"
+   "extra": ""
   }
  ],
  "edinburgh": [
@@ -1620,11 +1413,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Chemistry",
@@ -1632,11 +1424,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Physics",
@@ -1644,11 +1435,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Electronics and Electrical Engineering",
@@ -1656,11 +1446,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Mechanical Engineering",
@@ -1668,11 +1457,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Chemical Engineering",
@@ -1680,11 +1468,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Civil Engineering",
@@ -1692,11 +1479,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Economics",
@@ -1704,11 +1490,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Accounting and Finance",
@@ -1716,11 +1501,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.0）",
    "toeflOld": "100（各项≥20）",
    "toeflNew": "5.0（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Business Management",
@@ -1728,11 +1512,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项≥6.0）",
    "toeflOld": "100（各项≥20）",
    "toeflNew": "5.0（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Computer Science",
@@ -1740,11 +1523,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Mathematics and Statistics",
@@ -1752,11 +1534,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Sociology MA (Hons)",
@@ -1764,11 +1545,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Politics MA (Hons)",
@@ -1776,11 +1556,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Social Anthropology MA (Hons)",
@@ -1788,11 +1567,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "International Relations MA (Hons)",
@@ -1800,11 +1578,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Law LLB (Hons)",
@@ -1812,11 +1589,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE English Language 与 English Literature 均 A/7（或等值）",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Psychology BSc (Hons)",
@@ -1824,11 +1600,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4；GCSE 数学 A/7（或数理 B/6）",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Social Policy and Sociology MA (Hons)",
@@ -1836,11 +1611,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Philosophy MA (Hons)",
@@ -1848,11 +1622,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Physical Education MA (Hons)",
@@ -1860,11 +1633,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语语言 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Primary Education with Gaelic (Learners) MA (Hons)",
@@ -1872,11 +1644,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语语言 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "English Literature MA (Hons)",
@@ -1884,11 +1655,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "History MA (Hons)",
@@ -1896,11 +1666,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Linguistics MA (Hons)",
@@ -1908,11 +1677,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Geography MA (Hons)",
@@ -1920,11 +1688,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Geography BSc (Hons)",
@@ -1932,11 +1699,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Health in Social Science MA (Hons)",
@@ -1944,11 +1710,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Social Work BSc (Hons)",
@@ -1956,11 +1721,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "History of Art MA (Hons)",
@@ -1968,11 +1732,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Music BMus (Hons)",
@@ -1980,11 +1743,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Theology MA (Hons)",
@@ -1992,11 +1754,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Celtic MA (Hons)",
@@ -2004,11 +1765,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Classics MA (Hons)",
@@ -2016,11 +1776,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Ancient History MA (Hons)",
@@ -2028,11 +1787,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Archaeology MA (Hons)",
@@ -2040,11 +1798,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Film and Television BA (Hons)",
@@ -2052,11 +1809,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项≥5.5）",
    "toeflOld": "92（各项≥20）",
    "toeflNew": "4.5（各项≥4.0）",
-   "gcse": "GCSE 英语 C/4",
-   "eslGrade": "接受 IGCSE English（第一/第二语言）C/4；不接受 IGCSE/CIE English (as an Additional Language) 与 IGCSE English Literature",
+   "efl": "C",
+   "esl": "C",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   }
  ],
  "warwick": [
@@ -2066,11 +1822,10 @@ const ENG_PROG = {
    "ielts": "6.0（各项5.5）",
    "toeflOld": "87",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Biochemistry",
@@ -2078,11 +1833,10 @@ const ENG_PROG = {
    "ielts": "6.0（各项5.5）",
    "toeflOld": "87",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Chemistry",
@@ -2090,11 +1844,10 @@ const ENG_PROG = {
    "ielts": "6.0（各项5.5）",
    "toeflOld": "87",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Physics",
@@ -2102,11 +1855,10 @@ const ENG_PROG = {
    "ielts": "6.0（各项5.5）",
    "toeflOld": "87",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Engineering",
@@ -2114,11 +1866,10 @@ const ENG_PROG = {
    "ielts": "6.0（各项5.5）",
    "toeflOld": "87",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Economics",
@@ -2126,11 +1877,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "另需 GCSE English Language 6/B",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Accounting and Finance",
@@ -2138,11 +1888,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "另需 GCSE English Language 6/B（或 English Literature 6/B + Language 4/C）",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Business and Management",
@@ -2150,11 +1899,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "另需 GCSE English Language 6/B + GCSE Maths 7/A",
-   "eslFlag": "no"
+   "extra": "另需 GCSE 数学 7/A"
   },
   {
    "en": "International Business and Management",
@@ -2162,11 +1910,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "另需 GCSE English Language 6/B + GCSE Maths 7/A",
-   "eslFlag": "no"
+   "extra": "另需 GCSE 数学 7/A"
   },
   {
    "en": "Computer Science",
@@ -2174,11 +1921,10 @@ const ENG_PROG = {
    "ielts": "6.0（各项5.5）",
    "toeflOld": "87",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Data Science",
@@ -2186,11 +1932,10 @@ const ENG_PROG = {
    "ielts": "6.0（各项5.5）",
    "toeflOld": "87",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "MORSE",
@@ -2198,11 +1943,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Mathematics",
@@ -2210,11 +1954,10 @@ const ENG_PROG = {
    "ielts": "6.0（各项5.5）",
    "toeflOld": "87",
    "toeflNew": "4.5",
-   "gcse": "",
-   "eslGrade": "",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Sociology BA",
@@ -2222,11 +1965,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "GCSE English Language 6/B",
-   "eslGrade": "不接受",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Politics BA",
@@ -2234,11 +1976,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "GCSE English Language 4/C（+ 数学或科学 4/C）",
-   "eslGrade": "不接受",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Politics and International Studies BA",
@@ -2246,11 +1987,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "GCSE English Language 4/C（+ 数学或科学 4/C）",
-   "eslGrade": "不接受",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Law LLB",
@@ -2258,11 +1998,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "GCSE English Language 6/B + GCSE 数学 4/C",
-   "eslGrade": "不接受",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Psychology BSc",
@@ -2270,11 +2009,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "GCSE English Language 4/C；另需 GCSE 数学/统计 6/B + 一门 GCSE 科学 6/B",
-   "eslGrade": "不接受",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Education BA",
@@ -2282,11 +2020,10 @@ const ENG_PROG = {
    "ielts": "7.0（各项6.5）",
    "toeflOld": "100",
    "toeflNew": "5.0",
-   "gcse": "GCSE English Language 6/B",
-   "eslGrade": "不接受",
+   "efl": "B",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Philosophy BA",
@@ -2294,11 +2031,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "GCSE English Language 4/C（+ 数学或科学 4/C）",
-   "eslGrade": "不接受",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Media and Creative Industries BA",
@@ -2306,11 +2042,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "GCSE English Language 4/C（+ 数学或科学 4/C）",
-   "eslGrade": "不接受",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Film Studies BA",
@@ -2318,11 +2053,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "GCSE English Language 4/C（+ 数学或科学 4/C）",
-   "eslGrade": "不接受",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "Film and Literature BA",
@@ -2330,11 +2064,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项6.0）",
    "toeflOld": "92",
    "toeflNew": "4.5",
-   "gcse": "GCSE English Language 4/C（+ 数学或科学 4/C）",
-   "eslGrade": "不接受",
+   "efl": "C",
+   "esl": "不接受",
    "ibEnglish": "",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   }
  ],
  "bristol": [
@@ -2344,11 +2077,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Biology",
@@ -2356,11 +2088,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Biomedical Sciences",
@@ -2368,11 +2099,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Chemistry",
@@ -2380,11 +2110,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Pharmacology",
@@ -2392,11 +2121,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Physics",
@@ -2404,11 +2132,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Aerospace Engineering",
@@ -2416,11 +2143,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Mechanical Engineering",
@@ -2428,11 +2154,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Electrical and Electronic Engineering",
@@ -2440,11 +2165,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Civil Engineering",
@@ -2452,11 +2176,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Engineering Mathematics",
@@ -2464,11 +2187,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Economics",
@@ -2476,11 +2198,10 @@ const ENG_PROG = {
    "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
    "toeflOld": "88（读24 听22 说22 写22）",
    "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
-   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
-   "eslGrade": "A/7",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Economics and Finance",
@@ -2488,11 +2209,10 @@ const ENG_PROG = {
    "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
    "toeflOld": "88（读24 听22 说22 写22）",
    "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
-   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
-   "eslGrade": "A/7",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Accounting and Finance",
@@ -2500,11 +2220,10 @@ const ENG_PROG = {
    "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
    "toeflOld": "88（读24 听22 说22 写22）",
    "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
-   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
-   "eslGrade": "A/7",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Business and Management",
@@ -2512,11 +2231,10 @@ const ENG_PROG = {
    "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
    "toeflOld": "88（读24 听22 说22 写22）",
    "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
-   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
-   "eslGrade": "A/7",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Business Analytics",
@@ -2524,11 +2242,10 @@ const ENG_PROG = {
    "ielts": "6.5（阅读与听力 7.0，其余不低于 6.0）",
    "toeflOld": "88（读24 听22 说22 写22）",
    "toeflNew": "4.5（阅读与听力 5.0，说写 4.5）",
-   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
-   "eslGrade": "A/7",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "English A: Literature 5（SL/HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Computer Science",
@@ -2536,11 +2253,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Computer Science with Artificial Intelligence",
@@ -2548,11 +2264,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Mathematics",
@@ -2560,11 +2275,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Mathematics with Statistics",
@@ -2572,11 +2286,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Data Science",
@@ -2584,11 +2297,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Education Studies",
@@ -2596,11 +2308,10 @@ const ENG_PROG = {
    "ielts": "7.0（写作 7.0，其余各项 6.5）",
    "toeflOld": "95（读22 听21 说23 写24）",
    "toeflNew": "5.0（写作 5.0，其余 4.5）",
-   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
-   "eslGrade": "A*/9",
+   "efl": "A",
+   "esl": "A*",
    "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Law",
@@ -2608,11 +2319,10 @@ const ENG_PROG = {
    "ielts": "7.0（写作 7.0，其余各项 6.5）",
    "toeflOld": "95（读22 听21 说23 写24）",
    "toeflNew": "5.0（写作 5.0，其余 4.5）",
-   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
-   "eslGrade": "A*/9",
+   "efl": "A",
+   "esl": "A*",
    "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Politics and International Relations",
@@ -2620,11 +2330,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.5）",
    "toeflOld": "88（读22 听21 说23 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
-   "eslGrade": "A/7",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "English A: Literature 5（SL/HL）；English B 6（SL/HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Sociology",
@@ -2632,11 +2341,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.5）",
    "toeflOld": "88（读22 听21 说23 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
-   "eslGrade": "A/7",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "English A: Literature 5（SL/HL）；English B 6（SL/HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Criminology",
@@ -2644,11 +2352,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.5）",
    "toeflOld": "88（读22 听21 说23 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language B/6；GCSE English Language C/4",
-   "eslGrade": "A/7",
+   "efl": "B",
+   "esl": "A",
    "ibEnglish": "English A: Literature 5（SL/HL）；English B 6（SL/HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Psychology",
@@ -2656,11 +2363,10 @@ const ENG_PROG = {
    "ielts": "7.0（写作 7.0，其余各项 6.5）",
    "toeflOld": "95（读22 听21 说23 写24）",
    "toeflNew": "5.0（写作 5.0，其余 4.5）",
-   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
-   "eslGrade": "A*/9",
+   "efl": "A",
+   "esl": "A*",
    "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Geography",
@@ -2668,11 +2374,10 @@ const ENG_PROG = {
    "ielts": "6.5（各项 6.0）",
    "toeflOld": "88（读20 听19 说22 写22）",
    "toeflNew": "4.5（各项 4.5）",
-   "gcse": "IGCSE First Language C/4；GCSE English Language C/4",
-   "eslGrade": "B/6",
+   "efl": "C",
+   "esl": "B",
    "ibEnglish": "English A: Literature 5（SL）/ 4（HL）；English B 6（SL）/ 5（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "English",
@@ -2680,11 +2385,10 @@ const ENG_PROG = {
    "ielts": "7.5（各项 7.0）",
    "toeflOld": "103（读24 听22 说25 写24）",
    "toeflNew": "5.5（各项 5）",
-   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
-   "eslGrade": "不接受",
+   "efl": "A",
+   "esl": "不接受",
    "ibEnglish": "English A: Literature 6（SL/HL）；English B 7（HL）",
-   "extra": "",
-   "eslFlag": "no"
+   "extra": ""
   },
   {
    "en": "History",
@@ -2692,11 +2396,10 @@ const ENG_PROG = {
    "ielts": "7.0（写作 7.0，其余各项 6.5）",
    "toeflOld": "95（读22 听21 说23 写24）",
    "toeflNew": "5.0（写作 5.0，其余 4.5）",
-   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
-   "eslGrade": "A*/9",
+   "efl": "A",
+   "esl": "A*",
    "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Modern Languages",
@@ -2704,11 +2407,10 @@ const ENG_PROG = {
    "ielts": "7.0（写作 7.0，其余各项 6.5）",
    "toeflOld": "95（读22 听21 说23 写24）",
    "toeflNew": "5.0（写作 5.0，其余 4.5）",
-   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
-   "eslGrade": "A*/9",
+   "efl": "A",
+   "esl": "A*",
    "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Philosophy",
@@ -2716,11 +2418,10 @@ const ENG_PROG = {
    "ielts": "7.0（写作 7.0，其余各项 6.5）",
    "toeflOld": "95（读22 听21 说23 写24）",
    "toeflNew": "5.0（写作 5.0，其余 4.5）",
-   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
-   "eslGrade": "A*/9",
+   "efl": "A",
+   "esl": "A*",
    "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Music",
@@ -2728,11 +2429,10 @@ const ENG_PROG = {
    "ielts": "7.0（写作 7.0，其余各项 6.5）",
    "toeflOld": "95（读22 听21 说23 写24）",
    "toeflNew": "5.0（写作 5.0，其余 4.5）",
-   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
-   "eslGrade": "A*/9",
+   "efl": "A",
+   "esl": "A*",
    "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   },
   {
    "en": "Film and Television",
@@ -2740,11 +2440,10 @@ const ENG_PROG = {
    "ielts": "7.0（写作 7.0，其余各项 6.5）",
    "toeflOld": "95（读22 听21 说23 写24）",
    "toeflNew": "5.0（写作 5.0，其余 4.5）",
-   "gcse": "IGCSE First Language A/7；GCSE English Language B/6",
-   "eslGrade": "A*/9",
+   "efl": "A",
+   "esl": "A*",
    "ibEnglish": "English A: Literature 6（SL）/ 5（HL）；English B 7（SL）/ 6（HL）",
-   "extra": "",
-   "eslFlag": "yes"
+   "extra": ""
   }
  ],
  "cuhk": [
@@ -2755,11 +2454,10 @@ const ENG_PROG = {
    "ielts": "7.0",
    "toeflOld": "100",
    "toeflNew": "—",
-   "gcse": "",
-   "igcseESL": "",
+   "efl": "",
+   "esl": "",
    "ibEnglish": "",
-   "extra": "环球商业 GBS 另订更高英语要求（官网 programme list 备注）",
-   "eslFlag": "unknown"
+   "extra": "环球商业 GBS 另订更高英语要求（官网 programme list 备注）"
   }
  ],
  "cityu": [
@@ -2770,11 +2468,10 @@ const ENG_PROG = {
    "ielts": "7.0",
    "toeflOld": "",
    "toeflNew": "—",
-   "gcse": "",
-   "igcseESL": "",
+   "efl": "",
+   "esl": "",
    "ibEnglish": "",
-   "extra": "商业经济另订更高英语要求（官网）",
-   "eslFlag": "yes"
+   "extra": "商业经济另订更高英语要求（官网）"
   }
  ]
 };
